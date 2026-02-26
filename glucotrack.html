@@ -43,6 +43,28 @@
   --sh2:0 4px 16px rgba(0,0,0,.09);
   --r:14px;--rs:8px;
 }
+body.dark{
+  --bg:#0D1321;--white:#1a2236;--border:#243049;--border2:#2d3d57;
+  --text:#e8edf5;--t2:#8899bb;--t3:#4a5a7a;
+  --low-bg:#2d1515;--low-b:#7f2020;
+  --ok-bg:#0d2a1a;--ok-b:#1a5c30;
+  --hi-bg:#2a1f08;--hi-b:#7a4f0a;
+  --acc-bg:#0d1e3d;--acc-b:#1a3a6b;
+  --pur-bg:#1a0d35;
+  --sh:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+  --sh2:0 4px 16px rgba(0,0,0,.4);
+}
+body.dark .card{background:var(--white);}
+body.dark .topbar{background:#111827;border-color:var(--border);}
+body.dark .drawer{background:#111827;}
+body.dark .msheet{background:#111827;}
+body.dark .sgcard{background:var(--white);}
+body.dark input,body.dark textarea{background:#0d1321;color:var(--text);border-color:var(--border2);}
+body.dark .cc{background:#0d1321;}
+body.dark .iif{background:#0d1321;}
+body.dark .nf{background:#0d1321;color:var(--text);}
+body.dark .tp.active{background:var(--white);}
+body.dark .cdr-btn.active{background:var(--white);}
 html{height:100%;background:var(--bg);}body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
 
 /* ─── TOAST ─── */
@@ -488,6 +510,7 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   <div class="logo">Gluco<span>Track</span></div>
   <div class="topbar-right">
     <div class="topbar-date" id="topDate"></div>
+    <button onclick="toggleDark()" id="darkBtn" style="width:34px;height:34px;border:none;background:none;cursor:pointer;font-size:17px;border-radius:8px;transition:background .15s;display:flex;align-items:center;justify-content:center;" title="Toggle dark mode">🌙</button>
   </div>
 </div>
 
@@ -568,6 +591,8 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
     </div>
     <div class="ddiv"></div>
     <button class="di" onclick="logOut()"><div class="di-ic">🚪</div>Sign Out</button>
+    <div class="ddiv"></div>
+    <button class="di" onclick="shareApp();closeDrawer()"><div class="di-ic">📤</div>Share GlucoTrack</button>
   </nav>
   <div class="dfooter">GlucoTrack v4.0 · mmol/L</div>
 </div>
@@ -741,10 +766,24 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🔴</div><div><div class="sgi-t">Low Glucose Alert</div><div class="sgi-s">Warn when below target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
       <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🟡</div><div><div class="sgi-t">High Glucose Alert</div><div class="sgi-s">Warn when above target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
     </div>
-    <div class="sglbl">Data</div>
+    <div class="sglbl">Appearance</div>
     <div class="sgcard">
-      <button class="dbtn" onclick="exportCSV()">📤 Export All Readings (CSV)</button>
+      <div class="sgi">
+        <div class="sgi-l"><div class="sgi-ic">🌙</div><div><div class="sgi-t">Dark Mode</div><div class="sgi-s">Easier on the eyes at night</div></div></div>
+        <button class="tsw" id="darkToggle" onclick="toggleDark()"></button>
+      </div>
+    </div>
+    <div class="sglbl">Data &amp; Backup</div>
+    <div class="sgcard">
+      <button class="dbtn" onclick="backupData()" style="color:var(--ok);">💾 Backup All Data (JSON)</button>
+      <button class="dbtn" onclick="document.getElementById('restoreInput').click()" style="color:var(--acc);">📥 Restore from Backup</button>
+      <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none;">
+      <button class="dbtn" onclick="exportCSV()">📤 Export Readings (CSV)</button>
       <button class="dbtn" onclick="clearAll()">🗑️ Clear All Readings</button>
+    </div>
+    <div class="sglbl">Share</div>
+    <div class="sgcard">
+      <button class="dbtn" onclick="shareApp()" style="color:var(--acc);border-bottom:none;">📲 Share GlucoTrack with others</button>
     </div>
     <div class="sglbl">Add to Home Screen</div>
     <div class="sgcard">
@@ -1440,7 +1479,13 @@ function fD(ts){
   if(d>=t)return'Today';if(d>=y)return'Yesterday';
   return d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
 }
-function tSince(ts){const s=(Date.now()-ts)/1e3;if(s<60)return'Just now';if(s<3600)return Math.round(s/60)+'m ago';if(s<86400)return Math.round(s/3600)+'h ago';return Math.round(s/86400)+'d ago';}
+function tSince(ts){
+  const s=(Date.now()-ts)/1e3;
+  if(s<60)return'Just now';
+  if(s<3600){const m=Math.round(s/60);return m+'min ago';}
+  if(s<86400){const h=Math.round(s/3600);return h+'h ago';}
+  return Math.round(s/86400)+'d ago';
+}
 function nPos(v){return Math.min(Math.max((v-3.0)/(16.7-3.0),.02),.98)*100+'%';}
 function calcA1c(avgMmol){return(avgMmol*1.5927+1.628).toFixed(1);}
 function updateDate(){const n=new Date();document.getElementById('topDate').textContent=n.toLocaleDateString([],{month:'short',day:'numeric'});}
@@ -3552,6 +3597,78 @@ window.addEventListener('appinstalled',()=>{
 
 
 
+// ══════════════ DARK MODE ══════════════
+function toggleDark(){
+  const isDark=document.body.classList.toggle('dark');
+  store('gt_dark',isDark);
+  document.getElementById('darkBtn').textContent=isDark?'☀️':'🌙';
+  const tog=document.getElementById('darkToggle');
+  if(tog)tog.classList.toggle('on',isDark);
+}
+function loadDarkMode(){
+  const isDark=load('gt_dark',false);
+  if(isDark){
+    document.body.classList.add('dark');
+    const btn=document.getElementById('darkBtn');if(btn)btn.textContent='☀️';
+    const tog=document.getElementById('darkToggle');if(tog)tog.classList.add('on');
+  }
+}
+
+// ══════════════ BACKUP & RESTORE ══════════════
+function backupData(){
+  const backup={
+    version:4,
+    exportedAt:new Date().toISOString(),
+    readings:readings,
+    cfg:cfg
+  };
+  const json=JSON.stringify(backup,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().split('T')[0];
+  a.href=url;a.download=`glucotrack_backup_${date}.json`;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  toastSuccess(`Backup saved — ${readings.length} readings`);
+}
+
+function restoreData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.readings||!Array.isArray(data.readings))throw new Error('Invalid backup file');
+      if(!confirm(`Restore ${data.readings.length} readings from ${data.exportedAt?.split('T')[0]||'backup'}?\n\nThis will REPLACE your current data.`))return;
+      readings=data.readings;
+      if(data.cfg)cfg={...cfg,...data.cfg};
+      saveReadings();saveCfg();loadSettingsUI();refreshAll();
+      toastSuccess(`Restored ${readings.length} readings successfully`);
+    }catch(err){
+      toastError('Invalid backup file. Please use a GlucoTrack JSON backup.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// ══════════════ SHARE APP ══════════════
+function shareApp(){
+  const url=window.location.href.split('?')[0];
+  const text='Track your glucose levels with GlucoTrack — free, private, works on any phone 📱';
+  if(navigator.share){
+    navigator.share({title:'GlucoTrack',text:text,url:url})
+      .catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url).then(()=>{
+      toastSuccess('Link copied to clipboard!');
+    }).catch(()=>{
+      toast('Share this link: '+url,'info','📤');
+    });
+  }
+}
+
 function logOut(){
   if(!confirm('Sign out? Your readings are stored locally and will remain.'))return;
   readings=[];
@@ -3587,7 +3704,29 @@ window.addEventListener('resize',()=>{
   if(curScreen==='a1c')drawA1cChart();
   drawSparkline();
 });
-setInterval(()=>{updateWidget();updateDate();},60000);
+// ── Live timestamp refresh every 30 seconds ──
+function refreshTimestamps(){
+  updateDate();
+  updateWidget(); // updates wTime "X min ago" in widget bar
+  // Update main dashboard "last check" time
+  const bgR=readings.filter(r=>!r.isMealOnly&&r.value!=null&&r.value>0);
+  if(bgR.length){
+    const lat=bgR[bgR.length-1];
+    const lc=document.getElementById('lastCheck');
+    if(lc)lc.textContent=tSince(lat.ts);
+  }
+  // Update recent list timestamps without full redraw
+  if(curScreen==='home'){
+    document.querySelectorAll('.ei-sub[data-ts]').forEach(el=>{
+      const ts=parseInt(el.dataset.ts);
+      if(ts)el.firstChild && (el.firstChild.textContent=fD(ts)+', '+fT(ts));
+    });
+  }
+  // Update Libre last sync label if visible
+  const lls=document.getElementById('libreLastSync');
+  if(lls&&window._libreLastSyncTs)lls.textContent='Synced '+tSince(window._libreLastSyncTs);
+}
+setInterval(refreshTimestamps, 30000);
 // Boot directly as guest — auth UI removed
 (function(){
   const guest={id:'guest',email:'',firstName:'Guest',lastName:'',dob:'',country:'ZA',createdAt:Date.now()};
@@ -3600,6 +3739,7 @@ setInterval(()=>{updateWidget();updateDate();},60000);
   updateDate();
   setTimeout(refreshAll, 50);
   setTimeout(setupPWA, 100);
+  loadDarkMode();
   setTimeout(drawMainChart, 300);
   setTimeout(restoreLibreSession, 200);
 })();
