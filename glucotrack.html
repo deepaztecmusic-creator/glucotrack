@@ -8,6 +8,25 @@
 <meta name="apple-mobile-web-app-title" content="GlucoTrack">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D1321">
+<meta name="application-name" content="GlucoTrack">
+<meta name="description" content="Personal glucose tracker with AI meal analysis">
+<link id="pwa-icon-57" rel="apple-touch-icon" sizes="57x57">
+<link id="pwa-icon-60" rel="apple-touch-icon" sizes="60x60">
+<link id="pwa-icon-72" rel="apple-touch-icon" sizes="72x72">
+<link id="pwa-icon-76" rel="apple-touch-icon" sizes="76x76">
+<link id="pwa-icon-114" rel="apple-touch-icon" sizes="114x114">
+<link id="pwa-icon-120" rel="apple-touch-icon" sizes="120x120">
+<link id="pwa-icon-144" rel="apple-touch-icon" sizes="144x144">
+<link id="pwa-icon-152" rel="apple-touch-icon" sizes="152x152">
+<link id="pwa-icon-180" rel="apple-touch-icon" sizes="180x180">
+<link id="pwa-manifest" rel="manifest">
+<link id="pwa-splash-2048" rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-1668" rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-1536" rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-1125" rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+<link id="pwa-splash-1242" rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
+<link id="pwa-splash-750" rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-640" rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
 <title>GlucoTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -727,27 +746,66 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       <button class="dbtn" onclick="exportCSV()">📤 Export All Readings (CSV)</button>
       <button class="dbtn" onclick="clearAll()">🗑️ Clear All Readings</button>
     </div>
-    <div class="sglbl">Widget &amp; Home Screen</div>
+    <div class="sglbl">Add to Home Screen</div>
     <div class="sgcard">
-      <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:10px;padding:16px 15px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="font-size:28px;">📱</div>
+      <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:12px;padding:16px 15px;">
+        <!-- Icon preview -->
+        <div style="display:flex;align-items:center;gap:14px;width:100%;">
+          <canvas id="iconPreview" width="60" height="60" style="border-radius:13px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15);"></canvas>
           <div>
-            <div class="sgi-t" style="font-size:14px;font-weight:700;">Home Screen Widget</div>
-            <div class="sgi-s">See your glucose level without opening the app</div>
+            <div class="sgi-t" style="font-size:15px;font-weight:800;">GlucoTrack</div>
+            <div class="sgi-s" style="font-size:12px;">Installs as a native-feeling app on your home screen with a custom icon</div>
           </div>
         </div>
-        <div style="background:var(--acc-bg);border:1px solid var(--acc-b);border-radius:10px;padding:12px;width:100%;font-size:12px;color:var(--acc);line-height:1.7;">
-          <strong>📌 How to add the widget:</strong><br>
-          <strong>iPhone/iPad (Safari):</strong> Tap Share → "Add to Home Screen" → name it "GlucoTrack"<br>
-          <strong>Android (Chrome):</strong> Tap ⋮ menu → "Add to Home Screen"<br>
-          <strong>Then open the Widget separately</strong> by tapping the button below.
+
+        <!-- iPhone Instructions -->
+        <div id="pwaInstructions" style="width:100%;background:#0D1321;border-radius:12px;padding:14px;display:none;">
+          <div style="font-size:12px;font-weight:700;color:#34d399;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">📱 iPhone / iPad — Safari Only</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">1</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Open this page in <strong style="color:#fff;">Safari</strong> (not Chrome or other browsers)</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">2</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap the <strong style="color:#fff;">Share button</strong> <span style="font-size:15px;">⬆️</span> at the bottom of the screen</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">3</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Scroll down and tap <strong style="color:#fff;">"Add to Home Screen"</strong></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#34d399;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0D1321;flex-shrink:0;">✓</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap <strong style="color:#fff;">"Add"</strong> — GlucoTrack appears on your home screen with the icon above</div>
+            </div>
+          </div>
         </div>
-        <button onclick="openWidget()" style="width:100%;padding:12px;background:var(--acc);border:none;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <span>📊</span> Open Glucose Widget
+
+        <!-- Android Instructions -->
+        <div id="pwaAndroid" style="width:100%;background:#0D1321;border-radius:12px;padding:14px;display:none;">
+          <div style="font-size:12px;font-weight:700;color:#34d399;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">🤖 Android — Chrome</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">1</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap the <strong style="color:#fff;">⋮ menu</strong> in the top-right corner of Chrome</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">2</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap <strong style="color:#fff;">"Add to Home Screen"</strong> or <strong style="color:#fff;">"Install App"</strong></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#34d399;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0D1321;flex-shrink:0;">✓</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap <strong style="color:#fff;">"Add"</strong> to confirm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <button onclick="showPwaInstructions()" id="pwaShowBtn" style="width:100%;padding:13px;background:var(--acc);border:none;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span>📲</span> <span id="pwaShowBtnTxt">How to Add to Home Screen</span>
         </button>
-        <button onclick="installWidget()" id="installWidgetBtn" style="width:100%;padding:11px;background:none;border:1.5px solid var(--acc);border-radius:9px;color:var(--acc);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
-          ⬇️ Install as App (PWA)
+        <button onclick="triggerPwaInstall()" id="pwaInstallBtn" style="width:100%;padding:12px;background:none;border:1.5px solid var(--acc);border-radius:9px;color:var(--acc);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none;">
+          ⬇️ Install App (tap to confirm)
         </button>
       </div>
     </div>
@@ -1821,7 +1879,9 @@ function libreHeadersObj(token, accountId){
   const h = {
     'Content-Type': 'application/json',
     'product': 'llu.android',
-    'version': '4.12.0',
+    'version': '4.7.0',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
     'cache-control': 'no-cache',
     'pragma': 'no-cache',
   };
@@ -3312,39 +3372,183 @@ function exportCSV(){
 }
 function clearAll(){if(!confirm('Delete all your readings? This cannot be undone.'))return;readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');}
 
-// ══════════════ WIDGET & PWA ══════════════
-function openWidget(){
-  window.open('glucotrack-widget.html','glucotrack-widget',
-    'width=329,height=220,toolbar=no,menubar=no,scrollbars=no,resizable=yes');
+// ══════════════ PWA SETUP ══════════════
+let pwaInstallPrompt=null;
+
+// ── Generate app icon using Canvas ──
+function generateIcon(size){
+  const cv=document.createElement('canvas');cv.width=size;cv.height=size;
+  const ctx=cv.getContext('2d');
+  // Background
+  const bg=ctx.createLinearGradient(0,0,size,size);
+  bg.addColorStop(0,'#0D1321');bg.addColorStop(1,'#1e3a5f');
+  const r=size*0.22;
+  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);
+  ctx.quadraticCurveTo(size,0,size,r);ctx.lineTo(size,size-r);
+  ctx.quadraticCurveTo(size,size,size-r,size);ctx.lineTo(r,size);
+  ctx.quadraticCurveTo(0,size,0,size-r);ctx.lineTo(0,r);
+  ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
+  ctx.fillStyle=bg;ctx.fill();
+  // Glucose wave line
+  const pad=size*0.18,lineY=size*0.55,amp=size*0.12;
+  ctx.beginPath();ctx.moveTo(pad,lineY);
+  const pts=8;for(let i=0;i<=pts;i++){
+    const x=pad+(size-pad*2)*(i/pts);
+    const y=lineY+Math.sin((i/pts)*Math.PI*2-Math.PI/2)*amp*(i>1&&i<pts-1?1:0.3);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='#34d399';ctx.lineWidth=size*0.06;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+  // G letter
+  ctx.fillStyle='#fff';ctx.font=`bold ${size*0.28}px 'Plus Jakarta Sans',sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('G',size*0.5,size*0.3);
+  // Dot (current reading indicator)
+  ctx.beginPath();ctx.arc(size*0.73,lineY-amp*0.5,size*0.06,0,Math.PI*2);
+  ctx.fillStyle='#34d399';ctx.fill();
+  return cv.toDataURL('image/png');
 }
 
-let pwaInstallPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  pwaInstallPrompt=e;
-  const btn=document.getElementById('installWidgetBtn');
-  if(btn)btn.textContent='⬇️ Install GlucoTrack App';
-});
+function setupPWA(){
+  // Generate and apply icon
+  const icon180=generateIcon(180);
+  const sizes=[57,60,72,76,114,120,144,152,180];
+  sizes.forEach(s=>{
+    const el=document.getElementById('pwa-icon-'+s);
+    if(el)el.href=icon180;// All sizes use same generated icon
+  });
 
-function installWidget(){
+  // Render icon preview in settings
+  const preview=document.getElementById('iconPreview');
+  if(preview){
+    const img=new Image();img.onload=()=>{
+      const ctx=preview.getContext('2d');ctx.drawImage(img,0,0,60,60);
+    };img.src=icon180;
+  }
+
+  // Generate splash screens
+  function makeSplash(w,h){
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+    const ctx=cv.getContext('2d');
+    ctx.fillStyle='#0D1321';ctx.fillRect(0,0,w,h);
+    const cx=w/2,cy=h/2;
+    // Icon in centre
+    const iSize=Math.min(w,h)*0.28;
+    const iconImg=new Image();
+    iconImg.onload=()=>{ctx.drawImage(iconImg,cx-iSize/2,cy-iSize*0.7,iSize,iSize);};
+    iconImg.src=generateIcon(Math.round(iSize));
+    ctx.fillStyle='#fff';ctx.font=`bold ${Math.round(iSize*0.22)}px sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText('GlucoTrack',cx,cy-iSize*0.7+iSize+iSize*0.1);
+    ctx.fillStyle='#34d399';ctx.font=`${Math.round(iSize*0.13)}px sans-serif`;
+    ctx.fillText('Your personal glucose companion',cx,cy-iSize*0.7+iSize+iSize*0.1+Math.round(iSize*0.26));
+    return cv.toDataURL('image/png');
+  }
+  // Apply splash to all sizes
+  const splashes={
+    '2048':'pwa-splash-2048','1668':'pwa-splash-1668','1536':'pwa-splash-1536',
+    '1125':'pwa-splash-1125','1242':'pwa-splash-1242','750':'pwa-splash-750','640':'pwa-splash-640'
+  };
+  // Simple single splash
+  setTimeout(()=>{
+    try{
+      const splash=makeSplash(1170,2532);
+      Object.values(splashes).forEach(id=>{const el=document.getElementById(id);if(el)el.href=splash;});
+    }catch(e){}
+  },200);
+
+  // Inject Web App Manifest
+  const manifest={
+    name:'GlucoTrack',
+    short_name:'GlucoTrack',
+    description:'Personal glucose tracker with AI meal analysis',
+    start_url:window.location.href,
+    display:'standalone',
+    background_color:'#0D1321',
+    theme_color:'#0D1321',
+    orientation:'portrait',
+    icons:[
+      {src:icon180,sizes:'180x180',type:'image/png',purpose:'any maskable'},
+      {src:icon180,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+      {src:icon180,sizes:'512x512',type:'image/png',purpose:'any maskable'}
+    ]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const murl=URL.createObjectURL(blob);
+  const mlink=document.getElementById('pwa-manifest');
+  if(mlink)mlink.href=murl;
+
+  // Register inline service worker for offline support
+  if('serviceWorker' in navigator){
+    const swCode=`
+      const CACHE='glucotrack-v4';
+      const ASSETS=[self.location.origin+self.location.pathname];
+      self.addEventListener('install',e=>e.waitUntil(
+        caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
+      ));
+      self.addEventListener('activate',e=>e.waitUntil(
+        caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+          .then(()=>self.clients.claim())
+      ));
+      self.addEventListener('fetch',e=>e.respondWith(
+        caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+          if(res.ok){const rc=res.clone();caches.open(CACHE).then(c=>c.put(e.request,rc));}
+          return res;
+        }).catch(()=>caches.match(e.request)))
+      ));
+    `;
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    const swUrl=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl,{scope:'./'})
+      .then(()=>console.log('GlucoTrack SW registered'))
+      .catch(e=>console.log('SW registration skipped:',e.message));
+  }
+}
+
+function showPwaInstructions(){
+  const ua=navigator.userAgent.toLowerCase();
+  const isIOS=/iphone|ipad|ipod/.test(ua);
+  const isAndroid=/android/.test(ua);
+  const iBtn=document.getElementById('pwaInstructions');
+  const aBtn=document.getElementById('pwaAndroid');
+  const showBtn=document.getElementById('pwaShowBtn');
+  if(isIOS){
+    iBtn.style.display=iBtn.style.display==='none'?'block':'none';
+    if(aBtn)aBtn.style.display='none';
+  } else if(isAndroid){
+    if(aBtn)aBtn.style.display=aBtn.style.display==='none'?'block':'none';
+    if(iBtn)iBtn.style.display='none';
+  } else {
+    // Desktop — show both
+    iBtn.style.display=iBtn.style.display==='none'?'block':'none';
+    if(aBtn)aBtn.style.display=iBtn.style.display;
+  }
+  // Scroll to show instructions
+  setTimeout(()=>showBtn.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+function triggerPwaInstall(){
   if(pwaInstallPrompt){
     pwaInstallPrompt.prompt();
     pwaInstallPrompt.userChoice.then(r=>{
-      if(r.outcome==='accepted'){toastSuccess('GlucoTrack installed to your home screen!');}
+      if(r.outcome==='accepted')toastSuccess('GlucoTrack installed! Find it on your home screen.');
       pwaInstallPrompt=null;
+      document.getElementById('pwaInstallBtn').style.display='none';
     });
-  } else {
-    // Show manual instructions
-    const ua=navigator.userAgent.toLowerCase();
-    if(/iphone|ipad/.test(ua)){
-      toast('On iPhone: tap the Share button (□↑) then "Add to Home Screen"','info','📱');
-    } else if(/android/.test(ua)){
-      toast('On Android: tap the Chrome menu (⋮) then "Add to Home Screen"','info','📱');
-    } else {
-      toast('Open this page on your phone to install as an app','info','📱');
-    }
   }
 }
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  pwaInstallPrompt=e;
+  const btn=document.getElementById('pwaInstallBtn');
+  if(btn)btn.style.display='block';
+  const showBtn=document.getElementById('pwaShowBtnTxt');
+  if(showBtn)showBtn.textContent='View Install Instructions';
+});
+
+window.addEventListener('appinstalled',()=>{
+  toastSuccess('GlucoTrack added to your home screen! 🎉');
+  pwaInstallPrompt=null;
+});
 
 
 
@@ -3395,6 +3599,7 @@ setInterval(()=>{updateWidget();updateDate();},60000);
   loadSettingsUI();
   updateDate();
   setTimeout(refreshAll, 50);
+  setTimeout(setupPWA, 100);
   setTimeout(drawMainChart, 300);
   setTimeout(restoreLibreSession, 200);
 })();
