@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlucoTrack Widget</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #080d18;
+  --card:   #0e1624;
+  --border: rgba(255,255,255,0.06);
+  --mono:   'JetBrains Mono', monospace;
+  --sans:   'Plus Jakarta Sans', sans-serif;
+  --c-ok:   #34d399;
+  --c-hi:   #fbbf24;
+  --c-low:  #f87171;
+  --c-none: #475569;
+  --glow:   rgba(52,211,153,0.2);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sans);
+}
+
+.card {
+  width: 260px;
+  background: var(--card);
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  padding: 24px 22px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: -60px;
+  background: radial-gradient(circle, var(--glow) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(24px);
+  transition: background 0.8s ease;
+}
+.card > * { position: relative; z-index: 1; }
+
+/* TOP */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.live-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.08em;
+}
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c-ok);
+  animation: blink 2.8s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+/* BIG NUMBER */
+.reading-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.value {
+  font-family: var(--mono);
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -4px;
+  color: var(--c-ok);
+  transition: color 0.5s;
+}
+.value.low  { color: var(--c-low); }
+.value.hi   { color: var(--c-hi); }
+.value.vhi  { color: var(--c-low); }
+.value.none { color: var(--c-none); font-size: 48px; letter-spacing: -1px; }
+
+.unit-col {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 9px;
+  gap: 3px;
+}
+.unit {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  line-height: 1;
+}
+.trend {
+  font-size: 28px;
+  line-height: 1;
+  transition: color 0.5s;
+}
+.trend.ok   { color: var(--c-ok); }
+.trend.up   { color: var(--c-hi); }
+.trend.down { color: var(--c-low); }
+.trend.flat { color: rgba(255,255,255,0.35); }
+
+/* STATUS */
+.status {
+  font-size: 11px;
+  font-weight: 600;
+  min-height: 15px;
+  margin-bottom: 10px;
+  transition: color 0.4s;
+  color: rgba(255,255,255,0.3);
+}
+.status.ok     { color: var(--c-ok); }
+.status.warn   { color: var(--c-hi); }
+.status.urgent { color: var(--c-low); }
+
+/* SPARKLINE */
+.spark-wrap { height: 50px; margin-bottom: 14px; }
+canvas { display: block; width: 100%; height: 100%; }
+
+/* RANGE BAR */
+.range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.05);
+  position: relative;
+  margin-bottom: 10px;
+}
+.range-fill {
+  position: absolute; inset: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    #f87171 0%, #fbbf24 18%, #34d399 35%,
+    #34d399 65%, #fbbf24 82%, #f87171 100%);
+  opacity: 0.18;
+}
+.needle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--c-ok);
+  border: 2px solid var(--card);
+  box-shadow: 0 0 8px var(--c-ok);
+  transition: left 0.7s cubic-bezier(0.34,1.56,0.64,1), background 0.5s, box-shadow 0.5s;
+  left: 50%;
+}
+.needle.low { background: var(--c-low); box-shadow: 0 0 8px var(--c-low); }
+.needle.hi  { background: var(--c-hi);  box-shadow: 0 0 8px var(--c-hi); }
+.needle.vhi { background: var(--c-low); box-shadow: 0 0 8px var(--c-low); }
+.needle.none { background: var(--c-none); box-shadow: none; }
+
+/* FOOTER */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.timestamp {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.16);
+  letter-spacing: 0.03em;
+}
+.delta {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.22);
+}
+.delta.up   { color: var(--c-hi); }
+.delta.down { color: var(--c-low); }
+.delta.flat { color: rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="top">
+    <div class="logo">GlucoTrack</div>
+    <div class="live-pill">
+      <div class="dot" id="dot"></div>
+      <span id="liveLabel">LIVE</span>
+    </div>
+  </div>
+
+  <div class="reading-row">
+    <div class="value none" id="val">—</div>
+    <div class="unit-col">
+      <div class="unit">mmol/L</div>
+      <div class="trend flat" id="trendArrow">—</div>
+    </div>
+  </div>
+
+  <div class="status" id="statusMsg">No readings yet</div>
+
+  <div class="spark-wrap"><canvas id="cv"></canvas></div>
+
+  <div class="range-track">
+    <div class="range-fill"></div>
+    <div class="needle none" id="needle"></div>
+  </div>
+
+  <div class="footer">
+    <div class="timestamp" id="ts">—</div>
+    <div class="delta" id="delta"></div>
+  </div>
+</div>
+
+<script>
+const POLL_MS         = 5000;               // poll every 5 seconds
+const SPARK_WINDOW_MS = 3 * 60 * 60 * 1000; // 3-hour sparkline window
+const LOW  = 3.9;
+const HIGH = 10.0;
+
+// ── Helpers ──────────────────────────────────────────────
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e) { return d; } };
+const fmt  = v => (Math.round(v * 10) / 10).toFixed(1);
+
+function tSince(ts) {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60)   return 'just now';
+  if (s < 3600) return Math.round(s / 60) + 'm ago';
+  return Math.round(s / 3600) + 'h ago';
+}
+
+function stateOf(v) {
+  if (v == null)  return 'none';
+  if (v < LOW)    return 'low';
+  if (v > HIGH+3) return 'vhi';
+  if (v > HIGH)   return 'hi';
+  return 'ok';
+}
+
+// ── Read from GlucoTrack localStorage ────────────────────
+function getReadings() {
+  // 1. Active session
+  const sid = load('gt_session', null);
+  if (sid) {
+    const r = load('gt_' + sid + '_r', null);
+    if (r) return { raw: r, cfg: load('gt_' + sid + '_c', null) };
+  }
+  // 2. Guest (auth-bypassed) user
+  const gr = load('gt_guest_r', null);
+  if (gr) return { raw: gr, cfg: load('gt_guest_c', null) };
+  // 3. Scan all gt_*_r keys, pick most recently updated
+  let best = null, bestTs = 0;
+  Object.keys(localStorage).forEach(k => {
+    if (!/^gt_.+_r$/.test(k)) return;
+    const d = load(k, []);
+    if (d.length && d[d.length-1].ts > bestTs) {
+      bestTs = d[d.length-1].ts;
+      best = { raw: d, cfg: load(k.replace(/_r$/,'_c'), null) };
+    }
+  });
+  return best || { raw: [], cfg: null };
+}
+
+function bgOnly(raw) {
+  return (raw || [])
+    .filter(r => !r.isMealOnly && r.value != null && r.value > 0)
+    .sort((a, b) => a.ts - b.ts);
+}
+
+// ── Trend: linear regression over last 5 readings ────────
+function computeTrend(readings) {
+  const pts = readings.slice(-5);
+  if (pts.length < 2) return { arrow: '—', rate: 0, cls: 'flat' };
+  const n   = pts.length;
+  const xs  = pts.map((_, i) => i);
+  const ys  = pts.map(r => r.value);
+  const sx  = xs.reduce((a,b)=>a+b,0), sy  = ys.reduce((a,b)=>a+b,0);
+  const sxy = xs.reduce((a,x,i)=>a+x*ys[i],0), sx2 = xs.reduce((a,x)=>a+x*x,0);
+  const slope = (n*sxy - sx*sy) / (n*sx2 - sx*sx); // mmol per interval
+  const avgGapMs = (pts[n-1].ts - pts[0].ts) / Math.max(1, n-1);
+  const ratePerMin = slope / Math.max(1, avgGapMs / 60000);
+
+  if      (ratePerMin >  0.15) return { arrow: '↑↑', rate: ratePerMin, cls: 'up' };
+  else if (ratePerMin >  0.05) return { arrow: '↑',  rate: ratePerMin, cls: 'up' };
+  else if (ratePerMin < -0.15) return { arrow: '↓↓', rate: ratePerMin, cls: 'down' };
+  else if (ratePerMin < -0.05) return { arrow: '↓',  rate: ratePerMin, cls: 'down' };
+  else                          return { arrow: '→',  rate: ratePerMin, cls: 'flat' };
+}
+
+// ── Status message ────────────────────────────────────────
+function statusMsg(latest, trend, cfg) {
+  const lo = (cfg && cfg.low)  || LOW;
+  const hi = (cfg && cfg.high) || HIGH;
+  const v  = latest.value;
+  const r  = trend.rate;
+  const stale = Date.now() - latest.ts > 20 * 60 * 1000;
+
+  if (stale) return { text: 'Reading may be outdated', cls: '' };
+
+  if (v < 3.0)  return { text: '⚠️ Critically low — act now', cls: 'urgent' };
+  if (v < lo) {
+    if (r < -0.05) return { text: 'Low and still dropping', cls: 'urgent' };
+    return { text: 'Below target', cls: 'urgent' };
+  }
+  if (v > hi + 3) return { text: 'Very high — consider correction', cls: 'warn' };
+  if (v > hi) {
+    if (r > 0.05) return { text: 'High and rising', cls: 'warn' };
+    return { text: 'Above target', cls: 'warn' };
+  }
+  if (r >  0.15) return { text: 'Rising quickly', cls: 'warn' };
+  if (r >  0.05) return { text: 'Trending up slowly', cls: 'ok' };
+  if (r < -0.15) return { text: 'Dropping fast — watch closely', cls: 'warn' };
+  if (r < -0.05) return { text: 'Trending down slowly', cls: 'ok' };
+  return { text: 'Stable and in range', cls: 'ok' };
+}
+
+// ── Sparkline ─────────────────────────────────────────────
+function drawSparkline(data, cfg) {
+  const cv  = document.getElementById('cv');
+  const W   = cv.parentElement.offsetWidth || 216;
+  const H   = 50;
+  const dpr = window.devicePixelRatio || 1;
+  cv.width  = W * dpr; cv.height = H * dpr;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  const c   = cv.getContext('2d');
+  c.scale(dpr, dpr);
+  c.clearRect(0, 0, W, H);
+  if (data.length < 2) return;
+
+  const lo = (cfg && cfg.low)  || LOW;
+  const hi = (cfg && cfg.high) || HIGH;
+  const vs = data.map(r => r.value);
+  const mn = Math.min(...vs, lo) - 0.8;
+  const mx = Math.max(...vs, hi) + 0.8;
+  const tx = i => W * i / (data.length - 1);
+  const ty = v => H - (H - 6) * (v - mn) / (mx - mn) - 3;
+
+  // Target zone
+  c.fillStyle = 'rgba(52,211,153,0.05)';
+  c.fillRect(0, ty(hi), W, ty(lo) - ty(hi));
+  c.setLineDash([2,4]); c.lineWidth = 1;
+  c.strokeStyle = 'rgba(52,211,153,0.15)';
+  [lo, hi].forEach(b => { c.beginPath(); c.moveTo(0,ty(b)); c.lineTo(W,ty(b)); c.stroke(); });
+  c.setLineDash([]);
+
+  // Fill gradient
+  const g = c.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, 'rgba(52,211,153,0.2)');
+  g.addColorStop(1, 'rgba(52,211,153,0)');
+  c.beginPath(); c.moveTo(tx(0), H);
+  data.forEach((r,i) => c.lineTo(tx(i), ty(r.value)));
+  c.lineTo(tx(data.length-1), H);
+  c.closePath(); c.fillStyle = g; c.fill();
+
+  // Smooth line (cardinal spline)
+  c.beginPath(); c.moveTo(tx(0), ty(data[0].value));
+  const t = 0.35;
+  for (let i = 0; i < data.length - 1; i++) {
+    const p0y = ty(data[Math.max(0,i-1)].value);
+    const p1y = ty(data[i].value);
+    const p2y = ty(data[i+1].value);
+    const p3y = ty(data[Math.min(data.length-1,i+2)].value);
+    const cp1x = tx(i)   + (tx(i+1) - tx(Math.max(0,i-1))) / 6 * t * 3;
+    const cp2x = tx(i+1) - (tx(Math.min(data.length-1,i+2)) - tx(i)) / 6 * t * 3;
+    c.bezierCurveTo(cp1x, p1y+(p2y-p0y)/6*t*3, cp2x, p2y-(p3y-p1y)/6*t*3, tx(i+1), p2y);
+  }
+  c.strokeStyle = 'rgba(52,211,153,0.75)';
+  c.lineWidth = 1.8; c.lineJoin = 'round'; c.lineCap = 'round'; c.stroke();
+
+  // Dots
+  const cols = { ok:'#34d399', low:'#f87171', hi:'#fbbf24', vhi:'#f87171' };
+  data.forEach((r, i) => {
+    const last = i === data.length - 1;
+    const col  = cols[stateOf(r.value)] || '#34d399';
+    c.beginPath();
+    c.arc(tx(i), ty(r.value), last ? 4.5 : 2, 0, Math.PI*2);
+    if (last) {
+      c.fillStyle = col; c.strokeStyle = '#0e1624';
+      c.lineWidth = 2; c.fill(); c.stroke();
+    } else {
+      c.fillStyle = col + '88'; c.fill();
+    }
+  });
+}
+
+// ── Glow ─────────────────────────────────────────────────
+const glows = { ok:'rgba(52,211,153,0.2)', low:'rgba(248,113,113,0.22)', vhi:'rgba(248,113,113,0.15)', hi:'rgba(251,191,36,0.15)', none:'rgba(0,0,0,0)' };
+const setGlow = cls => document.documentElement.style.setProperty('--glow', glows[cls] || glows.none);
+
+// ── Main render loop ──────────────────────────────────────
+let lastTs = null;
+
+function render() {
+  const { raw, cfg }  = getReadings();
+  const readings      = bgOnly(raw);
+
+  if (!readings.length) {
+    document.getElementById('val').className      = 'value none';
+    document.getElementById('val').textContent    = '—';
+    document.getElementById('trendArrow').textContent = '—';
+    document.getElementById('trendArrow').className   = 'trend flat';
+    document.getElementById('statusMsg').textContent  = 'No readings yet — open GlucoTrack to log one';
+    document.getElementById('statusMsg').className    = 'status';
+    document.getElementById('ts').textContent     = '—';
+    document.getElementById('delta').textContent  = '';
+    document.getElementById('needle').style.left  = '50%';
+    document.getElementById('needle').className   = 'needle none';
+    document.getElementById('dot').style.background = 'var(--c-none)';
+    document.getElementById('liveLabel').textContent = 'NO DATA';
+    setGlow('none');
+    drawSparkline([], cfg);
+    return;
+  }
+
+  const latest = readings[readings.length - 1];
+  const state  = stateOf(latest.value);
+  const trend  = computeTrend(readings);
+  const msg    = statusMsg(latest, trend, cfg);
+
+  // Value
+  document.getElementById('val').textContent = fmt(latest.value);
+  document.getElementById('val').className   = 'value ' + state;
+
+  // Trend arrow — colour reflects direction, not just state
+  document.getElementById('trendArrow').textContent = trend.arrow;
+  document.getElementById('trendArrow').className   = 'trend ' + (state === 'ok' ? trend.cls : state === 'low' || state === 'vhi' ? 'down' : 'up');
+
+  // Status
+  document.getElementById('statusMsg').textContent = msg.text;
+  document.getElementById('statusMsg').className   = 'status ' + msg.cls;
+
+  // Timestamp
+  document.getElementById('ts').textContent = tSince(latest.ts);
+
+  // Delta vs previous reading
+  if (readings.length >= 2) {
+    const diff = latest.value - readings[readings.length-2].value;
+    const sign = diff > 0 ? '+' : '';
+    document.getElementById('delta').textContent = sign + fmt(diff);
+    document.getElementById('delta').className   = 'delta ' + (Math.abs(diff) < 0.3 ? 'flat' : diff > 0 ? 'up' : 'down');
+  } else {
+    document.getElementById('delta').textContent = '';
+  }
+
+  // Range needle
+  const pct = Math.min(Math.max((latest.value - 2.5) / (18 - 2.5), 0.03), 0.97) * 100;
+  document.getElementById('needle').style.left  = pct + '%';
+  document.getElementById('needle').className   = 'needle ' + state;
+
+  // Live dot
+  const dotCols = { ok:'var(--c-ok)', low:'var(--c-low)', hi:'var(--c-hi)', vhi:'var(--c-low)', none:'var(--c-none)' };
+  document.getElementById('dot').style.background     = dotCols[state];
+  document.getElementById('liveLabel').textContent    = 'LIVE';
+
+  // Glow
+  setGlow(state);
+
+  // Sparkline
+  let sparkData = readings.filter(r => r.ts >= Date.now() - SPARK_WINDOW_MS);
+  if (sparkData.length < 3) sparkData = readings.slice(-Math.min(10, readings.length));
+  drawSparkline(sparkData, cfg);
+}
+
+render();
+setInterval(render, POLL_MS);
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>
