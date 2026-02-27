@@ -71,6 +71,15 @@ html{height:100%;background:var(--bg);}body{height:100%;overflow:hidden;font-fam
 .toast-wrap{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 32px);max-width:390px;}
 .toast{background:var(--text);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.25);animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:all;}
 .toast.error{background:#C53030;}.toast.success{background:#276749;}.toast.warn{background:#B7791F;}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 0 32px;animation:toastIn .2s ease;}
+.confirm-box{background:#fff;border-radius:16px;padding:20px;width:calc(100% - 32px);max-width:390px;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+body.dark .confirm-box{background:#1a2236;}
+.confirm-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:16px;line-height:1.4;text-align:center;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-btn{flex:1;padding:12px;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.confirm-btn.cancel{background:var(--bg);color:var(--t2);}
+.confirm-btn.danger{background:#E53E3E;color:#fff;}
+.confirm-btn.primary{background:var(--acc);color:#fff;}
 .toast-icon{font-size:16px;flex-shrink:0;}
 @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
@@ -498,6 +507,7 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
 
 <!-- TOAST CONTAINER -->
 <div class="toast-wrap" id="toastWrap"></div>
+<div id="confirmOverlay" style="display:none;"></div>
 
 <!-- ══ AUTH SCREEN ══ -->
 
@@ -779,6 +789,8 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       <button class="dbtn" onclick="document.getElementById('restoreInput').click()" style="color:var(--acc);">📥 Restore from Backup</button>
       <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none;">
       <button class="dbtn" onclick="exportCSV()">📤 Export Readings (CSV)</button>
+      <button class="dbtn" onclick="document.getElementById('libreImportInput').click()" style="color:#0077C8;">📲 Import from FreeStyle Libre (CSV)</button>
+      <input type="file" id="libreImportInput" accept=".csv" onchange="importLibreCSV(event)" style="display:none;">
       <button class="dbtn" onclick="clearAll()">🗑️ Clear All Readings</button>
     </div>
     <div class="sglbl">Share</div>
@@ -1009,22 +1021,32 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <div class="alarm-ic" style="background:var(--pur-bg)">🔊</div>
         <div><div class="alarm-title">Sound Alerts</div><div class="alarm-sub">Play sound when alarm triggers</div></div>
       </div>
-      <button class="tsw on" onclick="this.classList.toggle('on')"></button>
+      <button class="tsw on" id="alSoundSw" onclick="toggleAlarm(this)"></button>
     </div>
     <div class="alarm-row">
       <div class="alarm-info">
         <div class="alarm-ic" style="background:var(--bg)">📳</div>
-        <div><div class="alarm-title">Vibration</div><div class="alarm-sub">Vibrate on alarm</div></div>
+        <div><div class="alarm-title">Vibration</div><div class="alarm-sub">Vibrate when alarm triggers</div></div>
       </div>
-      <button class="tsw on" onclick="this.classList.toggle('on')"></button>
+      <button class="tsw on" id="alVibeSw" onclick="toggleAlarm(this)"></button>
     </div>
     <div class="alarm-row">
       <div class="alarm-info">
         <div class="alarm-ic" style="background:var(--bg)">🌙</div>
         <div><div class="alarm-title">Overnight Alarms</div><div class="alarm-sub">Allow alarms between 22:00–07:00</div></div>
       </div>
-      <button class="tsw on" onclick="this.classList.toggle('on')"></button>
+      <button class="tsw on" id="alNightSw" onclick="toggleAlarm(this)"></button>
     </div>
+    <div style="margin-top:14px;padding:12px;background:var(--acc-bg);border-radius:10px;border:1px solid var(--acc-b);">
+      <div style="font-size:12px;font-weight:700;color:var(--acc);margin-bottom:6px;">⚡ When alarms trigger</div>
+      <div style="font-size:11px;color:var(--acc);opacity:.85;line-height:1.8;">
+        • Every time you <strong>log a reading</strong> manually<br>
+        • Every <strong>30 seconds</strong> while the app is open (checks latest reading)<br>
+        • Urgent Low repeats every <strong>5 min</strong> until BG rises<br>
+        • All others wait <strong>15 min</strong> before repeating
+      </div>
+    </div>
+    <button onclick="testAlarm()" style="width:100%;margin-top:12px;padding:11px;background:var(--bg);border:1.5px solid var(--border2);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--t2);cursor:pointer;">🔔 Test Alarm Sound &amp; Vibration</button>
   </div>
 </div>
 
@@ -1464,6 +1486,31 @@ function toastError(msg){toast(msg,'error','❌');}
 function toastSuccess(msg){toast(msg,'success','✅');}
 function toastWarn(msg){toast(msg,'warn','⚠️');}
 
+// ── In-app confirm (replaces window.confirm which is blocked on iOS PWA) ──
+function appConfirm(msg, onConfirm, danger=true){
+  const ov=document.getElementById('confirmOverlay');
+  ov.style.display='flex';
+  ov.style.position='fixed';
+  ov.style.inset='0';
+  ov.style.background='rgba(0,0,0,.5)';
+  ov.style.zIndex='10000';
+  ov.style.alignItems='flex-end';
+  ov.style.justifyContent='center';
+  ov.style.padding='0 0 32px';
+  ov.innerHTML=`<div class="confirm-box">
+    <div class="confirm-msg">${msg}</div>
+    <div class="confirm-btns">
+      <button class="confirm-btn cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-btn ${danger?'danger':'primary'}" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>`;
+  document.getElementById('confirmOkBtn').onclick=()=>{closeConfirm();onConfirm();};
+}
+function closeConfirm(){
+  const ov=document.getElementById('confirmOverlay');
+  if(ov)ov.style.display='none';
+}
+
 
 // ══════════════ UTILS ══════════════
 const CTX_IC={'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️'};
@@ -1835,20 +1882,149 @@ function shiftDailyDay(dir){
 }
 
 // ══════════════ ALARMS ══════════════
-function toggleAlarm(btn){btn.classList.toggle('on');}
-function saveAlarms(){
-  const alarms={
-    low:parseFloat(document.getElementById('alLow').value)||3.9,
-    high:parseFloat(document.getElementById('alHigh').value)||10.0,
-    urgLow:parseFloat(document.getElementById('alUrgLow').value)||3.0,
-  };
-  store('gt_alarms',alarms);
+let lastAlarmTs={low:0,high:0,urgLow:0,rise:0,fall:0};
+
+function toggleAlarm(btn){
+  btn.classList.toggle('on');
+  saveAlarms();
 }
+
+function saveAlarms(){
+  const get=id=>{const el=document.getElementById(id);return el?el.classList.contains('on'):true;};
+  const getVal=(id,def)=>{const el=document.getElementById(id);return el?parseFloat(el.value)||def:def;};
+  store('gt_alarms',{
+    low:getVal('alLow',3.9),   high:getVal('alHigh',10.0),  urgLow:getVal('alUrgLow',3.0),
+    lowOn:get('alLowSw'),      highOn:get('alHighSw'),       urgLowOn:get('alUrgLowSw'),
+    riseOn:get('alRiseSw'),    fallOn:get('alFallSw'),
+    soundOn:get('alSoundSw'),  vibeOn:get('alVibeSw'),       nightOn:get('alNightSw'),
+  });
+}
+
 function loadAlarms(){
   const a=load('gt_alarms',{});
-  if(a.low)document.getElementById('alLow').value=a.low;
-  if(a.high)document.getElementById('alHigh').value=a.high;
-  if(a.urgLow)document.getElementById('alUrgLow').value=a.urgLow;
+  const setVal=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+  const setOn=(id,on)=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',on);};
+  setVal('alLow',   a.low   !=null?a.low   :3.9);
+  setVal('alHigh',  a.high  !=null?a.high  :10.0);
+  setVal('alUrgLow',a.urgLow!=null?a.urgLow:3.0);
+  setOn('alLowSw',   a.lowOn   !=null?a.lowOn   :true);
+  setOn('alHighSw',  a.highOn  !=null?a.highOn  :true);
+  setOn('alUrgLowSw',a.urgLowOn!=null?a.urgLowOn:true);
+  setOn('alRiseSw',  a.riseOn  !=null?a.riseOn  :false);
+  setOn('alFallSw',  a.fallOn  !=null?a.fallOn  :true);
+  setOn('alSoundSw', a.soundOn !=null?a.soundOn :true);
+  setOn('alVibeSw',  a.vibeOn  !=null?a.vibeOn  :true);
+  setOn('alNightSw', a.nightOn !=null?a.nightOn :true);
+}
+
+// ── Web Audio sound engine (no audio files needed) ──
+function playAlarmSound(type){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    const ctx=new AC();
+    // Each note: {f:frequency, d:duration seconds}
+    const P={
+      urgLow:[{f:880,d:.12},{f:0,d:.05},{f:880,d:.12},{f:0,d:.05},{f:880,d:.12},{f:0,d:.05},{f:1100,d:.3}],
+      low:   [{f:660,d:.2},{f:0,d:.08},{f:660,d:.35}],
+      high:  [{f:440,d:.2},{f:0,d:.08},{f:540,d:.35}],
+      rise:  [{f:440,d:.12},{f:550,d:.12},{f:660,d:.25}],
+      fall:  [{f:660,d:.12},{f:550,d:.12},{f:440,d:.25}],
+      test:  [{f:523,d:.1},{f:659,d:.1},{f:784,d:.2}],
+    };
+    const notes=P[type]||P.test;
+    let t=ctx.currentTime+0.05;
+    notes.forEach(({f,d})=>{
+      if(f>0){
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type=(type==='urgLow')?'sawtooth':'sine';
+        osc.frequency.setValueAtTime(f,t);
+        gain.gain.setValueAtTime(0.5,t);
+        gain.gain.exponentialRampToValueAtTime(0.001,t+d-0.01);
+        osc.start(t);
+        osc.stop(t+d);
+      }
+      t+=d;
+    });
+    setTimeout(()=>{try{ctx.close();}catch(e){}},t*1000+300);
+  }catch(err){console.warn('Alarm sound error:',err.message);}
+}
+
+// ── Vibration patterns ──
+function triggerVibration(type){
+  if(!navigator.vibrate)return;
+  const P={
+    urgLow:[300,100,300,100,500],
+    low:   [200,100,200],
+    high:  [100,50,100,50,200],
+    rise:  [100,100,100],
+    fall:  [200,100,100],
+    test:  [100,50,100,50,100],
+  };
+  navigator.vibrate(P[type]||P.test);
+}
+
+// ── Fire a single alarm ──
+function fireAlarm(type,msg){
+  const a=load('gt_alarms',{});
+  const now=Date.now();
+  // Throttle: urgLow=5min cooldown, all others=15min
+  const cooldown=type==='urgLow'?5*60000:15*60000;
+  if(now-lastAlarmTs[type]<cooldown)return;
+  lastAlarmTs[type]=now;
+  // Overnight check — if nightOn is false, silence between 22:00-07:00
+  if(a.nightOn===false){
+    const h=new Date().getHours();
+    if(h>=22||h<7)return;
+  }
+  if(a.soundOn!==false)playAlarmSound(type);
+  if(a.vibeOn!==false)triggerVibration(type);
+  const icons={urgLow:'🚨',low:'🚨',high:'⚠️',rise:'📈',fall:'📉'};
+  const ttype=(type==='urgLow'||type==='low')?'error':'warn';
+  toast(msg,ttype,icons[type]||'🔔');
+}
+
+// ── Check a glucose value against all enabled alarms ──
+function checkAlarms(value){
+  if(!value||value<=0||isNaN(value))return;
+  const a=load('gt_alarms',{});
+  const lo=a.low!=null?a.low:3.9;
+  const hi=a.high!=null?a.high:10.0;
+  const urgLo=a.urgLow!=null?a.urgLow:3.0;
+  // Urgent Low — highest priority, return early so we don't stack
+  if(a.urgLowOn!==false && value<urgLo){
+    fireAlarm('urgLow',`URGENT LOW: ${fmt(value)} mmol/L — eat fast carbs now!`);
+    return;
+  }
+  if(a.lowOn!==false && value<lo){
+    fireAlarm('low',`Low glucose: ${fmt(value)} mmol/L (below ${fmt(lo)})`);
+    return;
+  }
+  if(a.highOn!==false && value>hi){
+    fireAlarm('high',`High glucose: ${fmt(value)} mmol/L (above ${fmt(hi)})`);
+  }
+  // Rise/Fall trend — needs 2 readings within 2h
+  const bgR=readings.filter(r=>!r.isMealOnly&&r.value>0);
+  if(bgR.length>=2){
+    const prev=bgR[bgR.length-2],curr=bgR[bgR.length-1];
+    const dtH=(curr.ts-prev.ts)/3600000;
+    if(dtH>0&&dtH<2){
+      const rate=(curr.value-prev.value)/dtH;
+      if(a.riseOn && rate>2)  fireAlarm('rise',`Rising fast: +${rate.toFixed(1)} mmol/h`);
+      if(a.fallOn!==false && rate<-2) fireAlarm('fall',`Falling fast: ${rate.toFixed(1)} mmol/h`);
+    }
+  }
+}
+
+// ── Test button ──
+function testAlarm(){
+  const a=load('gt_alarms',{});
+  if(a.soundOn!==false) playAlarmSound('test');
+  if(a.vibeOn!==false)  triggerVibration('test');
+  toast('🔔 Test fired — did you hear/feel it?','info','🔔');
 }
 
 // ══════════════ REMINDERS ══════════════
@@ -1947,8 +2123,8 @@ async function sha256hex(str){
 function openLibreModal(){
   const bd = document.getElementById('libreModalBd');
   if(libreSession){
-    if(!confirm('Disconnect FreeStyle Libre?'))return;
-    libreDisconnect();return;
+    appConfirm('Disconnect FreeStyle Libre?',()=>{libreDisconnect();});
+    return;
   }
   document.getElementById('libreModalForm').style.display='block';
   document.getElementById('libreModalStatus').style.display='none';
@@ -2831,11 +3007,12 @@ function updateHistory(){
 let editingIdx = -1; // index in readings[] being edited
 
 function deleteEntry(idx){
-  if(!confirm('Delete this entry?'))return;
-  readings.splice(idx,1);
-  saveReadings();
-  refreshAll();
-  toastSuccess('Entry deleted.');
+  appConfirm('Delete this entry?',()=>{
+    readings.splice(idx,1);
+    saveReadings();
+    refreshAll();
+    toastSuccess('Entry deleted.');
+  });
 }
 
 function editReading(idx){
@@ -3000,6 +3177,8 @@ function saveReading(){
   saveReadings();
   closeLogModal();
   refreshAll();
+  // Trigger alarm check on every new reading (not edits)
+  if(editingIdx<0) setTimeout(()=>checkAlarms(Math.round(v*10)/10), 400);
 }
 
 // ══════════════ MEAL LOG MODAL ══════════════
@@ -3497,7 +3676,162 @@ function exportCSV(){
   document.body.removeChild(a);URL.revokeObjectURL(url);
   toastSuccess('Exported '+readings.length+' readings.');
 }
-function clearAll(){if(!confirm('Delete all your readings? This cannot be undone.'))return;readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');}
+// ══════════════ LIBRE CSV IMPORT ══════════════
+function importLibreCSV(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const text=ev.target.result;
+      const lines=text.split(/\r?\n/).filter(l=>l.trim());
+
+      // LibreLink CSV format:
+      // Row 0: device info (e.g. "FreeStyle LibreLink - 12345,...")
+      // Row 1: column headers
+      // Row 2+: data rows
+      // Columns vary by export version but always include:
+      //   Device Timestamp, Record Type, Historic Glucose mmol/L OR Scan Glucose mmol/L
+
+      // Find the header row (contains "Timestamp" or "Device Timestamp")
+      let headerIdx=-1;
+      for(let i=0;i<Math.min(5,lines.length);i++){
+        if(lines[i].toLowerCase().includes('timestamp')||lines[i].toLowerCase().includes('device')){
+          headerIdx=i;break;
+        }
+      }
+      if(headerIdx===-1)headerIdx=1; // fallback: assume row 1
+
+      const headers=parseCSVRow(lines[headerIdx]).map(h=>h.trim().toLowerCase().replace(/"/g,''));
+
+      // Find column indices
+      const tsCol=headers.findIndex(h=>h.includes('device timestamp')||h.includes('timestamp'));
+      const histCol=headers.findIndex(h=>h.includes('historic glucose'));
+      const scanCol=headers.findIndex(h=>h.includes('scan glucose'));
+      const typeCol=headers.findIndex(h=>h.includes('record type'));
+      const noteCol=headers.findIndex(h=>h.includes('notes'));
+
+      if(tsCol===-1){
+        toastError('Could not read CSV format. Export from the LibreLink app and try again.');
+        return;
+      }
+
+      let imported=0,skipped=0,duplicates=0;
+      const newReadings=[];
+
+      for(let i=headerIdx+1;i<lines.length;i++){
+        const row=parseCSVRow(lines[i]);
+        if(row.length<2)continue;
+
+        const tsRaw=(row[tsCol]||'').replace(/"/g,'').trim();
+        if(!tsRaw)continue;
+
+        // Parse timestamp — LibreLink uses "DD-MM-YYYY HH:MM" or "MM/DD/YYYY HH:MM"
+        const ts=parseLibreTimestamp(tsRaw);
+        if(!ts){skipped++;continue;}
+
+        // Get glucose value — prefer scan (fingerprick) over historic (CGM)
+        let valRaw='';
+        if(scanCol>-1&&row[scanCol]&&row[scanCol].replace(/"/g,'').trim())
+          valRaw=row[scanCol];
+        else if(histCol>-1&&row[histCol]&&row[histCol].replace(/"/g,'').trim())
+          valRaw=row[histCol];
+
+        const val=parseFloat(valRaw.replace(/"/g,'').trim());
+        if(isNaN(val)||val<=0||val>33.3){skipped++;continue;}
+
+        // Skip duplicates (same timestamp within 1 min)
+        const isDupe=readings.some(r=>Math.abs(r.ts-ts)<60000&&!r.isMealOnly);
+        if(isDupe){duplicates++;continue;}
+
+        const notes=noteCol>-1?(row[noteCol]||'').replace(/"/g,'').trim():'';
+
+        newReadings.push({
+          ts,
+          value:Math.round(val*10)/10,
+          context:'Random Check',
+          insulin:null,
+          carbs:null,
+          isMealOnly:false,
+          notes:notes||'LibreLink import'
+        });
+        imported++;
+      }
+
+      if(imported===0){
+        toastError(`No readings imported. Skipped: ${skipped}, Duplicates: ${duplicates}`);
+        e.target.value='';return;
+      }
+
+      // Merge and sort by timestamp
+      readings=[...readings,...newReadings].sort((a,b)=>a.ts-b.ts);
+      saveReadings();
+      refreshAll();
+
+      let msg=`✅ Imported ${imported} readings from LibreLink`;
+      if(duplicates>0)msg+=` (${duplicates} duplicates skipped)`;
+      if(skipped>0)msg+=` (${skipped} invalid rows skipped)`;
+      toastSuccess(msg);
+
+    }catch(err){
+      toastError('Import failed: '+(err.message||'Unknown error'));
+      console.error('Libre import error:',err);
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVRow(line){
+  // Handles quoted fields with commas inside
+  const result=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){result.push(cur);cur='';}
+    else cur+=c;
+  }
+  result.push(cur);
+  return result;
+}
+
+function parseLibreTimestamp(raw){
+  // Handles multiple formats LibreLink uses:
+  // "DD-MM-YYYY HH:MM" (most common, South Africa)
+  // "MM/DD/YYYY HH:MM"
+  // "YYYY-MM-DD HH:MM"
+  // "DD/MM/YYYY HH:MM"
+  raw=raw.trim();
+  let d;
+
+  // Try ISO format first: YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}/.test(raw)){
+    d=new Date(raw.replace(' ','T'));
+  }
+  // DD-MM-YYYY HH:MM
+  else if(/^\d{2}-\d{2}-\d{4}/.test(raw)){
+    const [date,time]=raw.split(' ');
+    const [dd,mm,yyyy]=date.split('-');
+    d=new Date(`${yyyy}-${mm}-${dd}T${time||'00:00'}:00`);
+  }
+  // DD/MM/YYYY HH:MM
+  else if(/^\d{2}\/\d{2}\/\d{4}/.test(raw)){
+    const [date,time]=raw.split(' ');
+    const [dd,mm,yyyy]=date.split('/');
+    d=new Date(`${yyyy}-${mm}-${dd}T${time||'00:00'}:00`);
+  }
+  // MM/DD/YYYY HH:MM (US format)
+  else if(/^\d{1,2}\/\d{1,2}\/\d{4}/.test(raw)){
+    d=new Date(raw);
+  }
+  else{
+    d=new Date(raw);
+  }
+
+  if(isNaN(d.getTime()))return null;
+  return d.getTime();
+}
+
+function clearAll(){appConfirm('Delete ALL readings? This cannot be undone.',()=>{readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');});}
 
 // ══════════════ PWA SETUP ══════════════
 let pwaInstallPrompt=null;
@@ -3722,11 +4056,12 @@ function restoreData(e){
     try{
       const data=JSON.parse(ev.target.result);
       if(!data.readings||!Array.isArray(data.readings))throw new Error('Invalid backup file');
-      if(!confirm(`Restore ${data.readings.length} readings from ${data.exportedAt?.split('T')[0]||'backup'}?\n\nThis will REPLACE your current data.`))return;
-      readings=data.readings;
-      if(data.cfg)cfg={...cfg,...data.cfg};
-      saveReadings();saveCfg();loadSettingsUI();refreshAll();
-      toastSuccess(`Restored ${readings.length} readings successfully`);
+      appConfirm(`Restore ${data.readings.length} readings from ${data.exportedAt?.split('T')[0]||'backup'}? This will replace your current data.`,()=>{
+        readings=data.readings;
+        if(data.cfg)cfg={...cfg,...data.cfg};
+        saveReadings();saveCfg();loadSettingsUI();refreshAll();
+        toastSuccess(`Restored ${readings.length} readings successfully`);
+      });
     }catch(err){
       toastError('Invalid backup file. Please use a GlucoTrack JSON backup.');
     }
@@ -3752,10 +4087,7 @@ function shareApp(){
 }
 
 function logOut(){
-  if(!confirm('Sign out? Your readings are stored locally and will remain.'))return;
-  readings=[];
-  refreshAll();
-  toastSuccess('Signed out.');
+  appConfirm('Sign out?',()=>{readings=[];refreshAll();toastSuccess('Signed out.');},false);
 }
 
 // ══════════════ REFRESH ══════════════
@@ -3796,6 +4128,8 @@ function refreshTimestamps(){
     const lat=bgR[bgR.length-1];
     const lc=document.getElementById('lastCheck');
     if(lc)lc.textContent=tSince(lat.ts);
+    // Alarm check on 30s tick — only for readings logged in last 10 min
+    if(Date.now()-lat.ts < 10*60000) checkAlarms(lat.value);
   }
   // Update recent list timestamps without full redraw
   if(curScreen==='home'){
@@ -3822,6 +4156,7 @@ setInterval(refreshTimestamps, 30000);
   setTimeout(refreshAll, 50);
   setTimeout(setupPWA, 100);
   loadDarkMode();
+  loadAlarms();
   setTimeout(drawMainChart, 300);
   setTimeout(restoreLibreSession, 200);
 })();
