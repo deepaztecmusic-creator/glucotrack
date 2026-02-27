@@ -3436,7 +3436,16 @@ function updateHistory(){
 let editingIdx = -1; // index in readings[] being edited
 
 function deleteEntry(idx){
-  appConfirm('Delete this entry?',()=>{
+  const entry=readings[idx];
+  const hasPreTimer=preMealTimer && entry && entry.insulin && entry.insulin>0 && (entry.context==='Before Meal'||entry.context==='Random Check');
+  const hasPostTimer=postMealTimer && entry && entry.context==='After Meal';
+  const msgs=[];
+  if(hasPreTimer) msgs.push('The pre-meal countdown timer will also be cancelled.');
+  if(hasPostTimer) msgs.push('The post-meal BG check timer will also be cancelled.');
+  const msg='Delete this entry?' + (msgs.length ? ' '+msgs.join(' ') : '');
+  appConfirm(msg,()=>{
+    if(hasPreTimer) cancelPreMealTimer();
+    if(hasPostTimer) cancelPostMealTimer();
     readings.splice(idx,1);
     saveReadings();
     refreshAll();
@@ -3672,6 +3681,10 @@ function saveReading(){
   // Start 20-min pre-meal timer if bolus insulin logged before a meal
   if(editingIdx<0 && ins && ins>0 && (selCtx==='Before Meal'||selCtx==='Random Check')){
     startPreMealTimer(ins);
+  }
+  // Start 2-hour post-meal BG check timer when logging after a meal
+  if(editingIdx<0 && selCtx==='After Meal'){
+    startPostMealTimer();
   }
 }
 
@@ -4674,6 +4687,70 @@ function cancelPreMealTimer(){
   if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
   hidePreMealBanner();
   toast('Pre-meal timer cancelled','info','✕');
+}
+
+// ══════════════ POST-MEAL BG CHECK TIMER (2 hours) ══════════════
+let postMealTimer=null;
+let postMealCountdownInterval=null;
+
+function startPostMealTimer(){
+  // Clear any existing post-meal timer
+  if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
+  if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
+
+  const WAIT_MS=2*60*60*1000; // 2 hours (ADA/AACE standard post-meal check)
+  const fireAt=Date.now()+WAIT_MS;
+
+  toastSuccess('🍽️ After-meal reading logged — reminder set to check BG again in 2 hours.');
+  showPostMealBanner(fireAt);
+
+  postMealTimer=scheduleNotification(
+    WAIT_MS,
+    '🩸 GlucoTrack — Time to Check BG',
+    '2 hours since your meal. Time to check your blood glucose now!',
+    'postmeal'
+  );
+  setTimeout(()=>{ hidePostMealBanner(); postMealTimer=null; }, WAIT_MS);
+}
+
+function showPostMealBanner(fireAt){
+  let banner=document.getElementById('postMealBanner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='postMealBanner';
+    const preBanner=document.getElementById('preMealBanner');
+    const bottomOffset=(preBanner&&preBanner.style.display!=='none')?'136px':'80px';
+    banner.style.cssText=`position:fixed;bottom:${bottomOffset};left:50%;transform:translateX(-50%);z-index:299;background:#276749;color:#fff;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.35);white-space:nowrap;font-family:Plus Jakarta Sans,sans-serif;`;
+    banner.innerHTML=`<span>🩸</span><span id="postMealCountdown">2:00:00</span><span style="font-weight:500;opacity:.8">until BG check</span><button onclick="cancelPostMealTimer()" style="margin-left:8px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;font-family:Plus Jakarta Sans,sans-serif;">✕ Cancel</button>`;
+    document.body.appendChild(banner);
+  }
+  banner.style.display='flex';
+
+  postMealCountdownInterval=setInterval(()=>{
+    const remaining=Math.max(0,fireAt-Date.now());
+    const hrs=Math.floor(remaining/3600000);
+    const mins=Math.floor((remaining%3600000)/60000);
+    const secs=Math.floor((remaining%60000)/1000);
+    const el=document.getElementById('postMealCountdown');
+    if(el) el.textContent=`${hrs}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    if(remaining<=0){
+      clearInterval(postMealCountdownInterval);
+      postMealCountdownInterval=null;
+      hidePostMealBanner();
+    }
+  },1000);
+}
+
+function hidePostMealBanner(){
+  const banner=document.getElementById('postMealBanner');
+  if(banner) banner.style.display='none';
+}
+
+function cancelPostMealTimer(){
+  if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
+  if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
+  hidePostMealBanner();
+  toast('Post-meal timer cancelled','info','✕');
 }
 
 function clearAll(){appConfirm('Delete ALL readings? This cannot be undone.',()=>{readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');});}
