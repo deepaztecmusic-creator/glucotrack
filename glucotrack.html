@@ -822,6 +822,14 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
     </div>
     <div class="sglbl">Alerts</div>
     <div class="sgcard">
+      <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%;">
+          <div class="sgi-ic">🔔</div>
+          <div style="flex:1"><div class="sgi-t">Browser Notifications</div><div class="sgi-s" id="notifStatus">Tap to enable</div></div>
+          <button onclick="requestNotificationPermission(true)" style="padding:6px 12px;background:var(--acc);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Enable</button>
+        </div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.5;padding-left:36px;">Required for alarms and the pre-meal timer to fire when your screen is locked.</div>
+      </div>
       <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🔴</div><div><div class="sgi-t">Low Glucose Alert</div><div class="sgi-s">Warn when below target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
       <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🟡</div><div><div class="sgi-t">High Glucose Alert</div><div class="sgi-s">Warn when above target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
     </div>
@@ -1492,6 +1500,7 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       </div>
       <input type="file" id="camFileInput" accept="image/*" capture="environment" onchange="handleCamUpload(event)" style="display:none;">
       <button class="analyze-btn" id="analyzeBtn" onclick="runMealAnalysis()" disabled>🔍 Analyse Meal with AI</button>
+      <div id="aiKeyHint" style="display:none;font-size:11px;color:var(--hi);text-align:center;padding:4px 0;">No API key — go to Settings → AI Features to add one</div>
       <div class="cam-result-box" id="camResultBox">
         <div class="crb-name" id="crbName"></div>
         <div class="crb-stats" id="crbStats"></div>
@@ -1572,6 +1581,72 @@ function toast(msg,type='info',icon='ℹ️'){
 function toastError(msg){toast(msg,'error','❌');}
 function toastSuccess(msg){toast(msg,'success','✅');}
 function toastWarn(msg){toast(msg,'warn','⚠️');}
+
+// ══════════════ BROWSER NOTIFICATIONS ══════════════
+function requestNotificationPermission(showPrompt){
+  if(!('Notification' in window)){
+    if(showPrompt) toastWarn('Your browser does not support notifications.');
+    return;
+  }
+  if(Notification.permission==='granted'){
+    if(showPrompt) toastSuccess('Notifications are already enabled ✅');
+    return;
+  }
+  if(Notification.permission==='denied'){
+    if(showPrompt) toastWarn('Notifications are blocked. Go to your browser/phone Settings → Site Settings → Notifications and allow GlucoTrack.');
+    return;
+  }
+  // 'default' — ask
+  Notification.requestPermission().then(p=>{
+    if(p==='granted') toastSuccess('✅ Notifications enabled! You will be alerted even when the screen is locked (Android) or app is in background.');
+    else toastWarn('⚠️ Notifications blocked. To enable: browser Settings → Site Settings → Notifications → Allow for this site.');
+  });
+}
+
+// Send a real browser notification + in-app toast + sound
+function notify(title, body, icon='💉', soundType='test'){
+  // In-app toast always
+  toast(body, 'info', icon);
+  // Sound + vibration
+  const a=load('gt_alarms',{});
+  if(a.soundOn!==false) playAlarmSound(soundType);
+  if(a.vibeOn!==false) triggerVibration(soundType);
+  // Use Service Worker notification — works in background on Android
+  if('serviceWorker' in navigator && Notification.permission==='granted'){
+    navigator.serviceWorker.ready.then(reg=>{
+      reg.showNotification(title,{
+        body,
+        tag:'glucotrack-'+soundType,
+        requireInteraction:true,
+        vibrate:[200,100,200,100,200],
+        icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💉</text></svg>',
+      }).catch(()=>{
+        // Fallback to basic Notification API
+        if(Notification.permission==='granted') try{new Notification(title,{body});}catch(e){}
+      });
+    }).catch(()=>{
+      if(Notification.permission==='granted') try{new Notification(title,{body});}catch(e){}
+    });
+  } else if('Notification' in window && Notification.permission==='granted'){
+    try{new Notification(title,{body,requireInteraction:true});}catch(e){}
+  }
+}
+
+// Schedule a notification via the Service Worker (survives screen lock on Android)
+function scheduleNotification(delayMs, title, body, tag){
+  if('serviceWorker' in navigator && Notification.permission==='granted'){
+    navigator.serviceWorker.ready.then(reg=>{
+      // Send to SW to schedule — SW setTimeout persists longer than page timers
+      reg.active && reg.active.postMessage({
+        type:'SCHEDULE_NOTIFICATION', delayMs, title, body, tag
+      });
+    }).catch(()=>{});
+  }
+  // Also keep a page-side timer as backup
+  return setTimeout(()=>{
+    notify(title, body, '🍽️', 'test');
+  }, delayMs);
+}
 
 // ── In-app confirm (replaces window.confirm which is blocked on iOS PWA) ──
 function appConfirm(msg, onConfirm, danger=true){
@@ -2067,11 +2142,9 @@ function fireAlarm(type,msg){
     const h=new Date().getHours();
     if(h>=22||h<7)return;
   }
-  if(a.soundOn!==false)playAlarmSound(type);
-  if(a.vibeOn!==false)triggerVibration(type);
   const icons={urgLow:'🚨',low:'🚨',high:'⚠️',rise:'📈',fall:'📉'};
-  const ttype=(type==='urgLow'||type==='low')?'error':'warn';
-  toast(msg,ttype,icons[type]||'🔔');
+  const titles={urgLow:'🚨 URGENT LOW — Act Now',low:'🚨 Low Glucose',high:'⚠️ High Glucose',rise:'📈 Rising Fast',fall:'📉 Falling Fast'};
+  notify(titles[type]||'GlucoTrack Alert', msg, icons[type]||'🔔', type);
 }
 
 // ── Check a glucose value against all enabled alarms ──
@@ -3596,6 +3669,10 @@ function saveReading(){
   refreshAll();
   // Trigger alarm check on every new reading (not edits)
   if(editingIdx<0) setTimeout(()=>checkAlarms(Math.round(v*10)/10), 400);
+  // Start 20-min pre-meal timer if bolus insulin logged before a meal
+  if(editingIdx<0 && ins && ins>0 && (selCtx==='Before Meal'||selCtx==='Random Check')){
+    startPreMealTimer(ins);
+  }
 }
 
 // ══════════════ MEAL LOG MODAL ══════════════
@@ -3846,8 +3923,8 @@ async function analyseFullMeal(){
   document.querySelectorAll('#mealItemsContainer .meal-item-name').forEach(inp=>{
     if(inp.value.trim())items.push(inp.value.trim());
   });
-  if(!checkApiKey())return;
   if(!items.length){toastWarn('Add at least one food item first.');return;}
+  if(!getApiKey()){toastError('Add your Anthropic API key in Settings → AI Features.');return;}
   const btn=document.getElementById('fullMealAiBtn');
   btn.textContent='🔄 Analysing…';btn.disabled=true;
   try{
@@ -3906,14 +3983,16 @@ function handleCamUpload(e){
     img.src=mealCamImageData;img.style.display='block';
     document.getElementById('camAreaPlaceholder').style.display='none';
     document.getElementById('analyzeBtn').disabled=false;
+    const hint=document.getElementById('aiKeyHint');
+    if(hint)hint.style.display=getApiKey()?'none':'block';
   };
   r.readAsDataURL(file);
   e.target.value='';
 }
 
 async function runMealAnalysis(){
-  if(!checkApiKey())return;
   if(!mealCamImageData){toastError('Please take or upload a photo first.');return;}
+  if(!getApiKey()){toastError('Add your Anthropic API key in Settings → AI Features.');return;}
   const btn=document.getElementById('analyzeBtn');
   btn.disabled=true;btn.textContent='🔄 Analysing…';
   try{
@@ -4066,7 +4145,7 @@ function showFsPreview(dataUrl){
   document.getElementById('camfsVideo').style.display='none';
 }
 async function analyzeFsMeal(imgData){
-  if(!checkApiKey()){closeCamFull();return;}
+  if(!getApiKey()){closeCamFull();toastError('Add your Anthropic API key in Settings → AI Features.');return;}
   document.getElementById('camfsAnalyzing').classList.add('show');
   try{
     const b64=imgData.split(',')[1];
@@ -4213,6 +4292,14 @@ function saveSettings(){
 
 function loadSettingsUI(){
   loadApiKeyUI();
+  // Update notification permission status
+  const ns=document.getElementById('notifStatus');
+  if(ns){
+    if(!('Notification' in window)) ns.textContent='Not supported in this browser';
+    else if(Notification.permission==='granted') ns.textContent='✅ Enabled — alerts fire even when screen is locked';
+    else if(Notification.permission==='denied') ns.textContent='❌ Blocked — go to phone Settings → Apps → Browser → Notifications';
+    else ns.textContent='Not yet enabled — tap Enable';
+  }
   document.getElementById('sLow').value=cfg.low;
   document.getElementById('sHigh').value=cfg.high;
   document.getElementById('sCarbRatio').value=cfg.carbRatio||10;
@@ -4511,20 +4598,82 @@ function fireBasalPreReminder(){
   const name=cfg.basalName||'Basal';
   const dose=cfg.basalDose||0;
   if(!dose)return;
-  const a=load('gt_alarms',{});
-  if(a.soundOn!==false)playAlarmSound('test');
-  if(a.vibeOn!==false)triggerVibration('test');
-  toast(`⏰ 15 minutes until your ${name} injection (${dose}u) — get ready`,'warn','🌙');
+  notify(`⏰ GlucoTrack Reminder`,`15 minutes until your ${name} injection (${dose}u) — get ready`,'🌙','test');
 }
 
 function fireBasalOnTimeReminder(){
   const name=cfg.basalName||'Basal';
   const dose=cfg.basalDose||0;
   if(!dose)return;
-  const a=load('gt_alarms',{});
-  if(a.soundOn!==false)playAlarmSound('test');
-  if(a.vibeOn!==false)triggerVibration('test');
-  toast(`🌙 Time for your ${name} injection (${dose}u) — log it after injecting`,'info','💉');
+  notify(`💉 GlucoTrack — Injection Time`,`Time for your ${name} injection (${dose}u) — inject now and log it`,'💉','test');
+}
+
+// ══════════════ PRE-MEAL INSULIN TIMER ══════════════
+let preMealTimer=null;
+let preMealCountdownInterval=null;
+
+function startPreMealTimer(insulinUnits){
+  // Clear any existing timer
+  if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
+  if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
+
+  const WAIT_MS=20*60*1000; // 20 minutes
+  const fireAt=Date.now()+WAIT_MS;
+
+  // Show countdown toast immediately
+  toastSuccess(`💉 Insulin logged (${insulinUnits}u) — wait 20 min before eating. Timer started!`);
+
+  // Show a persistent countdown banner
+  showPreMealBanner(fireAt);
+
+  // Fire the main reminder after 20 min — use SW scheduler for background delivery
+  preMealTimer=scheduleNotification(
+    WAIT_MS,
+    '🍽️ GlucoTrack — Start Eating Now',
+    '20 minutes have passed since your insulin injection. You can start eating now!',
+    'premeal'
+  );
+  // Also attach a cleanup callback via a parallel setTimeout
+  setTimeout(()=>{ hidePreMealBanner(); preMealTimer=null; }, WAIT_MS);
+}
+
+function showPreMealBanner(fireAt){
+  // Create or update the countdown banner
+  let banner=document.getElementById('preMealBanner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='preMealBanner';
+    banner.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:300;background:#0D1321;color:#fff;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.35);white-space:nowrap;font-family:Plus Jakarta Sans,sans-serif;';
+    banner.innerHTML=`<span>🍽️</span><span id="preMealCountdown">20:00</span><span style="font-weight:500;opacity:.8">until you can eat</span><button onclick="cancelPreMealTimer()" style="margin-left:8px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;font-family:Plus Jakarta Sans,sans-serif;">✕ Cancel</button>`;
+    document.body.appendChild(banner);
+  }
+  banner.style.display='flex';
+
+  // Update countdown every second
+  preMealCountdownInterval=setInterval(()=>{
+    const remaining=Math.max(0,fireAt-Date.now());
+    const mins=Math.floor(remaining/60000);
+    const secs=Math.floor((remaining%60000)/1000);
+    const el=document.getElementById('preMealCountdown');
+    if(el) el.textContent=`${mins}:${secs.toString().padStart(2,'0')}`;
+    if(remaining<=0){
+      clearInterval(preMealCountdownInterval);
+      preMealCountdownInterval=null;
+      hidePreMealBanner();
+    }
+  },1000);
+}
+
+function hidePreMealBanner(){
+  const banner=document.getElementById('preMealBanner');
+  if(banner) banner.style.display='none';
+}
+
+function cancelPreMealTimer(){
+  if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
+  if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
+  hidePreMealBanner();
+  toast('Pre-meal timer cancelled','info','✕');
 }
 
 function clearAll(){appConfirm('Delete ALL readings? This cannot be undone.',()=>{readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');});}
@@ -4636,8 +4785,9 @@ function setupPWA(){
   // Register inline service worker for offline support
   if('serviceWorker' in navigator){
     const swCode=`
-      const CACHE='glucotrack-v4';
+      const CACHE='glucotrack-v5';
       const ASSETS=[self.location.origin+self.location.pathname];
+
       self.addEventListener('install',e=>e.waitUntil(
         caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
       ));
@@ -4651,6 +4801,46 @@ function setupPWA(){
           return res;
         }).catch(()=>caches.match(e.request)))
       ));
+
+      // Handle notification display from main thread
+      self.addEventListener('message', e => {
+        if(e.data && e.data.type === 'SHOW_NOTIFICATION'){
+          const {title, body, tag, requireInteraction} = e.data;
+          e.waitUntil(
+            self.registration.showNotification(title, {
+              body,
+              tag: tag || 'glucotrack',
+              requireInteraction: requireInteraction !== false,
+              icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💉</text></svg>',
+              vibrate: [200, 100, 200, 100, 200],
+            })
+          );
+        }
+        if(e.data && e.data.type === 'SCHEDULE_NOTIFICATION'){
+          const {delayMs, title, body, tag} = e.data;
+          // Store in IDB/memory for this SW session
+          setTimeout(()=>{
+            self.registration.showNotification(title, {
+              body,
+              tag: tag || 'glucotrack-scheduled',
+              requireInteraction: true,
+              icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>',
+              vibrate: [300, 100, 300],
+            });
+          }, delayMs);
+        }
+      });
+
+      // Handle notification click — focus the app
+      self.addEventListener('notificationclick', e => {
+        e.notification.close();
+        e.waitUntil(
+          clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
+            if(cs.length) return cs[0].focus();
+            return clients.openWindow(self.location.origin+self.location.pathname);
+          })
+        );
+      });
     `;
     const swBlob=new Blob([swCode],{type:'application/javascript'});
     const swUrl=URL.createObjectURL(swBlob);
@@ -4845,6 +5035,7 @@ setInterval(refreshTimestamps, 30000);
   currentUser=guest;
   loadReadings();
   loadCfg();
+  requestNotificationPermission();
   const du=document.getElementById('drawerUser'); if(du) du.textContent='Guest';
   const de=document.getElementById('drawerEmail'); if(de) de.textContent='';
   loadSettingsUI();
