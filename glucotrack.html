@@ -796,7 +796,12 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <div class="ri-f"><label>Carb Ratio (g/unit)</label><input type="number" id="sCarbRatio" value="10" step="1" onchange="saveSettings()"></div>
         <div class="ri-f"><label>Correction (mmol/u)</label><input type="number" id="sCorrFactor" value="2.2" step="0.1" onchange="saveSettings()"></div>
       </div>
-      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">1 unit covers <strong id="carbRatioDisplay">10</strong>g carbs. 1 unit drops BG by <strong id="corrDisplay">2.2</strong> mmol/L. Confirm with your diabetes care team.</div>
+      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">
+        Uses the <strong>Walsh Bolus Calculator</strong> (medical standard):<br>
+        <strong>Meal dose</strong> = Carbs ÷ <strong id="carbRatioDisplay">10</strong>g/u &nbsp;·&nbsp;
+        <strong>Correction</strong> = (BG − target) ÷ <strong id="corrDisplay">2.2</strong> mmol/u<br>
+        Total = Meal + Correction − IOB &nbsp;·&nbsp; Always confirm with your diabetes care team.
+      </div>
     </div>
     <div class="sglbl">Basal (Long-Acting) Insulin</div>
     <div class="sgcard">
@@ -2944,8 +2949,18 @@ function updateForecast(){
   document.getElementById('fcFactors').innerHTML=fh||'<div class="empty" style="padding:10px;"><div class="empty-ic" style="font-size:20px;">⚡</div>No active factors</div>';
   // Recs
   const recs=[];
-  if(f1<cfg.low)recs.push({ic:'🚨',c:'var(--low)',t:'Low Predicted in 1h',b:`${fmt(f1)} mmol/L predicted. Consider ${Math.round((cfg.low-f1)*cfg.carbRatio*1.5)}g fast-acting carbs.`});
-  if(f3>cfg.high&&f1>cfg.high){const cu=((f1-cfg.high)/cfg.corrFactor).toFixed(1);recs.push({ic:'💉',c:'var(--acc)',t:'Correction May Be Needed',b:`Predicted ${fmt(f1)} in 1h. ~${cu}u correction estimated. Always verify before dosing.`});}
+  if(f1<cfg.low){
+    // Rule of 15: 15g fast-acting carbs raises BG ~2.1 mmol/L in most adults
+    const bgDeficit=Math.max(0,cfg.low-f1);
+    const rescueCarbs=Math.round((bgDeficit/2.1)*15);
+    recs.push({ic:'🚨',c:'var(--low)',t:'Low Predicted in 1h',b:`${fmt(f1)} mmol/L predicted. Rule of 15: ~${rescueCarbs}g fast-acting carbs to raise BG to target. Recheck in 15 min.`});
+  }
+  if(f3>cfg.high&&f1>cfg.high){
+    const targetBG=(cfg.low+cfg.high)/2;
+    const cu=Math.max(0,(f1-targetBG)/cfg.corrFactor);
+    const cuRounded=Math.round(cu*2)/2;
+    recs.push({ic:'💉',c:'var(--acc)',t:'Correction May Be Needed',b:`Predicted ${fmt(f1)} in 1h. Walsh correction: (${fmt(f1)}−${fmt(targetBG)}) ÷ ${cfg.corrFactor} ≈ ${cuRounded.toFixed(1)}u. Subtract any IOB. Always verify before dosing.`});
+  }
   if(!recs.length&&f3>=cfg.low&&f3<=cfg.high)recs.push({ic:'✅',c:'var(--ok)',t:'On Track',b:'Forecast looks good for the next 3 hours.'});
   if(!recs.length)recs.push({ic:'💡',c:'var(--t2)',t:'Keep Logging',b:'Log regularly for more accurate predictions.'});
   document.getElementById('fcRecs').innerHTML=recs.map(r=>`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:18px;flex-shrink:0">${r.ic}</div><div><div style="font-size:13px;font-weight:700;color:${r.c};margin-bottom:3px">${r.t}</div><div style="font-size:12px;color:var(--t2);line-height:1.5">${r.b}</div></div></div>`).join('');
@@ -3497,22 +3512,34 @@ function onGlIn(){
 }
 
 function calcInsulinFromCarbs(){
+  // ── Walsh Bolus Calculator (medical standard) ──────────────────────
+  // Total Bolus = Meal Dose + Correction Dose - IOB
+  // Meal Dose   = Carbs ÷ ICR  (ICR = insulin-to-carb ratio, g per unit)
+  // Correction  = (Current BG - Target BG) ÷ ISF  (ISF = correction factor)
+  // Target BG   = midpoint of user's target range
+  // IOB not tracked here, so user is reminded to account for it
   const carbs=parseFloat(document.getElementById('carbIn').value)||0;
   const curBG=parseFloat(document.getElementById('glIn').value)||0;
-  let ins=0;let note='';
-  if(carbs>0){
-    const carbUnits=carbs/cfg.carbRatio;
-    let corrUnits=0;
-    if(curBG>cfg.high)corrUnits=Math.max(0,(curBG-cfg.high)/cfg.corrFactor);
-    ins=Math.round((carbUnits+corrUnits)*2)/2;// round to nearest 0.5
-    note=`${carbs}g ÷ ${cfg.carbRatio}g/u = ${carbUnits.toFixed(1)}u for carbs`;
-    if(corrUnits>0)note+=` + ${corrUnits.toFixed(1)}u correction`;
-    document.getElementById('mIns').value=ins;
+  let ins=0; let note='';
+  const targetBG=(cfg.low+cfg.high)/2; // personalised target midpoint
+
+  if(carbs>0 || curBG>cfg.high){
+    const mealDose = carbs>0 ? carbs/cfg.carbRatio : 0;
+    const corrDose = curBG>targetBG ? Math.max(0,(curBG-targetBG)/cfg.corrFactor) : 0;
+    const raw = mealDose + corrDose;
+    ins = Math.round(raw*2)/2; // round to nearest 0.5u (standard clinical rounding)
+
+    const parts=[];
+    if(mealDose>0) parts.push(`${carbs}g ÷ ${cfg.carbRatio}g/u = ${mealDose.toFixed(2)}u meal`);
+    if(corrDose>0) parts.push(`(${fmt(curBG)}−${fmt(targetBG)}) ÷ ${cfg.corrFactor} = ${corrDose.toFixed(2)}u correction`);
+    note = parts.join(' + ') + (ins!==raw?` → rounded to ${ins}u`:'');
+    if(ins>0) note += ' · ⚠️ Subtract any IOB';
+    document.getElementById('mIns').value=ins>0?ins:'';
   } else {
-    note='Enter carbs to get insulin suggestion';
+    note='Enter carbs or a high BG to get a dose suggestion';
     document.getElementById('mIns').value='';
   }
-  document.getElementById('suggestedIns').textContent=carbs>0?ins.toFixed(1):'0.0';
+  document.getElementById('suggestedIns').textContent=ins>0?ins.toFixed(1):'0.0';
   document.getElementById('cibNote').textContent=note;
 }
 
@@ -3802,11 +3829,13 @@ function recalcMealTotals(){
     }
   }
   if(total>0){
-    const ins=Math.round((total/cfg.carbRatio)*2)/2;
-    document.getElementById('mealInsRec').textContent=`💉 Suggested insulin: ${ins.toFixed(1)}u (${Math.round(total)}g ÷ ${cfg.carbRatio}g/u)`;
+    // Walsh meal dose — carbs only (no current BG available in meal modal)
+    const mealDose=total/cfg.carbRatio;
+    const ins=Math.round(mealDose*2)/2;
+    document.getElementById('mealInsRec').textContent=`💉 Meal dose: ${Math.round(total)}g ÷ ${cfg.carbRatio}g/u = ${ins.toFixed(1)}u · Add correction if BG is high`;
     document.getElementById('mealIns').value=ins;
   } else {
-    document.getElementById('mealInsRec').textContent='Search foods above or tap AI Carb Lookup';
+    document.getElementById('mealInsRec').textContent='Search foods above or enter carbs manually';
     document.getElementById('mealIns').value='';
   }
 }
@@ -3929,7 +3958,7 @@ function showCamResult(d){
     `<div class="crb-stat">GI: <span>${d.glycemicIndex||'—'}</span></div>`;
   document.getElementById('crbItems').innerHTML=d.items?.map(i=>`• ${i}`).join('<br>')||'';
   document.getElementById('aiCarbs').textContent=d.totalCarbs||0;
-  document.getElementById('aiInsRec').textContent=`💉 Suggested insulin: ${ins.toFixed(1)}u (${d.totalCarbs}g ÷ ${cfg.carbRatio}g/u)`;
+  document.getElementById('aiInsRec').textContent=`💉 Meal dose: ${d.totalCarbs}g ÷ ${cfg.carbRatio}g/u = ${ins.toFixed(1)}u · Add correction if BG is high`;
   document.getElementById('aiMealIns').value=ins;
   document.getElementById('camResultBox').style.display='block';
   document.getElementById('analyzeBtn').textContent='🔍 Re-analyse';
