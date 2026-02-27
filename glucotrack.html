@@ -846,8 +846,12 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       <button class="dbtn" onclick="document.getElementById('restoreInput').click()" style="color:var(--acc);">📥 Restore from Backup</button>
       <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none;">
       <button class="dbtn" onclick="exportCSV()">📤 Export Readings (CSV)</button>
+      <!-- FreeStyle Libre import — temporarily disabled
       <button class="dbtn" onclick="document.getElementById('libreImportInput').click()" style="color:#0077C8;">📲 Import from FreeStyle Libre (CSV)</button>
       <input type="file" id="libreImportInput" accept=".csv" onchange="importLibreCSV(event)" style="display:none;">
+      -->
+      <button class="dbtn" onclick="document.getElementById('mysugrsImportInput').click()" style="color:#E84D1C;">📲 Import from mySugr / Accu-Chek (CSV)</button>
+      <input type="file" id="mysugrsImportInput" accept=".csv" onchange="importMySugrCSV(event)" style="display:none;">
       <button class="dbtn" onclick="clearAll()">🗑️ Clear All Readings</button>
     </div>
     <div class="sglbl">Share</div>
@@ -4349,6 +4353,7 @@ function exportCSV(){
   toastSuccess('Exported '+readings.length+' readings.');
 }
 // ══════════════ LIBRE CSV IMPORT ══════════════
+/* FreeStyle Libre import — temporarily disabled
 function importLibreCSV(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
@@ -4451,6 +4456,186 @@ function importLibreCSV(e){
     e.target.value='';
   };
   reader.readAsText(file);
+}
+
+*/
+
+// ══════════════ MYSUGR / ACCU-CHEK CSV IMPORT ══════════════
+// mySugr export format (Settings → More → Export Data → CSV):
+// Columns include: Date, Time, Blood Sugar Measurement (mg/dL or mmol/L),
+// Bolus Amount, Meal Bolus, Correction Bolus, Carbohydrates, Notes, Tags
+// The app auto-detects mmol/L vs mg/dL and converts if needed.
+
+function importMySugrCSV(e){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const text=ev.target.result;
+      const lines=text.split(/\r?\n/).filter(l=>l.trim());
+      if(lines.length<2){toastError('File appears empty. Export from mySugr and try again.');e.target.value='';return;}
+
+      // ── Find header row ──
+      // mySugr CSVs start with a few metadata lines before the header
+      let headerIdx=-1;
+      for(let i=0;i<Math.min(8,lines.length);i++){
+        const lower=lines[i].toLowerCase();
+        if(lower.includes('date')&&(lower.includes('blood sugar')||lower.includes('glucose')||lower.includes('bolus'))){
+          headerIdx=i; break;
+        }
+      }
+      if(headerIdx===-1){
+        // Fallback: first row with more than 3 commas is likely the header
+        for(let i=0;i<Math.min(6,lines.length);i++){
+          if((lines[i].match(/,/g)||[]).length>3){headerIdx=i;break;}
+        }
+      }
+      if(headerIdx===-1){toastError('Could not read mySugr CSV format. Try re-exporting from mySugr.');e.target.value='';return;}
+
+      const headers=parseCSVRow(lines[headerIdx]).map(h=>h.trim().toLowerCase().replace(/["\']/g,''));
+
+      // ── Map columns ──
+      const col=(keywords)=>headers.findIndex(h=>keywords.some(k=>h.includes(k)));
+
+      const dateCol   = col(['date']);
+      const timeCol   = col(['time']);
+      const bgCol     = col(['blood sugar measurement','blood glucose','glucose mmol','glucose mg','bg mmol','bg mg','blood sugar']);
+      const bolusCol  = col(['bolus amount','total bolus','bolus (u','bolus(u']);
+      const mealBCol  = col(['meal bolus','food bolus']);
+      const corrBCol  = col(['correction bolus']);
+      const carbCol   = col(['carbohydrates','carbs','carb (g','carb(g']);
+      const notesCol  = col(['notes','comment','remark']);
+      const tagsCol   = col(['tags','activity','context']);
+      const unitCol   = col(['unit','units']);
+
+      if(dateCol===-1||bgCol===-1){
+        toastError('Could not find Date or Blood Sugar columns. Make sure you export from mySugr as CSV.');
+        e.target.value='';return;
+      }
+
+      // ── Detect unit (mmol/L vs mg/dL) ──
+      // Check column header for unit hint, otherwise sniff values
+      let isMgDl=false;
+      const bgHeader=headers[bgCol]||'';
+      if(bgHeader.includes('mg/dl')||bgHeader.includes('mg dl'))isMgDl=true;
+      else if(bgHeader.includes('mmol'))isMgDl=false;
+      else{
+        // Sniff first 10 data rows — mg/dL values are typically >40
+        for(let i=headerIdx+1;i<Math.min(headerIdx+11,lines.length);i++){
+          const row=parseCSVRow(lines[i]);
+          const v=parseFloat((row[bgCol]||'').replace(/[^0-9.]/g,''));
+          if(!isNaN(v)&&v>30){isMgDl=true;break;}
+        }
+      }
+
+      let imported=0, skipped=0, duplicates=0;
+      const newReadings=[];
+
+      for(let i=headerIdx+1;i<lines.length;i++){
+        const row=parseCSVRow(lines[i]);
+        if(row.length<2)continue;
+
+        // ── Parse date + time ──
+        const dateRaw=(row[dateCol]||'').replace(/["\']/g,'').trim();
+        const timeRaw=timeCol>-1?(row[timeCol]||'').replace(/["\']/g,'').trim():'00:00';
+        if(!dateRaw)continue;
+
+        const ts=parseMySugrTimestamp(dateRaw,timeRaw);
+        if(!ts){skipped++;continue;}
+
+        // ── Parse glucose ──
+        const bgRaw=(row[bgCol]||'').replace(/[^0-9.]/g,'').trim();
+        if(!bgRaw){skipped++;continue;}
+        let val=parseFloat(bgRaw);
+        if(isNaN(val)||val<=0){skipped++;continue;}
+        // Convert mg/dL → mmol/L
+        if(isMgDl) val=Math.round((val/18.0182)*10)/10;
+        if(val<1.0||val>33.3){skipped++;continue;}
+
+        // ── Parse insulin ──
+        let insulin=null;
+        const bolusRaw=bolusCol>-1?(row[bolusCol]||'').replace(/[^0-9.]/g,''):
+                       mealBCol>-1?(row[mealBCol]||'').replace(/[^0-9.]/g,''):
+                       corrBCol>-1?(row[corrBCol]||'').replace(/[^0-9.]/g,''):'';
+        if(bolusRaw){const b=parseFloat(bolusRaw);if(!isNaN(b)&&b>0)insulin=b;}
+
+        // ── Parse carbs ──
+        let carbs=null;
+        if(carbCol>-1){const c=parseFloat((row[carbCol]||'').replace(/[^0-9.]/g,''));if(!isNaN(c)&&c>0)carbs=Math.round(c);}
+
+        // ── Parse context from tags ──
+        let context='Random Check';
+        if(tagsCol>-1){
+          const tag=(row[tagsCol]||'').toLowerCase();
+          if(tag.includes('before meal')||tag.includes('pre meal')||tag.includes('pre-meal'))context='Before Meal';
+          else if(tag.includes('after meal')||tag.includes('post meal')||tag.includes('post-meal'))context='After Meal';
+          else if(tag.includes('bed')||tag.includes('sleep')||tag.includes('night'))context='Before Bed';
+          else if(tag.includes('wak')||tag.includes('morning')||tag.includes('fasting'))context='Waking Up';
+          else if(tag.includes('exercise')||tag.includes('sport')||tag.includes('gym'))context='After Exercise';
+        }
+
+        // ── Parse notes ──
+        const notes=notesCol>-1?(row[notesCol]||'').replace(/["\']/g,'').trim():'';
+
+        // ── Skip duplicates (within 1 min) ──
+        const isDupe=readings.some(r=>Math.abs(r.ts-ts)<60000&&!r.isMealOnly);
+        if(isDupe){duplicates++;continue;}
+
+        newReadings.push({
+          ts,
+          value:Math.round(val*10)/10,
+          context,
+          insulin,
+          carbs,
+          isMealOnly:false,
+          notes:notes||'mySugr import'
+        });
+        imported++;
+      }
+
+      if(imported===0){
+        toastError(`No readings imported. Skipped: ${skipped}, Duplicates: ${duplicates}. Check the file is a mySugr CSV export.`);
+        e.target.value='';return;
+      }
+
+      readings=[...readings,...newReadings].sort((a,b)=>a.ts-b.ts);
+      saveReadings();
+      refreshAll();
+
+      let msg=`✅ Imported ${imported} readings from mySugr`;
+      if(isMgDl) msg+=' (converted from mg/dL)';
+      if(duplicates>0) msg+=` · ${duplicates} duplicates skipped`;
+      if(skipped>0) msg+=` · ${skipped} invalid rows skipped`;
+      toastSuccess(msg);
+
+    }catch(err){
+      toastError('Import failed: '+(err.message||'Unknown error'));
+      console.error('mySugr import error:',err);
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+function parseMySugrTimestamp(dateRaw, timeRaw){
+  // mySugr uses: DD.MM.YYYY or DD/MM/YYYY or YYYY-MM-DD
+  // Time: HH:MM or HH:MM:SS
+  dateRaw=dateRaw.trim(); timeRaw=(timeRaw||'00:00').trim();
+  let d;
+  if(/^\d{2}\.\d{2}\.\d{4}/.test(dateRaw)){
+    // DD.MM.YYYY (European, most common in mySugr)
+    const [dd,mm,yyyy]=dateRaw.split('.');
+    d=new Date(`${yyyy}-${mm}-${dd}T${timeRaw.length===5?timeRaw+':00':timeRaw}`);
+  } else if(/^\d{4}-\d{2}-\d{2}/.test(dateRaw)){
+    d=new Date(`${dateRaw}T${timeRaw.length===5?timeRaw+':00':timeRaw}`);
+  } else if(/^\d{2}\/\d{2}\/\d{4}/.test(dateRaw)){
+    const [dd,mm,yyyy]=dateRaw.split('/');
+    d=new Date(`${yyyy}-${mm}-${dd}T${timeRaw.length===5?timeRaw+':00':timeRaw}`);
+  } else {
+    d=new Date(dateRaw+' '+timeRaw);
+  }
+  if(isNaN(d.getTime()))return null;
+  return d.getTime();
 }
 
 function parseCSVRow(line){
