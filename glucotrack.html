@@ -708,6 +708,33 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
     <div class="sc-hd"><div class="sc-title">Recommendations</div></div>
     <div id="fcRecs"><div class="empty" style="padding:12px;"><div class="empty-ic" style="font-size:20px;">💡</div>Log readings for personalised recommendations</div></div>
   </div>
+
+  <!-- BASAL FEATURE 1: Adequacy -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd">
+      <div class="sc-title">🌙 Basal Adequacy</div>
+      <div style="font-size:10px;color:var(--t3);">Based on fasting readings</div>
+    </div>
+    <div id="basalAdequacy"><div class="empty" style="padding:10px;font-size:12px;">Log fasting readings (Before Bed &amp; Waking Up) for analysis</div></div>
+  </div>
+
+  <!-- BASAL FEATURE 2: Overnight drift -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd">
+      <div class="sc-title">🌜 Overnight Trend</div>
+      <div style="font-size:10px;color:var(--t3);">Bedtime → morning (7 days)</div>
+    </div>
+    <div id="overnightTrend"><div class="empty" style="padding:10px;font-size:12px;">Need both Before Bed and Waking Up readings</div></div>
+  </div>
+
+  <!-- BASAL FEATURE 3: Logging streak -->
+  <div class="card card-last" style="margin-top:10px;margin-bottom:12px;">
+    <div class="sc-hd">
+      <div class="sc-title">💉 Basal Injection Streak</div>
+      <div style="font-size:10px;color:var(--t3);">Daily logging record</div>
+    </div>
+    <div id="basalStreak"><div class="empty" style="padding:10px;font-size:12px;">No basal injections logged yet</div></div>
+  </div>
 </div>
 
 <!-- ── A1C ── -->
@@ -763,13 +790,27 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <div class="ri-f"><label>High Above</label><input type="number" id="sHigh" value="10.0" step="0.1" onchange="saveSettings()"></div>
       </div>
     </div>
-    <div class="sglbl">Insulin Ratios</div>
+    <div class="sglbl">Bolus (Short-Acting) Insulin</div>
     <div class="sgcard">
       <div class="ri-wrap">
         <div class="ri-f"><label>Carb Ratio (g/unit)</label><input type="number" id="sCarbRatio" value="10" step="1" onchange="saveSettings()"></div>
         <div class="ri-f"><label>Correction (mmol/u)</label><input type="number" id="sCorrFactor" value="2.2" step="0.1" onchange="saveSettings()"></div>
       </div>
       <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">1 unit covers <strong id="carbRatioDisplay">10</strong>g carbs. 1 unit drops BG by <strong id="corrDisplay">2.2</strong> mmol/L. Confirm with your diabetes care team.</div>
+    </div>
+    <div class="sglbl">Basal (Long-Acting) Insulin</div>
+    <div class="sgcard">
+      <div class="ri-wrap">
+        <div class="ri-f"><label>Insulin Name</label><input type="text" id="sBasalName" value="Lantus" placeholder="e.g. Lantus, Toujeo, Tresiba" onchange="saveSettings()" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;"></div>
+        <div class="ri-f"><label>Daily Dose (units)</label><input type="number" id="sBasalDose" value="0" step="1" min="0" max="200" onchange="saveSettings()"></div>
+      </div>
+      <div class="ri-wrap" style="padding-top:0;">
+        <div class="ri-f"><label>Injection Time</label><input type="time" id="sBasalTime" value="18:00" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;color:var(--text);"></div>
+        <div class="ri-f" style="justify-content:flex-end;padding-top:18px;">
+          <div style="font-size:11px;color:var(--t3);line-height:1.7;padding-top:6px;">Log basal via the<br><strong style="color:var(--acc)">Log Reading</strong> button below</div>
+        </div>
+      </div>
+      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">A reminder will appear at your set injection time each day. Basal insulin is logged separately and not included in bolus calculations.</div>
     </div>
     <div class="sglbl">Alerts</div>
     <div class="sgcard">
@@ -1342,10 +1383,21 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
     </div>
 
     <div class="msec" style="margin-top:10px;">
-      <div class="msec-lbl">Actual Insulin Taken</div>
+      <div class="msec-lbl">Insulin</div>
       <div class="iins">
-        <div class="iif"><label>Insulin (units)</label><input type="number" id="mIns" placeholder="0" min="0" max="100" step="0.5"></div>
-        <div class="iif"><label>Notes</label><input type="text" id="mNotes" placeholder="Optional notes"></div>
+        <div class="iif">
+          <label>💉 Bolus (short-acting)</label>
+          <input type="number" id="mIns" placeholder="0" min="0" max="100" step="0.5">
+        </div>
+        <div class="iif">
+          <label>🌙 Basal (<span id="mBasalName">long-acting</span>)</label>
+          <input type="number" id="mBasal" placeholder="0" min="0" max="200" step="1">
+          <div id="mBasalHint" style="font-size:10px;color:var(--t3);margin-top:3px;"></div>
+        </div>
+      </div>
+      <div class="iif" style="margin-top:8px;">
+        <label>Notes</label>
+        <input type="text" id="mNotes" placeholder="Optional notes">
       </div>
     </div>
     <button class="svbtn" onclick="saveReading()">Save Reading</button>
@@ -2439,7 +2491,7 @@ function goTo(n){
   if(n==='a1c')setTimeout(updateA1c,50);
   if(n==='history')updateHistory();
   if(n==='home')setTimeout(drawMainChart,120);
-  if(n==='forecast')setTimeout(updateForecast,60);
+  if(n==='forecast'){setTimeout(updateForecast,60);setTimeout(updateBasalInsights,80);}
   if(n==='reports')setTimeout(updateReports,60);
   if(n==='alarms')loadAlarms();
 }
@@ -2492,7 +2544,7 @@ function updateRecent(){
   el.innerHTML=indexed.map(r=>{
     const s=r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
     const ic=CTX_IC[r.context]||'🩺',cl=CTX_CL[r.context]||'#6B7280';
-    const sub=[fD(r.ts)+', '+fT(r.ts),r.insulin?'💉 '+r.insulin+'u':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
+    const sub=[fD(r.ts)+', '+fT(r.ts),r.insulin?'💉 '+r.insulin+'u bolus':'',r.basal?'🌙 '+r.basal+'u basal':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
     const valDisplay=r.isMealOnly?'—':fmt(r.value);
     const editFn=r.isMealOnly?`editMeal(${r._idx})`:`editReading(${r._idx})`;
     return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${r.isMealOnly?'meal':'mmol/L'}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
@@ -2821,7 +2873,7 @@ function updateForecast(){
     if(dtMin>0&&dtMin<180)trend=Math.max(-0.08,Math.min(0.08,(lat.value-prev.value)/dtMin));
   }
   const recentMeals=readings.filter(r=>r.carbs&&r.carbs>0&&(now-r.ts)<2*3600000);
-  const recentIns=readings.filter(r=>r.insulin&&r.insulin>0&&(now-r.ts)<4*3600000);
+  const recentIns=readings.filter(r=>r.insulin&&r.insulin>0&&!r.basalOnly&&(now-r.ts)<4*3600000);// basal excluded from IOB
   function fcast(m){
     let v=lat.value+trend*m;
     recentMeals.forEach(r=>{
@@ -2895,6 +2947,263 @@ function drawFcChart(pts){
   });
   ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='9px JetBrains Mono';ctx.textAlign='center';
   ['Now','30m','1h','1.5h','2h','3h'].forEach((l,i)=>ctx.fillText(l,tx(i),H-1));
+}
+
+// ══════════════ BASAL ANALYSIS ══════════════
+
+// ── 1. Basal Adequacy ──
+// Looks at fasting readings (Before Bed & Waking Up) over 14 days
+// If fasting BG is consistently in range → basal is adequate
+// If consistently high → basal may be too low
+// If consistently low → basal may be too high
+function updateBasalAdequacy(){
+  const el=document.getElementById('basalAdequacy');
+  if(!el)return;
+  const since=Date.now()-14*86400000;
+  const fasting=readings.filter(r=>
+    !r.isMealOnly&&r.value>0&&r.ts>=since&&
+    (r.context==='Before Bed'||r.context==='Waking Up')
+  );
+  if(fasting.length<3){
+    el.innerHTML='<div class="empty" style="padding:10px;font-size:12px;">Need at least 3 fasting readings (Before Bed / Waking Up) over 14 days</div>';
+    return;
+  }
+  const vals=fasting.map(r=>r.value);
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+  const inRange=vals.filter(v=>v>=cfg.low&&v<=cfg.high).length;
+  const pct=Math.round(inRange/vals.length*100);
+  const high=vals.filter(v=>v>cfg.high).length;
+  const low=vals.filter(v=>v<cfg.low).length;
+  const highPct=Math.round(high/vals.length*100);
+  const lowPct=Math.round(low/vals.length*100);
+
+  let verdict,col,bg,advice;
+  if(pct>=70){
+    verdict='Well Controlled';col='var(--ok)';bg='var(--ok-bg)';
+    advice='Your fasting glucose is mostly in range — basal dose appears appropriate.';
+  } else if(highPct>40){
+    verdict='Possibly Too Low';col='var(--hi)';bg='var(--hi-bg)';
+    advice=`${highPct}% of fasting readings are above target. Your basal dose may need increasing — discuss with your doctor.`;
+  } else if(lowPct>20){
+    verdict='Possibly Too High';col='var(--low)';bg='var(--low-bg)';
+    advice=`${lowPct}% of fasting readings are below target. Your basal dose may be too high — review with your doctor urgently.`;
+  } else {
+    verdict='Variable';col='var(--hi)';bg='var(--hi-bg)';
+    advice='Your fasting glucose is inconsistent. Check for missed doses, injection site rotation, and discuss with your doctor.';
+  }
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;color:var(--t3);margin-bottom:3px;">Fasting BG average (14 days)</div>
+        <div style="font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;color:${col}">${fmt(avg)} <span style="font-size:12px;font-weight:500">mmol/L</span></div>
+      </div>
+      <div style="text-align:center;">
+        <div style="background:${bg};color:${col};border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;">${verdict}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:4px;">${fasting.length} fasting readings</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
+      <div style="text-align:center;background:var(--ok-bg);border-radius:8px;padding:8px;">
+        <div style="font-size:18px;font-weight:800;color:var(--ok);font-family:'JetBrains Mono',monospace;">${pct}%</div>
+        <div style="font-size:10px;color:var(--t3);">In Range</div>
+      </div>
+      <div style="text-align:center;background:var(--hi-bg);border-radius:8px;padding:8px;">
+        <div style="font-size:18px;font-weight:800;color:var(--hi);font-family:'JetBrains Mono',monospace;">${highPct}%</div>
+        <div style="font-size:10px;color:var(--t3);">Above Target</div>
+      </div>
+      <div style="text-align:center;background:var(--low-bg);border-radius:8px;padding:8px;">
+        <div style="font-size:18px;font-weight:800;color:var(--low);font-family:'JetBrains Mono',monospace;">${lowPct}%</div>
+        <div style="font-size:10px;color:var(--t3);">Below Target</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:8px;padding:10px;font-size:12px;color:var(--t2);line-height:1.6;">
+      💡 ${advice}
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.5;">⚠️ This is an observational indicator only. Never adjust your basal dose without consulting your endocrinologist or diabetes care team.</div>
+  `;
+}
+
+// ── 2. Overnight Trend ──
+// Pairs bedtime readings with next morning readings
+// Calculates average rise/fall overnight across 7 days
+function updateOvernightTrend(){
+  const el=document.getElementById('overnightTrend');
+  if(!el)return;
+  const since=Date.now()-7*86400000;
+
+  // Get Before Bed and Waking Up readings, sorted by time
+  const bed=readings.filter(r=>r.context==='Before Bed'&&!r.isMealOnly&&r.value>0&&r.ts>=since)
+    .sort((a,b)=>a.ts-b.ts);
+  const wake=readings.filter(r=>r.context==='Waking Up'&&!r.isMealOnly&&r.value>0&&r.ts>=since)
+    .sort((a,b)=>a.ts-b.ts);
+
+  if(!bed.length||!wake.length){
+    el.innerHTML='<div class="empty" style="padding:10px;font-size:12px;">Need both Before Bed and Waking Up readings over 7 days</div>';
+    return;
+  }
+
+  // Pair each bedtime with the closest subsequent waking reading (within 12h)
+  const pairs=[];
+  bed.forEach(b=>{
+    const nextWake=wake.find(w=>w.ts>b.ts&&(w.ts-b.ts)<12*3600000);
+    if(nextWake)pairs.push({bedVal:b.value,wakeVal:nextWake.value,diff:nextWake.value-b.value,bedTs:b.ts,wakeTs:nextWake.ts});
+  });
+
+  if(!pairs.length){
+    el.innerHTML='<div class="empty" style="padding:10px;font-size:12px;">No matching bedtime/morning pairs found yet</div>';
+    return;
+  }
+
+  const avgDiff=pairs.reduce((a,p)=>a+p.diff,0)/pairs.length;
+  const rising=pairs.filter(p=>p.diff>1.5).length;
+  const falling=pairs.filter(p=>p.diff<-1.5).length;
+  const stable=pairs.length-rising-falling;
+
+  let verdict,col,bg,advice;
+  if(Math.abs(avgDiff)<=1.0){
+    verdict='Stable Overnight';col='var(--ok)';bg='var(--ok-bg)';
+    advice='Your glucose stays relatively stable overnight — a good sign your basal dose is working well.';
+  } else if(avgDiff>1.0){
+    verdict='Rising Overnight';col='var(--hi)';bg='var(--hi-bg)';
+    advice=`Average rise of +${fmt(Math.abs(avgDiff))} mmol/L overnight. Could indicate insufficient basal, dawn phenomenon, or evening snacking. Discuss with your doctor.`;
+  } else {
+    verdict='Falling Overnight';col='var(--low)';bg='var(--low-bg)';
+    advice=`Average drop of ${fmt(Math.abs(avgDiff))} mmol/L overnight. This may indicate your basal dose is too high, putting you at risk of overnight hypoglycaemia. Review with your doctor urgently.`;
+  }
+
+  const rows=pairs.slice(-5).reverse().map(p=>{
+    const arrow=p.diff>1.5?'↑':p.diff<-1.5?'↓':'→';
+    const dc=p.diff>1.5?'var(--hi)':p.diff<-1.5?'var(--low)':'var(--ok)';
+    const date=new Date(p.bedTs).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--t3);">${date}</div>
+      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;">${fmt(p.bedVal)} <span style="color:var(--t3)">→</span> ${fmt(p.wakeVal)}</div>
+      <div style="font-size:13px;font-weight:800;color:${dc};">${arrow} ${p.diff>0?'+':''}${fmt(p.diff)}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:3px;">Avg overnight change</div>
+        <div style="font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;color:${col}">${avgDiff>0?'+':''}${fmt(avgDiff)} <span style="font-size:12px;font-weight:500">mmol/L</span></div>
+      </div>
+      <div style="background:${bg};color:${col};border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;">${verdict}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
+      <div style="text-align:center;background:var(--hi-bg);border-radius:8px;padding:8px;">
+        <div style="font-size:18px;font-weight:800;color:var(--hi);font-family:'JetBrains Mono',monospace;">${rising}</div>
+        <div style="font-size:10px;color:var(--t3);">Nights rising</div>
+      </div>
+      <div style="text-align:center;background:var(--ok-bg);border-radius:8px;padding:8px;">
+        <div style="font-size:18px;font-weight:800;color:var(--ok);font-family:'JetBrains Mono',monospace;">${stable}</div>
+        <div style="font-size:10px;color:var(--t3);">Nights stable</div>
+      </div>
+      <div style="text-align:center;background:var(--low-bg);border-radius:8px;padding:8px;">
+        <div style="font-size:18px;font-weight:800;color:var(--low);font-family:'JetBrains Mono',monospace;">${falling}</div>
+        <div style="font-size:10px;color:var(--t3);">Nights falling</div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:6px;">Last ${pairs.slice(-5).length} nights</div>
+    ${rows}
+    <div style="background:var(--bg);border-radius:8px;padding:10px;font-size:12px;color:var(--t2);line-height:1.6;margin-top:10px;">💡 ${advice}</div>
+    <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.5;">⚠️ Always discuss overnight patterns with your diabetes care team before adjusting your basal dose.</div>
+  `;
+}
+
+// ── 3. Basal Injection Streak ──
+// Tracks consecutive days basal was logged
+function updateBasalStreak(){
+  const el=document.getElementById('basalStreak');
+  if(!el)return;
+  const basalLogs=readings.filter(r=>r.basalOnly).sort((a,b)=>a.ts-b.ts);
+  if(!basalLogs.length){
+    el.innerHTML='<div class="empty" style="padding:10px;font-size:12px;">No basal injections logged yet — use the Log Reading button to track your daily injection</div>';
+    return;
+  }
+
+  // Build set of days that have a basal log (YYYY-MM-DD strings)
+  const loggedDays=new Set(basalLogs.map(r=>{
+    const d=new Date(r.ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }));
+
+  // Count current streak going back from today
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<365;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(loggedDays.has(key))streak++;
+    else if(i>0)break;// gap found — streak ends (allow today to not be logged yet)
+  }
+
+  // Count longest ever streak
+  const days=[...loggedDays].sort();
+  let longest=0,cur=0,prevDate=null;
+  days.forEach(dayStr=>{
+    const d=new Date(dayStr);
+    if(prevDate){
+      const diff=(d-prevDate)/86400000;
+      if(diff===1){cur++;longest=Math.max(longest,cur);}
+      else cur=1;
+    } else cur=1;
+    prevDate=d;
+  });
+  longest=Math.max(longest,cur,streak);
+
+  const todayKey=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const loggedToday=loggedDays.has(todayKey);
+  const totalDays=loggedDays.size;
+  const name=cfg.basalName||'Basal';
+
+  // Streak emoji
+  const emoji=streak>=30?'🏆':streak>=14?'🔥':streak>=7?'⭐':streak>=3?'✅':'💉';
+
+  // Last 14 days grid
+  const gridDays=[];
+  for(let i=13;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    gridDays.push({key,logged:loggedDays.has(key),label:d.getDate()});
+  }
+  const grid=gridDays.map(d=>`
+    <div title="${d.key}" style="width:100%;aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;background:${d.logged?'var(--ok)':'var(--bg)'};color:${d.logged?'#fff':'var(--t3)'};">
+      ${d.label}
+    </div>`).join('');
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+      <div style="text-align:center;">
+        <div style="font-size:48px;line-height:1;">${emoji}</div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:11px;color:var(--t3);margin-bottom:2px;">Current streak</div>
+        <div style="font-size:36px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-2px;color:${streak>0?'var(--ok)':'var(--t3)'};">${streak} <span style="font-size:14px;font-weight:600;letter-spacing:0;">days</span></div>
+        <div style="font-size:11px;color:var(--t3);">${loggedToday?'✅ Logged today':'⏳ Not yet logged today'}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--t3);margin-bottom:2px;">Longest streak</div>
+        <div style="font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--acc);">${longest}d</div>
+        <div style="font-size:11px;color:var(--t3);">${totalDays} total days</div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Last 14 days — ${name}</div>
+    <div style="display:grid;grid-template-columns:repeat(14,1fr);gap:3px;margin-bottom:12px;">
+      ${grid}
+    </div>
+    ${!loggedToday?`<div style="background:var(--acc-bg);border:1px solid var(--acc-b);border-radius:8px;padding:10px;font-size:12px;color:var(--acc);font-weight:600;">
+      ⏰ Remember to log your ${name} injection today at ${cfg.basalTime||'18:00'}
+    </div>`:''}
+  `;
+}
+
+// ── Call all 3 when forecast screen opens ──
+function updateBasalInsights(){
+  updateBasalAdequacy();
+  updateOvernightTrend();
+  updateBasalStreak();
 }
 
 // ══════════════ A1C ══════════════
@@ -2993,7 +3302,7 @@ function updateHistory(){
       ${rds.map(r=>{
         const s=r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
         const ic=CTX_IC[r.context]||'🩺',cl=CTX_CL[r.context]||'#6B7280';
-        const sub=[fT(r.ts),r.insulin?'💉 '+r.insulin+'u':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
+        const sub=[fT(r.ts),r.insulin?'💉 '+r.insulin+'u bolus':'',r.basal?'🌙 '+r.basal+'u basal':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
         const valDisplay=r.isMealOnly?'—':fmt(r.value);
         const editFn=r.isMealOnly?`editMeal(${r._idx})`:`editReading(${r._idx})`;
         return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${r.isMealOnly?'meal':'mmol/L'}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
@@ -3023,6 +3332,7 @@ function editReading(idx){
   document.getElementById('mbd').classList.add('open');
   document.getElementById('glIn').value=r.value!=null?r.value:'';
   document.getElementById('mIns').value=r.insulin!=null?r.insulin:'';
+  document.getElementById('mBasal').value=r.basal!=null?r.basal:'';
   document.getElementById('mNotes').value=r.notes||'';
   document.getElementById('carbIn').value=r.carbs!=null?r.carbs:'';
   // Update suggested insulin display
@@ -3088,6 +3398,18 @@ function openLogModal(){
   document.getElementById('mbd').classList.add('open');
   document.getElementById('glIn').value='';
   document.getElementById('mIns').value='';
+  // Auto-fill basal with configured dose; update label with insulin name
+  const bDose=cfg.basalDose||0;
+  document.getElementById('mBasal').value=bDose>0?bDose:'';
+  document.getElementById('mBasalName').textContent=cfg.basalName||'long-acting';
+  // Show hint if already logged today
+  const todayStart=new Date();todayStart.setHours(0,0,0,0);
+  const loggedToday=readings.some(r=>r.basalOnly&&r.ts>=todayStart.getTime());
+  const hint=document.getElementById('mBasalHint');
+  if(hint){
+    hint.textContent=loggedToday?'✅ Already logged today':'';
+    hint.style.color='var(--ok)';
+  }
   document.getElementById('mNotes').value='';
   document.getElementById('carbIn').value='';
   document.getElementById('suggestedIns').textContent='0.0';
@@ -3163,7 +3485,9 @@ function saveReading(){
   const ins=parseFloat(document.getElementById('mIns').value)||null;
   if(ins!==null&&(isNaN(ins)||ins<0||ins>100)){toastError('Insulin dose must be between 0 and 100 units.');return;}
   if(carbs!==null&&(carbs<0||carbs>500)){toastError('Carbs must be between 0 and 500g.');return;}
-  const entry={ts:editingIdx>=0?readings[editingIdx].ts:Date.now(),value:Math.round(v*10)/10,context:selCtx,insulin:ins,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
+  const basalVal=parseFloat(document.getElementById('mBasal').value)||null;
+  if(basalVal!==null&&(isNaN(basalVal)||basalVal<0||basalVal>200)){toastError('Basal dose must be between 0 and 200 units.');return;}
+  const entry={ts:editingIdx>=0?readings[editingIdx].ts:Date.now(),value:Math.round(v*10)/10,context:selCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
   if(editingIdx>=0){
     readings[editingIdx]=entry;
     editingIdx=-1;
@@ -3277,7 +3601,7 @@ async function fetchFoodSuggestions(query, input, dropdown) {
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
@@ -3385,7 +3709,7 @@ async function analyseFullMeal(){
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-haiku-4-5-20251001',
         max_tokens:500,
@@ -3452,9 +3776,9 @@ async function runMealAnalysis(){
     const mt=mealCamImageData.startsWith('data:image/png')?'image/png':'image/jpeg';
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:800,
+        model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mt,data:b64}},
           {type:'text',text:`Analyse this meal image. Return ONLY raw JSON, no markdown:
@@ -3464,9 +3788,13 @@ If no meal visible: {"error":"Could not identify a meal in this image"}`}
       })
     });
     const data=await resp.json();
+    if(data.error){toastError('API error: '+(data.error.message||JSON.stringify(data.error)));btn.disabled=false;btn.textContent='🔍 Analyse Meal with AI';return;}
     const txt=data.content?.map(c=>c.text||'').join('')||'';
     let result;
-    try{result=JSON.parse(txt.trim());}catch{result={error:'Could not parse response. Please try again.'};}
+    try{
+      const clean=txt.replace(/```json|```/g,'').trim();
+      result=JSON.parse(clean);
+    }catch{result={error:'Could not parse response. Please try again.'};}
     if(result.error){toastError(result.error);btn.disabled=false;btn.textContent='🔍 Analyse Meal with AI';return;}
     showCamResult(result);
   }catch(err){
@@ -3586,8 +3914,8 @@ async function analyzeFsMeal(imgData){
     const b64=imgData.split(',')[1];
     const mt=imgData.startsWith('data:image/png')?'image/png':'image/jpeg';
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+      method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mt,data:b64}},
           {type:'text',text:`Analyse this meal image. Return ONLY raw JSON:
@@ -3596,8 +3924,11 @@ If no meal: {"error":"Could not identify a meal"}`}
         ]}]})
     });
     const data=await resp.json();
+    if(data.error){document.getElementById('camfsAnalyzing').classList.remove('show');closeCamFull();toastError('API error: '+(data.error.message||JSON.stringify(data.error)));return;}
     const txt=data.content?.map(c=>c.text||'').join('')||'';
-    let result;try{result=JSON.parse(txt.trim());}catch{result={error:'Could not parse response'};}
+    let result;
+    try{const clean=txt.replace(/```json|```/g,'').trim();result=JSON.parse(clean);}
+    catch{result={error:'Could not parse response'};}
     document.getElementById('camfsAnalyzing').classList.remove('show');
     closeCamFull();
     if(result.error){toastError(result.error);return;}
@@ -3638,8 +3969,12 @@ function saveSettings(){
   const cf=parseFloat(document.getElementById('sCorrFactor').value);
   if(isNaN(cr)||cr<1||cr>50){toastError('Carb ratio must be between 1 and 50 g/unit.');return;}
   if(isNaN(cf)||cf<0.5||cf>10){toastError('Correction factor must be between 0.5 and 10 mmol/u.');return;}
-  cfg={low:lo,high:hi,carbRatio:cr,corrFactor:cf};
+  const basalName=document.getElementById('sBasalName')?.value.trim()||'Basal';
+  const basalDose=parseFloat(document.getElementById('sBasalDose')?.value)||0;
+  const basalTime=document.getElementById('sBasalTime')?.value||'18:00';
+  cfg={low:lo,high:hi,carbRatio:cr,corrFactor:cf,basalName,basalDose,basalTime};
   saveCfg();
+  scheduleBasalReminder();
   document.getElementById('carbRatioDisplay').textContent=cr;
   document.getElementById('corrDisplay').textContent=cf;
   refreshAll();
@@ -3653,6 +3988,9 @@ function loadSettingsUI(){
   document.getElementById('sCorrFactor').value=cfg.corrFactor||2.2;
   document.getElementById('carbRatioDisplay').textContent=cfg.carbRatio||10;
   document.getElementById('corrDisplay').textContent=cfg.corrFactor||2.2;
+  if(document.getElementById('sBasalName'))document.getElementById('sBasalName').value=cfg.basalName||'Lantus';
+  if(document.getElementById('sBasalDose'))document.getElementById('sBasalDose').value=cfg.basalDose||0;
+  if(document.getElementById('sBasalTime'))document.getElementById('sBasalTime').value=cfg.basalTime||'18:00';
 }
 
 function exportCSV(){
@@ -3829,6 +4167,66 @@ function parseLibreTimestamp(raw){
 
   if(isNaN(d.getTime()))return null;
   return d.getTime();
+}
+
+// ══════════════ BASAL INSULIN ══════════════
+function logBasalNow(){
+  const dose=cfg.basalDose||parseFloat(document.getElementById('sBasalDose')?.value)||0;
+  const name=cfg.basalName||document.getElementById('sBasalName')?.value||'Basal';
+  if(!dose){toastError('Set your basal dose in Settings first.');return;}
+  // Check already logged today
+  const today=new Date();today.setHours(0,0,0,0);
+  const alreadyToday=readings.some(r=>r.basalOnly&&r.ts>=today.getTime());
+  if(alreadyToday){
+    appConfirm(`You already logged ${name} today. Log again?`,()=>doLogBasal(dose,name),false);
+  } else {
+    doLogBasal(dose,name);
+  }
+}
+
+function doLogBasal(dose,name){
+  readings.push({
+    ts:Date.now(),
+    value:null,
+    context:'Basal Insulin',
+    insulin:null,
+    basal:dose,
+    basalOnly:true,
+    carbs:null,
+    isMealOnly:true,
+    notes:`${name} ${dose}u`
+  });
+  saveReadings();
+  refreshAll();
+  toastSuccess(`🌙 ${name} ${dose}u logged`);
+}
+
+let basalReminderTimer=null;
+function scheduleBasalReminder(){
+  if(basalReminderTimer)clearTimeout(basalReminderTimer);
+  const timeStr=cfg.basalTime||'18:00';
+  const [h,m]=(timeStr).split(':').map(Number);
+  const now=new Date();
+  const next=new Date();
+  next.setHours(h,m,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);// schedule for tomorrow if already passed
+  const msUntil=next-now;
+  basalReminderTimer=setTimeout(()=>{
+    fireBasalReminder();
+    // Then repeat every 24h
+    basalReminderTimer=setInterval(fireBasalReminder,24*3600000);
+  },msUntil);
+}
+
+function fireBasalReminder(){
+  const name=cfg.basalName||'Basal';
+  const dose=cfg.basalDose||0;
+  if(!dose)return;
+  // Sound + vibrate using alarm engine
+  const a=load('gt_alarms',{});
+  if(a.soundOn!==false)playAlarmSound('test');
+  if(a.vibeOn!==false)triggerVibration('test');
+  toast(`🌙 Time for your ${name} injection (${dose}u)`,'info','🌙');
 }
 
 function clearAll(){appConfirm('Delete ALL readings? This cannot be undone.',()=>{readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');});}
@@ -4096,7 +4494,7 @@ function refreshAll(){
   setTimeout(drawMainChart,80);
   if(curScreen==='a1c')setTimeout(updateA1c,50);
   if(curScreen==='history')updateHistory();
-  if(curScreen==='forecast')setTimeout(updateForecast,60);
+  if(curScreen==='forecast'){setTimeout(updateForecast,60);setTimeout(updateBasalInsights,80);}
 }
 
 // FAB opens log reading modal
@@ -4157,6 +4555,7 @@ setInterval(refreshTimestamps, 30000);
   setTimeout(setupPWA, 100);
   loadDarkMode();
   loadAlarms();
+  scheduleBasalReminder();
   setTimeout(drawMainChart, 300);
   setTimeout(restoreLibreSession, 200);
 })();
