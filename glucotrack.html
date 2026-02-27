@@ -801,16 +801,19 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
     <div class="sglbl">Basal (Long-Acting) Insulin</div>
     <div class="sgcard">
       <div class="ri-wrap">
-        <div class="ri-f"><label>Insulin Name</label><input type="text" id="sBasalName" value="Lantus" placeholder="e.g. Lantus, Toujeo, Tresiba" onchange="saveSettings()" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;"></div>
-        <div class="ri-f"><label>Daily Dose (units)</label><input type="number" id="sBasalDose" value="0" step="1" min="0" max="200" onchange="saveSettings()"></div>
+        <div class="ri-f"><label>Insulin Name</label><input type="text" id="sBasalName" placeholder="e.g. Lantus, Toujeo, Tresiba" onchange="saveSettings()" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;"></div>
+        <div class="ri-f"><label>Daily Dose (units)</label><input type="number" id="sBasalDose" value="0" step="1" min="0" max="200" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;-moz-appearance:textfield;"></div>
       </div>
-      <div class="ri-wrap" style="padding-top:0;">
-        <div class="ri-f"><label>Injection Time</label><input type="time" id="sBasalTime" value="18:00" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;color:var(--text);"></div>
-        <div class="ri-f" style="justify-content:flex-end;padding-top:18px;">
-          <div style="font-size:11px;color:var(--t3);line-height:1.7;padding-top:6px;">Log basal via the<br><strong style="color:var(--acc)">Log Reading</strong> button below</div>
-        </div>
+      <div style="padding:0 15px 8px;">
+        <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Injection Time</div>
+        <input type="time" id="sBasalTime" value="18:00" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;outline:none;width:100%;color:var(--text);letter-spacing:1px;">
       </div>
-      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">A reminder will appear at your set injection time each day. Basal insulin is logged separately and not included in bolus calculations.</div>
+      <div id="basalReminderStatus" style="margin:4px 15px 12px;padding:10px 12px;background:var(--ok-bg);border:1px solid var(--ok-b);border-radius:8px;font-size:12px;color:var(--ok);line-height:1.6;display:none;">
+        🔔 Reminders set — <strong id="basalPreRemindTime">—</strong> <span style="opacity:.7;">(15 min warning)</span> and <strong id="basalRemindTime">—</strong> <span style="opacity:.7;">(injection time)</span>
+      </div>
+      <div id="basalNoReminder" style="margin:4px 15px 12px;padding:10px 12px;background:var(--hi-bg);border:1px solid var(--hi-b);border-radius:8px;font-size:12px;color:var(--hi);line-height:1.6;display:none;">
+        ⚠️ Set your daily dose above to activate reminders.
+      </div>
     </div>
     <div class="sglbl">Alerts</div>
     <div class="sgcard">
@@ -899,6 +902,17 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <button onclick="triggerPwaInstall()" id="pwaInstallBtn" style="width:100%;padding:12px;background:none;border:1.5px solid var(--acc);border-radius:9px;color:var(--acc);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none;">
           ⬇️ Install App (tap to confirm)
         </button>
+      </div>
+    </div>
+    <div class="sglbl">AI Features (Meal Analysis &amp; Food Search)</div>
+    <div class="sgcard">
+      <div style="padding:12px 15px 6px;">
+        <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px;">Enter your Anthropic API key to enable AI meal photo analysis and food carb lookup. Your key is stored only on this device.<br><a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--acc);font-weight:600;">Get a free key at console.anthropic.com →</a></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <input type="password" id="sApiKey" placeholder="sk-ant-…" onchange="saveApiKey()" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;outline:none;min-width:0;" autocomplete="off" spellcheck="false">
+          <button onclick="testApiKey()" style="padding:9px 14px;background:var(--acc);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;">Test</button>
+        </div>
+        <div id="apiKeyStatus" style="font-size:11px;line-height:1.6;display:none;padding:8px 10px;border-radius:7px;margin-bottom:6px;"></div>
       </div>
     </div>
     <div style="padding:10px 0 16px;font-size:11px;color:var(--t3);line-height:1.6;">GlucoTrack v4.0 · mmol/L · Data stored locally on device.<br>AI meal analysis powered by Claude AI. Not a medical device. Always consult your endocrinologist or diabetes care team before adjusting insulin doses.</div>
@@ -1344,6 +1358,14 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   <div class="msheet" id="logSheet">
     <div class="mhandle"></div>
     <div class="mtop"><div class="mtitle">Log Reading</div><button class="mclose" onclick="closeLogModal()">✕</button></div>
+    <!-- Time edit row — shown only when editing -->
+    <div id="editTimeRow" style="display:none;margin:8px 20px 0;background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:10px;padding:10px 12px;">
+      <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">📅 Date &amp; Time Logged</div>
+      <div style="display:flex;gap:8px;">
+        <input type="date" id="editDate" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
+        <input type="time" id="editTime" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
+      </div>
+    </div>
     <div class="biw">
       <input type="number" class="bi" id="glIn" placeholder="0.0" min="1.0" max="33.3" step="0.1" oninput="onGlIn()">
       <div class="biu">mmol / L</div>
@@ -1409,6 +1431,14 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   <div class="msheet" id="mealSheet">
     <div class="mhandle"></div>
     <div class="mtop"><div class="mtitle">Log Meal</div><button class="mclose" onclick="closeMealModal()">✕</button></div>
+    <!-- Time edit row — shown only when editing -->
+    <div id="mealEditTimeRow" style="display:none;margin:8px 20px 0;background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:10px;padding:10px 12px;">
+      <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">📅 Date &amp; Time Logged</div>
+      <div style="display:flex;gap:8px;">
+        <input type="date" id="mealEditDate" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
+        <input type="time" id="mealEditTime" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
+      </div>
+    </div>
     <div class="meal-tabs">
       <button class="meal-tab active" id="mt-manual" onclick="switchMealTab('manual')">✏️ Manual Entry</button>
       <button class="meal-tab" id="mt-camera" onclick="switchMealTab('camera')">📷 Photo Scan</button>
@@ -1565,8 +1595,8 @@ function closeConfirm(){
 
 
 // ══════════════ UTILS ══════════════
-const CTX_IC={'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️'};
-const CTX_CL={'Before Meal':'#3B82F6','After Meal':'#8B5CF6','Before Exercise':'#F59E0B','After Exercise':'#059669','Before Bed':'#6366F1','Waking Up':'#F97316','Feeling Unwell':'#DC2626','Random Check':'#6B7280','Meal':'#3B82F6'};
+const CTX_IC={'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️','Basal Insulin':'🌙'};
+const CTX_CL={'Before Meal':'#3B82F6','After Meal':'#8B5CF6','Before Exercise':'#F59E0B','After Exercise':'#059669','Before Bed':'#6366F1','Waking Up':'#F97316','Feeling Unwell':'#DC2626','Random Check':'#6B7280','Meal':'#3B82F6','Basal Insulin':'#7C3AED'};
 function fmt(v){return(Math.round(v*10)/10).toFixed(1);}
 function getSt(v){
   const lo=cfg.low,hi=cfg.high;
@@ -2542,12 +2572,13 @@ function updateRecent(){
   // Keep track of original indices before reversing
   const indexed=[...readings].map((r,i)=>({...r,_idx:i})).reverse().slice(0,10);
   el.innerHTML=indexed.map(r=>{
-    const s=r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
+    const s=r.basalOnly?{cls:'ok',bc:'bok',txt:'BASAL',col:'#7C3AED'}:r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
     const ic=CTX_IC[r.context]||'🩺',cl=CTX_CL[r.context]||'#6B7280';
     const sub=[fD(r.ts)+', '+fT(r.ts),r.insulin?'💉 '+r.insulin+'u bolus':'',r.basal?'🌙 '+r.basal+'u basal':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
-    const valDisplay=r.isMealOnly?'—':fmt(r.value);
+    const valDisplay=r.basalOnly?r.basal+'u':r.isMealOnly?'—':fmt(r.value);
+    const unitDisplay=r.basalOnly?'basal':r.isMealOnly?'meal':'mmol/L';
     const editFn=r.isMealOnly?`editMeal(${r._idx})`:`editReading(${r._idx})`;
-    return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${r.isMealOnly?'meal':'mmol/L'}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
+    return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${unitDisplay}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
   }).join('');
 }
 
@@ -3300,12 +3331,13 @@ function updateHistory(){
     <div class="dglabel">${date}</div>
     <div class="card" style="margin-bottom:0;border-radius:10px;padding:12px 14px;">
       ${rds.map(r=>{
-        const s=r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
+        const s=r.basalOnly?{cls:'ok',bc:'bok',txt:'BASAL',col:'#7C3AED'}:r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
         const ic=CTX_IC[r.context]||'🩺',cl=CTX_CL[r.context]||'#6B7280';
         const sub=[fT(r.ts),r.insulin?'💉 '+r.insulin+'u bolus':'',r.basal?'🌙 '+r.basal+'u basal':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
-        const valDisplay=r.isMealOnly?'—':fmt(r.value);
+        const valDisplay=r.basalOnly?r.basal+'u':r.isMealOnly?'—':fmt(r.value);
+        const unitDisplay=r.basalOnly?'basal':r.isMealOnly?'meal':'mmol/L';
         const editFn=r.isMealOnly?`editMeal(${r._idx})`:`editReading(${r._idx})`;
-        return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${r.isMealOnly?'meal':'mmol/L'}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
+        return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${unitDisplay}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
       }).join('')}
     </div>
   `).join('');
@@ -3346,6 +3378,14 @@ function editReading(idx){
   // Change modal title and button
   document.querySelector('#logSheet .mtitle').textContent='Edit Reading';
   document.querySelector('#logSheet .svbtn').textContent='Update Reading';
+  // Show the date/time edit row and pre-fill with original timestamp
+  const etr=document.getElementById('editTimeRow');
+  if(etr){
+    etr.style.display='block';
+    const d=new Date(r.ts);
+    document.getElementById('editDate').value=d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    document.getElementById('editTime').value=d.toTimeString().slice(0,5);   // HH:MM
+  }
 }
 
 function editMeal(idx){
@@ -3391,11 +3431,22 @@ function editMeal(idx){
   // Update modal title and button
   document.querySelector('#mealSheet .mtitle').textContent='Edit Meal';
   document.querySelector('#mealSheet .svbtn').textContent='Update Meal';
+  // Show the date/time edit row and pre-fill with original timestamp
+  const metr=document.getElementById('mealEditTimeRow');
+  if(metr){
+    metr.style.display='block';
+    const d=new Date(r.ts);
+    document.getElementById('mealEditDate').value=d.toLocaleDateString('en-CA');
+    document.getElementById('mealEditTime').value=d.toTimeString().slice(0,5);
+  }
 }
 
 // ══════════════ LOG MODAL ══════════════
 function openLogModal(){
   document.getElementById('mbd').classList.add('open');
+  // Hide time edit row for new readings
+  const etr=document.getElementById('editTimeRow');
+  if(etr)etr.style.display='none';
   document.getElementById('glIn').value='';
   document.getElementById('mIns').value='';
   // Auto-fill basal with configured dose; update label with insulin name
@@ -3423,6 +3474,7 @@ function openLogModal(){
 }
 function closeLogModal(){
   document.getElementById('mbd').classList.remove('open');
+  const etr=document.getElementById('editTimeRow');if(etr)etr.style.display='none';
   if(editingIdx>=0){
     editingIdx=-1;
     document.querySelector('#logSheet .mtitle').textContent='Log Reading';
@@ -3487,7 +3539,21 @@ function saveReading(){
   if(carbs!==null&&(carbs<0||carbs>500)){toastError('Carbs must be between 0 and 500g.');return;}
   const basalVal=parseFloat(document.getElementById('mBasal').value)||null;
   if(basalVal!==null&&(isNaN(basalVal)||basalVal<0||basalVal>200)){toastError('Basal dose must be between 0 and 200 units.');return;}
-  const entry={ts:editingIdx>=0?readings[editingIdx].ts:Date.now(),value:Math.round(v*10)/10,context:selCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
+  // Use edited date/time if the time row is visible (editing mode), otherwise now
+  let entryTs=Date.now();
+  if(editingIdx>=0){
+    const etr=document.getElementById('editTimeRow');
+    const dateVal=document.getElementById('editDate').value;
+    const timeVal=document.getElementById('editTime').value;
+    if(etr&&etr.style.display!=='none'&&dateVal&&timeVal){
+      const parsed=new Date(`${dateVal}T${timeVal}`);
+      if(!isNaN(parsed.getTime()))entryTs=parsed.getTime();
+      else entryTs=readings[editingIdx].ts;
+    } else {
+      entryTs=readings[editingIdx].ts;
+    }
+  }
+  const entry={ts:entryTs,value:Math.round(v*10)/10,context:selCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
   if(editingIdx>=0){
     readings[editingIdx]=entry;
     editingIdx=-1;
@@ -3524,6 +3590,7 @@ function openMealModal(){
 }
 function closeMealModal(){
   document.getElementById('mealMbd').classList.remove('open');
+  const metr=document.getElementById('mealEditTimeRow');if(metr)metr.style.display='none';
   if(editingIdx>=0){
     editingIdx=-1;
     document.querySelector('#mealSheet .mtitle').textContent='Log Meal';
@@ -3597,51 +3664,98 @@ function onFoodInput(input) {
   foodDebounceTimers.set(input, timer);
 }
 
-async function fetchFoodSuggestions(query, input, dropdown) {
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        messages: [{role: 'user', content: `List 4 common serving sizes for "${query}" with carb content. Return ONLY a raw JSON array, no markdown, no explanation:\n[{"name":"Cooked white rice (1 cup)","carbs":45,"grams":186},{"name":"Brown bread (1 slice)","carbs":15,"grams":30}]\nRules: realistic portions, accurate carbs. If food unknown, estimate. Always return at least 1 result.`}]
-      })
-    });
-    if (!resp.ok) {
-      dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ Lookup unavailable — enter carbs manually</div>';
-      return;
-    }
-    const data = await resp.json();
-    if (data.error) {
-      dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ ' + (data.error.message||'API error — enter carbs manually') + '</div>';
-      return;
-    }
-    const txt = (data.content || []).map(c => c.text || '').join('');
-    let items;
-    try {
-      const clean = txt.replace(/```json|```/g,'').trim();
-      items = JSON.parse(clean);
-      if (!Array.isArray(items)) items = [];
-    } catch { items = []; }
+// ── Built-in food database (works offline, no API key needed) ──
+const FOOD_DB = [
+  // Grains & Staples
+  {n:'White rice, cooked',c:43,g:186,cat:'🍚'},{n:'Brown rice, cooked',c:46,g:195,cat:'🍚'},
+  {n:'Basmati rice, cooked',c:38,g:180,cat:'🍚'},{n:'Pap / Maize meal, cooked',c:48,g:200,cat:'🫓'},
+  {n:'Samp, cooked',c:52,g:200,cat:'🫓'},{n:'Mielie bread (1 slice)',c:22,g:40,cat:'🍞'},
+  {n:'White bread (1 slice)',c:15,g:30,cat:'🍞'},{n:'Brown bread (1 slice)',c:13,g:30,cat:'🍞'},
+  {n:'Whole wheat bread (1 slice)',c:12,g:30,cat:'🍞'},{n:'Rye bread (1 slice)',c:15,g:32,cat:'🍞'},
+  {n:'Pasta, cooked (1 cup)',c:43,g:140,cat:'🍝'},{n:'Spaghetti, cooked (1 cup)',c:43,g:140,cat:'🍝'},
+  {n:'Couscous, cooked (1 cup)',c:36,g:157,cat:'🫓'},{n:'Oats, cooked (1 cup)',c:27,g:234,cat:'🥣'},
+  {n:'Cornflakes (1 cup)',c:24,g:28,cat:'🥣'},{n:'Weetbix (2 biscuits)',c:26,g:37,cat:'🥣'},
+  {n:'Pronutro (3/4 cup)',c:30,g:50,cat:'🥣'},{n:'Maltabella (1 cup cooked)',c:32,g:200,cat:'🥣'},
+  // Potatoes & Starchy Veg
+  {n:'Potato, boiled (medium)',c:37,g:150,cat:'🥔'},{n:'Potato, baked (medium)',c:37,g:150,cat:'🥔'},
+  {n:'Sweet potato, cooked (medium)',c:27,g:130,cat:'🍠'},{n:'Chips / French fries (medium)',c:48,g:150,cat:'🍟'},
+  {n:'Butternut, cooked (1 cup)',c:22,g:205,cat:'🎃'},{n:'Gem squash, cooked (1)',c:8,g:200,cat:'🥦'},
+  // Legumes
+  {n:'Lentils, cooked (1 cup)',c:40,g:198,cat:'🫘'},{n:'Chickpeas, cooked (1 cup)',c:45,g:164,cat:'🫘'},
+  {n:'Kidney beans, cooked (1 cup)',c:40,g:177,cat:'🫘'},{n:'Baked beans (1/2 cup)',c:27,g:130,cat:'🫘'},
+  {n:'Butter beans, cooked (1 cup)',c:41,g:180,cat:'🫘'},{n:'Hummus (2 tbsp)',c:6,g:30,cat:'🫘'},
+  // Fruits
+  {n:'Apple (medium)',c:25,g:182,cat:'🍎'},{n:'Banana (medium)',c:27,g:118,cat:'🍌'},
+  {n:'Orange (medium)',c:15,g:131,cat:'🍊'},{n:'Mango (1 cup)',c:25,g:165,cat:'🥭'},
+  {n:'Grapes (1 cup)',c:28,g:151,cat:'🍇'},{n:'Watermelon (1 cup)',c:12,g:152,cat:'🍉'},
+  {n:'Pear (medium)',c:27,g:178,cat:'🍐'},{n:'Peach (medium)',c:15,g:150,cat:'🍑'},
+  {n:'Pawpaw / Papaya (1 cup)',c:16,g:145,cat:'🍈'},{n:'Pineapple (1 cup)',c:22,g:165,cat:'🍍'},
+  {n:'Strawberries (1 cup)',c:11,g:152,cat:'🍓'},{n:'Melon (1 cup)',c:13,g:160,cat:'🍈'},
+  // Dairy
+  {n:'Full cream milk (1 cup)',c:12,g:244,cat:'🥛'},{n:'Low fat milk (1 cup)',c:12,g:244,cat:'🥛'},
+  {n:'Plain yoghurt (1 cup)',c:17,g:245,cat:'🥛'},{n:'Flavoured yoghurt (1 cup)',c:31,g:245,cat:'🥛'},
+  {n:'Ice cream (1 scoop)',c:17,g:66,cat:'🍦'},
+  // Snacks & Sweets
+  {n:'Provitas (4 crackers)',c:20,g:32,cat:'🍘'},{n:'Cream crackers (4)',c:24,g:40,cat:'🍘'},
+  {n:'Marie biscuits (4)',c:28,g:40,cat:'🍪'},{n:'Tennis biscuits (4)',c:24,g:36,cat:'🍪'},
+  {n:'Rusks (1 piece)',c:30,g:50,cat:'🍪'},{n:'Chocolate (1 small bar)',c:28,g:50,cat:'🍫'},
+  {n:'Chips / Crisps (small bag)',c:26,g:45,cat:'🥨'},{n:'Popcorn (2 cups)',c:14,g:32,cat:'🍿'},
+  // Drinks
+  {n:'Orange juice (1 cup)',c:26,g:248,cat:'🥤'},{n:'Apple juice (1 cup)',c:29,g:248,cat:'🥤'},
+  {n:'Coke / Cola (330ml can)',c:35,g:330,cat:'🥤'},{n:'Fanta / Soft drink (330ml)',c:36,g:330,cat:'🥤'},
+  {n:'Milk (250ml)',c:12,g:250,cat:'🥛'},
+  // SA-specific meals
+  {n:'Bunny chow (quarter loaf)',c:80,g:350,cat:'🍛'},{n:'Boerewors roll',c:30,g:180,cat:'🌭'},
+  {n:'Vetkoek (1 medium)',c:45,g:120,cat:'🫓'},{n:'Koeksister (1)',c:30,g:50,cat:'🍩'},
+  {n:'Melktert (1 slice)',c:35,g:120,cat:'🥧'},{n:'Paptert (1 slice)',c:40,g:150,cat:'🥧'},
+  {n:'Braai bread (1 slice)',c:22,g:50,cat:'🍞'},{n:'Samoosa (1)',c:18,g:50,cat:'🥟'},
+  {n:'Roti (1 medium)',c:30,g:80,cat:'🫓'},{n:'Naan (1 piece)',c:45,g:120,cat:'🍞'},
+  // Proteins (low carb — still shown for completeness)
+  {n:'Egg (1 large)',c:0,g:50,cat:'🥚'},{n:'Chicken breast, grilled (100g)',c:0,g:100,cat:'🍗'},
+  {n:'Beef mince, cooked (100g)',c:0,g:100,cat:'🥩'},{n:'Tuna in water (1 can)',c:0,g:140,cat:'🐟'},
+  // Common combos
+  {n:'Pap & vleis (1 plate)',c:60,g:400,cat:'🍽️'},{n:'Rice & chicken curry (1 plate)',c:65,g:400,cat:'🍛'},
+  {n:'Spaghetti bolognaise (1 plate)',c:55,g:350,cat:'🍝'},{n:'Fish & chips (1 portion)',c:70,g:400,cat:'🐟'},
+];
 
-    if (!items.length) {
-      dropdown.innerHTML = '<div class="food-sugg-loading">No results — enter carbs manually</div>';
-      return;
-    }
+function fetchFoodSuggestions(query, input, dropdown) {
+  const q = query.toLowerCase().trim();
+  if (!q) { dropdown.classList.remove('open'); return; }
 
-    dropdown.innerHTML = items.map((item) => `
-      <div class="food-sugg-item" onmousedown="selectFood(event,'${escQ(item.name)}',${item.carbs},this)">
-        <div>
-          <div class="food-sugg-name">${escH(item.name)}</div>
-          <div class="food-sugg-per">${item.grams ? item.grams + 'g serving' : ''}</div>
-        </div>
-        <div class="food-sugg-carbs">${item.carbs}g <span style="font-size:10px;color:var(--t3)">carbs</span></div>
-      </div>`).join('');
+  // Score each food by how well it matches
+  const results = FOOD_DB
+    .map(f => {
+      const name = f.n.toLowerCase();
+      let score = 0;
+      if (name.startsWith(q)) score = 100;
+      else if (name.includes(q)) score = 50;
+      else {
+        // word-by-word match
+        const words = q.split(' ');
+        words.forEach(w => { if (w.length > 2 && name.includes(w)) score += 20; });
+      }
+      return { ...f, score };
+    })
+    .filter(f => f.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  if (!results.length) {
+    dropdown.innerHTML = '<div class="food-sugg-loading">No matches — try a different name or enter carbs manually</div>';
     dropdown.classList.add('open');
-  } catch(e) {
-    dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ Network error — enter carbs manually</div>';
+    return;
   }
+
+  dropdown.innerHTML = results.map(f =>
+    `<div class="food-sugg-item" onmousedown="selectFood(event,'${escQ(f.n)}',${f.c},this)">
+      <div>
+        <div class="food-sugg-name">${f.cat} ${escH(f.n)}</div>
+        <div class="food-sugg-per">${f.g}g serving</div>
+      </div>
+      <div class="food-sugg-carbs">${f.c}g <span style="font-size:10px;color:var(--t3)">carbs</span></div>
+    </div>`
+  ).join('');
+  dropdown.classList.add('open');
 }
 
 function escQ(s){ return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
@@ -3703,13 +3817,14 @@ async function analyseFullMeal(){
   document.querySelectorAll('#mealItemsContainer .meal-item-name').forEach(inp=>{
     if(inp.value.trim())items.push(inp.value.trim());
   });
+  if(!checkApiKey())return;
   if(!items.length){toastWarn('Add at least one food item first.');return;}
   const btn=document.getElementById('fullMealAiBtn');
   btn.textContent='🔄 Analysing…';btn.disabled=true;
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch(getApiEndpoint(),{
       method:'POST',
-      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:getApiHeaders(),
       body:JSON.stringify({
         model:'claude-haiku-4-5-20251001',
         max_tokens:500,
@@ -3768,15 +3883,16 @@ function handleCamUpload(e){
 }
 
 async function runMealAnalysis(){
+  if(!checkApiKey())return;
   if(!mealCamImageData){toastError('Please take or upload a photo first.');return;}
   const btn=document.getElementById('analyzeBtn');
   btn.disabled=true;btn.textContent='🔄 Analysing…';
   try{
     const b64=mealCamImageData.split(',')[1];
     const mt=mealCamImageData.startsWith('data:image/png')?'image/png':'image/jpeg';
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch(getApiEndpoint(),{
       method:'POST',
-      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:getApiHeaders(),
       body:JSON.stringify({
         model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:[
@@ -3843,8 +3959,20 @@ function saveMeal(){
   if(ins<0||ins>100){toastError('Insulin dose must be between 0 and 100 units.');return;}
   // Use last BG value for context, or mark as meal-only with value=null stored as -1 (filtered from chart)
   const latBG=readings.filter(r=>!r.isMealOnly&&r.value>0).slice(-1)[0]?.value||0;
+  // Use edited date/time if time row is visible (editing mode)
+  let mealTs=Date.now();
+  if(editingIdx>=0){
+    const metr=document.getElementById('mealEditTimeRow');
+    const dateVal=document.getElementById('mealEditDate').value;
+    const timeVal=document.getElementById('mealEditTime').value;
+    if(metr&&metr.style.display!=='none'&&dateVal&&timeVal){
+      const parsed=new Date(`${dateVal}T${timeVal}`);
+      if(!isNaN(parsed.getTime()))mealTs=parsed.getTime();
+      else mealTs=readings[editingIdx].ts;
+    } else mealTs=readings[editingIdx].ts;
+  }
   const mealEntry={
-    ts:editingIdx>=0?readings[editingIdx].ts:Date.now(),
+    ts:mealTs,
     value:latBG>0?latBG:null,
     context:'Meal',
     insulin:ins>0?ins:null,
@@ -3909,12 +4037,13 @@ function showFsPreview(dataUrl){
   document.getElementById('camfsVideo').style.display='none';
 }
 async function analyzeFsMeal(imgData){
+  if(!checkApiKey()){closeCamFull();return;}
   document.getElementById('camfsAnalyzing').classList.add('show');
   try{
     const b64=imgData.split(',')[1];
     const mt=imgData.startsWith('data:image/png')?'image/png':'image/jpeg';
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    const resp=await fetch(getApiEndpoint(),{
+      method:'POST',headers:getApiHeaders(),
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mt,data:b64}},
@@ -3959,6 +4088,74 @@ If no meal: {"error":"Could not identify a meal"}`}
 }
 
 // ══════════════ SETTINGS ══════════════
+// ══════════════ API KEY ══════════════
+function getApiKey(){return localStorage.getItem('gt_apikey')||'';}
+
+function saveApiKey(){
+  const v=(document.getElementById('sApiKey')?.value||'').trim();
+  if(v)localStorage.setItem('gt_apikey',v);
+  else localStorage.removeItem('gt_apikey');
+  const st=document.getElementById('apiKeyStatus');
+  if(st){
+    if(v){st.style.display='block';st.style.background='var(--ok-bg)';st.style.color='var(--ok)';st.textContent='✅ API key saved — AI features active.';}
+    else{st.style.display='block';st.style.background='var(--hi-bg)';st.style.color='var(--hi)';st.textContent='⚠️ API key cleared — AI features disabled.';}
+    setTimeout(()=>{st.style.display='none';},3000);
+  }
+}
+
+async function testApiKey(){
+  const key=getApiKey();
+  if(!key){toastError('Enter your API key first.');return;}
+  const st=document.getElementById('apiKeyStatus');
+  if(st){st.style.display='block';st.style.background='var(--acc-bg)';st.style.color='var(--acc)';st.textContent='🔄 Testing key…';}
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:getApiHeaders(),
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:20,messages:[{role:'user',content:'Say OK'}]})
+    });
+    const d=await r.json();
+    if(d.error)throw new Error(d.error.message||'API error');
+    if(st){st.style.background='var(--ok-bg)';st.style.color='var(--ok)';st.textContent='✅ Key works! AI features active.';}
+    toastSuccess('API key works! AI features active.');
+  }catch(e){
+    if(st){st.style.background='var(--low-bg)';st.style.color='var(--low)';st.textContent='❌ '+(e.message||'Invalid key — check and try again.');}
+    toastError('Key test failed: '+(e.message||'Invalid key'));
+  }
+}
+
+function loadApiKeyUI(){
+  const el=document.getElementById('sApiKey');
+  if(el){const k=getApiKey();el.value=k?'•'.repeat(Math.min(k.length,36)):'';}
+  const st=document.getElementById('apiKeyStatus');
+  if(st&&!getApiKey()){
+    st.style.display='block';
+    st.style.background='var(--hi-bg)';st.style.color='var(--hi)';
+    st.textContent='⚠️ No API key set — AI features (meal scan, food search) are disabled.';
+  }
+}
+
+function getApiHeaders(){
+  return{
+    'Content-Type':'application/json',
+    'anthropic-version':'2023-06-01',
+    'anthropic-dangerous-direct-browser-access':'true',
+    'x-api-key':getApiKey()
+  };
+}
+
+function getApiEndpoint(){
+  return 'https://api.anthropic.com/v1/messages';
+}
+
+function checkApiKey(){
+  if(!getApiKey()){
+    toastError('No API key set — go to Settings → AI Features to add your key.');
+    return false;
+  }
+  return true;
+}
+
 function saveSettings(){
   const lo=parseFloat(document.getElementById('sLow').value);
   const hi=parseFloat(document.getElementById('sHigh').value);
@@ -3975,6 +4172,10 @@ function saveSettings(){
   cfg={low:lo,high:hi,carbRatio:cr,corrFactor:cf,basalName,basalDose,basalTime};
   saveCfg();
   scheduleBasalReminder();
+  updateBasalReminderStatus(
+    parseInt((cfg.basalTime||'18:00').split(':')[0]),
+    parseInt((cfg.basalTime||'18:00').split(':')[1])
+  );
   document.getElementById('carbRatioDisplay').textContent=cr;
   document.getElementById('corrDisplay').textContent=cf;
   refreshAll();
@@ -3982,6 +4183,7 @@ function saveSettings(){
 }
 
 function loadSettingsUI(){
+  loadApiKeyUI();
   document.getElementById('sLow').value=cfg.low;
   document.getElementById('sHigh').value=cfg.high;
   document.getElementById('sCarbRatio').value=cfg.carbRatio||10;
@@ -3991,6 +4193,9 @@ function loadSettingsUI(){
   if(document.getElementById('sBasalName'))document.getElementById('sBasalName').value=cfg.basalName||'Lantus';
   if(document.getElementById('sBasalDose'))document.getElementById('sBasalDose').value=cfg.basalDose||0;
   if(document.getElementById('sBasalTime'))document.getElementById('sBasalTime').value=cfg.basalTime||'18:00';
+  // Update reminder status display
+  const bt=cfg.basalTime||'18:00';
+  updateBasalReminderStatus(parseInt(bt.split(':')[0]),parseInt(bt.split(':')[1]));
 }
 
 function exportCSV(){
@@ -4201,32 +4406,96 @@ function doLogBasal(dose,name){
   toastSuccess(`🌙 ${name} ${dose}u logged`);
 }
 
-let basalReminderTimer=null;
+let basalPreTimer=null;   // fires 15 min before
+let basalOnTimeTimer=null; // fires at injection time
+
 function scheduleBasalReminder(){
-  if(basalReminderTimer)clearTimeout(basalReminderTimer);
+  // Clear any existing timers
+  if(basalPreTimer){clearTimeout(basalPreTimer);clearInterval(basalPreTimer);basalPreTimer=null;}
+  if(basalOnTimeTimer){clearTimeout(basalOnTimeTimer);clearInterval(basalOnTimeTimer);basalOnTimeTimer=null;}
+
   const timeStr=cfg.basalTime||'18:00';
-  const [h,m]=(timeStr).split(':').map(Number);
+  const [h,m]=timeStr.split(':').map(Number);
+  if(isNaN(h)||isNaN(m))return;
+
+  const dose=cfg.basalDose||0;
+  if(!dose)return; // no reminder if dose not configured
+
+  // Calculate next injection time
   const now=new Date();
-  const next=new Date();
-  next.setHours(h,m,0,0);
-  if(next<=now)next.setDate(next.getDate()+1);// schedule for tomorrow if already passed
-  const msUntil=next-now;
-  basalReminderTimer=setTimeout(()=>{
-    fireBasalReminder();
-    // Then repeat every 24h
-    basalReminderTimer=setInterval(fireBasalReminder,24*3600000);
-  },msUntil);
+  const nextInject=new Date();
+  nextInject.setHours(h,m,0,0);
+  if(nextInject<=now)nextInject.setDate(nextInject.getDate()+1);
+
+  // 15-min pre-reminder
+  const nextPre=new Date(nextInject.getTime()-15*60000);
+  const msPre=nextPre-now;
+
+  // Update the status display in settings
+  updateBasalReminderStatus(h,m);
+
+  // Schedule 15-min warning
+  const schedulePre=()=>{
+    fireBasalPreReminder();
+    basalPreTimer=setInterval(fireBasalPreReminder,24*3600000);
+  };
+  if(msPre>0){
+    basalPreTimer=setTimeout(schedulePre,msPre);
+  } else {
+    // Pre-time already passed today, schedule for tomorrow
+    basalPreTimer=setTimeout(schedulePre,msPre+24*3600000);
+  }
+
+  // Schedule on-time reminder
+  const msInject=nextInject-now;
+  const scheduleOnTime=()=>{
+    fireBasalOnTimeReminder();
+    basalOnTimeTimer=setInterval(fireBasalOnTimeReminder,24*3600000);
+  };
+  basalOnTimeTimer=setTimeout(scheduleOnTime,msInject);
 }
 
-function fireBasalReminder(){
+function updateBasalReminderStatus(h,m){
+  const el=document.getElementById('basalReminderStatus');
+  const noEl=document.getElementById('basalNoReminder');
+  const preEl=document.getElementById('basalPreRemindTime');
+  const onEl=document.getElementById('basalRemindTime');
+  if(!el)return;
+  const dose=cfg.basalDose||0;
+  if(!dose){
+    el.style.display='none';
+    if(noEl)noEl.style.display='block';
+    return;
+  }
+  if(noEl)noEl.style.display='none';
+  if(!preEl||!onEl){el.style.display='none';return;}
+  // Calculate 15-min pre-reminder time
+  const preH=m>=15?h:(h===0?23:h-1);
+  const preM=m>=15?m-15:m+45;
+  const fmt2=(n)=>String(n).padStart(2,'0');
+  preEl.textContent=`${fmt2(preH)}:${fmt2(preM)}`;
+  onEl.textContent=`${fmt2(h)}:${fmt2(m)}`;
+  el.style.display='block';
+}
+
+function fireBasalPreReminder(){
   const name=cfg.basalName||'Basal';
   const dose=cfg.basalDose||0;
   if(!dose)return;
-  // Sound + vibrate using alarm engine
   const a=load('gt_alarms',{});
   if(a.soundOn!==false)playAlarmSound('test');
   if(a.vibeOn!==false)triggerVibration('test');
-  toast(`🌙 Time for your ${name} injection (${dose}u)`,'info','🌙');
+  toast(`⏰ 15 minutes until your ${name} injection (${dose}u) — get ready`,'warn','🌙');
+}
+
+function fireBasalOnTimeReminder(){
+  const name=cfg.basalName||'Basal';
+  const dose=cfg.basalDose||0;
+  if(!dose)return;
+  const a=load('gt_alarms',{});
+  if(a.soundOn!==false)playAlarmSound('test');
+  if(a.vibeOn!==false)triggerVibration('test');
+  toast(`🌙 Time for your ${name} injection (${dose}u) — log it after injecting`,'info','💉');
 }
 
 function clearAll(){appConfirm('Delete ALL readings? This cannot be undone.',()=>{readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');});}
