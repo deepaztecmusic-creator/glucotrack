@@ -549,9 +549,9 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <span class="di-arrow" id="arr-logbook">▶</span>
       </button>
       <div class="di-sub" id="sub-logbook">
-        <button class="di" id="nav-history" onclick="goTo('history')"><div class="di-ic">📋</div>Reading History</button>
         <button class="di" id="nav-logmeal" onclick="openMealModal();closeDrawer()"><div class="di-ic">🍽️</div>Log Meal</button>
         <button class="di" id="nav-forecast" onclick="goTo('forecast')"><div class="di-ic">🔮</div>Glucose Forecast</button>
+        <button class="di" id="nav-history" onclick="goTo('history')"><div class="di-ic">📋</div>Reading History</button>
       </div>
     </div>
     <!-- REPORTS group -->
@@ -1353,13 +1353,17 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
           <button class="meal-del" onclick="removeMealItem(this)">✕</button>
         </div>
       </div>
-      <button class="add-item-btn" onclick="addMealItem()">+ Add food item</button>
+      <div style="display:flex;gap:8px;margin-top:2px;">
+        <button class="add-item-btn" onclick="addMealItem()" style="flex:1;">+ Add food item</button>
+        <button class="add-item-btn" onclick="analyseFullMeal()" id="fullMealAiBtn" style="flex:1;border-color:var(--acc);color:var(--acc);">🤖 AI Carb Lookup</button>
+      </div>
       <div class="meal-total-box">
         <div class="meal-total-row">
           <div class="meal-total-lbl">Total Carbs</div>
           <div class="meal-total-val"><span id="mealTotalCarbs">0</span><span style="font-size:14px;font-weight:500;"> g</span></div>
         </div>
-        <div class="meal-insulin-rec" id="mealInsRec">Enter carbs above to see insulin suggestion</div>
+        <div class="meal-insulin-rec" id="mealInsRec">Search foods above or tap AI Carb Lookup</div>
+        <div id="mealItemBreakdown" style="margin-top:8px;display:none;"></div>
       </div>
       <div class="iins" style="margin-top:8px;">
         <div class="iif"><label>Insulin to take (units)</label><input type="number" id="mealIns" placeholder="0" min="0" max="100" step="0.5"></div>
@@ -3097,24 +3101,33 @@ async function fetchFoodSuggestions(query, input, dropdown) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        messages: [{role: 'user', content: `List 4 common serving sizes for "${query}" with their carb content. Return ONLY raw JSON array, no markdown:
-[{"name":"Cooked white rice (1 cup)","carbs":45,"grams":186},{"name":"Brown bread (1 slice)","carbs":15,"grams":30}]
-Use realistic common portion sizes. If food not found return [].`}]
+        max_tokens: 400,
+        messages: [{role: 'user', content: `List 4 common serving sizes for "${query}" with carb content. Return ONLY a raw JSON array, no markdown, no explanation:\n[{"name":"Cooked white rice (1 cup)","carbs":45,"grams":186},{"name":"Brown bread (1 slice)","carbs":15,"grams":30}]\nRules: realistic portions, accurate carbs. If food unknown, estimate. Always return at least 1 result.`}]
       })
     });
+    if (!resp.ok) {
+      dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ Lookup unavailable — enter carbs manually</div>';
+      return;
+    }
     const data = await resp.json();
+    if (data.error) {
+      dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ ' + (data.error.message||'API error — enter carbs manually') + '</div>';
+      return;
+    }
     const txt = (data.content || []).map(c => c.text || '').join('');
     let items;
-    try { items = JSON.parse(txt.replace(/```json|```/g, '').trim()); }
-    catch { items = []; }
+    try {
+      const clean = txt.replace(/```json|```/g,'').trim();
+      items = JSON.parse(clean);
+      if (!Array.isArray(items)) items = [];
+    } catch { items = []; }
 
     if (!items.length) {
-      dropdown.innerHTML = '<div class="food-sugg-loading">No results found</div>';
+      dropdown.innerHTML = '<div class="food-sugg-loading">No results — enter carbs manually</div>';
       return;
     }
 
-    dropdown.innerHTML = items.map((item, i) => `
+    dropdown.innerHTML = items.map((item) => `
       <div class="food-sugg-item" onmousedown="selectFood(event,'${escQ(item.name)}',${item.carbs},this)">
         <div>
           <div class="food-sugg-name">${escH(item.name)}</div>
@@ -3124,7 +3137,7 @@ Use realistic common portion sizes. If food not found return [].`}]
       </div>`).join('');
     dropdown.classList.add('open');
   } catch(e) {
-    dropdown.classList.remove('open');
+    dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ Network error — enter carbs manually</div>';
   }
 }
 
@@ -3150,19 +3163,88 @@ function hideSuggestions(input, delay) {
 
 function recalcMealTotals(){
   let total=0;
-  document.querySelectorAll('#mealItemsContainer .meal-item-carbs').forEach(inp=>{
-    const v=parseFloat(inp.value)||0;
-    if(v<0){inp.value=0;}
-    total+=Math.max(0,v);
+  const rows=[];
+  document.querySelectorAll('#mealItemsContainer .meal-item-row').forEach(row=>{
+    const nameEl=row.querySelector('.meal-item-name');
+    const carbEl=row.querySelector('.meal-item-carbs');
+    const v=parseFloat(carbEl?.value)||0;
+    if(v<0&&carbEl)carbEl.value=0;
+    const carbs=Math.max(0,v);
+    total+=carbs;
+    if(carbs>0&&nameEl?.value.trim())rows.push({name:nameEl.value.trim(),carbs});
   });
   document.getElementById('mealTotalCarbs').textContent=Math.round(total);
+  // Item breakdown
+  const bd=document.getElementById('mealItemBreakdown');
+  if(bd){
+    if(rows.length>1){
+      bd.style.display='block';
+      bd.innerHTML=rows.map(r=>`<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--acc);opacity:.8;padding:1px 0;"><span>${r.name}</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700;">${r.carbs}g</span></div>`).join('');
+    } else {
+      bd.style.display='none';bd.innerHTML='';
+    }
+  }
   if(total>0){
     const ins=Math.round((total/cfg.carbRatio)*2)/2;
-    document.getElementById('mealInsRec').textContent=`💉 Suggested insulin: ${ins.toFixed(1)} units (${total}g ÷ ${cfg.carbRatio}g/u)`;
+    document.getElementById('mealInsRec').textContent=`💉 Suggested insulin: ${ins.toFixed(1)}u (${Math.round(total)}g ÷ ${cfg.carbRatio}g/u)`;
     document.getElementById('mealIns').value=ins;
   } else {
-    document.getElementById('mealInsRec').textContent='Enter carbs above to see insulin suggestion';
+    document.getElementById('mealInsRec').textContent='Search foods above or tap AI Carb Lookup';
     document.getElementById('mealIns').value='';
+  }
+}
+
+// AI full meal carb analyser — describe meal in text, get total carbs
+async function analyseFullMeal(){
+  const items=[];
+  document.querySelectorAll('#mealItemsContainer .meal-item-name').forEach(inp=>{
+    if(inp.value.trim())items.push(inp.value.trim());
+  });
+  if(!items.length){toastWarn('Add at least one food item first.');return;}
+  const btn=document.getElementById('fullMealAiBtn');
+  btn.textContent='🔄 Analysing…';btn.disabled=true;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:500,
+        messages:[{role:'user',content:`For each food item listed, estimate the carb content in grams for a typical serving. Return ONLY raw JSON array, no markdown:
+[{"name":"food name","carbs":number,"grams":number,"note":"portion assumed"}]
+
+Foods: ${items.join(', ')}`}]
+      })
+    });
+    if(!resp.ok)throw new Error('API error');
+    const data=await resp.json();
+    if(data.error)throw new Error(data.error.message||'API error');
+    const txt=(data.content||[]).map(c=>c.text||'').join('');
+    let results;
+    try{results=JSON.parse(txt.replace(/```json|```/g,'').trim());}
+    catch{throw new Error('Could not parse response');}
+    if(!Array.isArray(results)||!results.length)throw new Error('No results returned');
+    // Fill in carb values for each row
+    const rows=document.querySelectorAll('#mealItemsContainer .meal-item-row');
+    rows.forEach((row,i)=>{
+      const nameEl=row.querySelector('.meal-item-name');
+      const carbEl=row.querySelector('.meal-item-carbs');
+      const name=nameEl?.value.trim().toLowerCase();
+      if(!name||!carbEl)return;
+      // Match by position or name
+      const match=results[i]||results.find(r=>r.name.toLowerCase().includes(name.split(' ')[0]));
+      if(match&&carbEl){
+        carbEl.value=match.carbs;
+        // Show tooltip
+        if(match.note)carbEl.title=match.note;
+      }
+    });
+    recalcMealTotals();
+    toastSuccess(`AI estimated carbs for ${results.length} item${results.length>1?'s':''}!`);
+  }catch(e){
+    toastError('AI lookup failed: '+(e.message||'Check connection'));
+  }finally{
+    btn.textContent='🤖 AI Carb Lookup';btn.disabled=false;
   }
 }
 
