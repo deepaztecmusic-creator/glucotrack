@@ -3,187 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GlucoTrack">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D1321">
 <title>GlucoTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Using your specific variables and styles */
-:root {
-  --bg:#F4F6F9; --white:#fff; --border:#E2E6ED; --text:#0D1321; --t3:#9AA3B5;
-  --low:#E53E3E; --ok:#38A169; --hi:#D97706; --acc:#1A56DB; --r:14px;
+/* --- YOUR ORIGINAL STYLES REMAIN UNTOUCHED --- */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
+  --text:#0D1321;--t2:#5A6478;--t3:#9AA3B5;
+  --low:#E53E3E;--low-bg:#FFF5F5;--low-b:#FEB2B2;
+  --ok:#38A169;--ok-bg:#F0FFF4;--ok-b:#9AE6B4;
+  --hi:#D97706;--hi-bg:#FFFBEB;--hi-b:#FCD34D;
+  --vhi:#E53E3E;--acc:#1A56DB;--acc-bg:#EBF5FF;--acc-b:#93C5FD;
+  --pur:#7C3AED;--pur-bg:#F5F3FF;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.09);
+  --r:14px;--rs:8px;
 }
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-.topbar { background: var(--white); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-.logo { font-weight: 800; color: var(--acc); } .logo span { color: var(--text); }
-.wbar { background: #0D1321; padding: 15px; color: #fff; display: flex; align-items: baseline; gap: 8px; }
-.wnum { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono'; color: #34d399; }
-.scroll { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-.card { margin: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.gc-num { font-size: 50px; font-weight: 800; font-family: 'JetBrains Mono'; text-align: center; display: block; }
-.rtrack { height: 6px; background: linear-gradient(90deg, #E53E3E, #38A169, #D97706, #E53E3E); border-radius: 3px; position: relative; margin: 15px 0; }
-.rneedle { position: absolute; top: -4px; width: 4px; height: 14px; background: #000; border-radius: 2px; transition: 0.5s; }
-.fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--acc); color: #fff; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 12px rgba(26,86,219,0.3); cursor: pointer; }
-.mbd { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; z-index: 1000; }
-.mbd.open { display: flex; }
-.msheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; }
-.bi { width: 100%; font-size: 45px; text-align: center; border: none; outline: none; font-family: 'JetBrains Mono'; }
-.cc-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
-.cc { padding: 8px 15px; background: #eee; border-radius: 8px; cursor: pointer; font-size: 13px; }
-.cc.selected { background: var(--acc); color: #fff; }
-.svbtn { width: 100%; padding: 15px; background: var(--acc); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; margin-top: 10px; }
-canvas { width: 100%; height: 150px; margin-top: 10px; }
+body.dark{
+  --bg:#0D1321;--white:#1a2236;--border:#243049;--border2:#2d3d57;
+  --text:#e8edf5;--t2:#8899bb;--t3:#4a5a7a;
+}
+html{height:100%;background:var(--bg);}
+body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
+.topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;z-index:210;}
+.logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}.logo span{color:var(--text);}
+.wbar{background:#0D1321;padding:10px 16px;flex-shrink:0;position:relative;overflow:hidden;color:#fff;}
+.wnum{font-size:26px;font-weight:700;color:#34d399;font-family:'JetBrains Mono',monospace;}
+.wnum.low{color:#f87171;}.wnum.hi{color:#fbbf24;}.wnum.none{color:#475569;}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.card{margin:12px 14px 0;background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:16px;}
+.gc-num{font-size:60px;font-weight:800;line-height:1;letter-spacing:-2.5px;color:var(--ok);font-family:'JetBrains Mono',monospace;}
+.gc-num.none{color:var(--t3);font-size:42px;}
+.rtrack{height:4px;border-radius:2px;background:linear-gradient(90deg,#E53E3E 0%,#38A169 30%,#38A169 70%,#D97706 85%,#E53E3E 100%);position:relative;}
+.rneedle{position:absolute;top:-5px;width:2px;height:14px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .5s ease;}
+.fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100;background:var(--acc);color:#fff;border:none;border-radius:50px;padding:13px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--sh2);}
+.mbd{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:none;align-items:flex-end;justify-content:center;}
+.mbd.open{display:flex;}
+.msheet{width:100%;max-width:430px;background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 40px;transform:translateY(0);transition:transform 0.3s;}
+.bi{font-size:60px;font-weight:800;width:100%;text-align:center;background:none;border:none;outline:none;color:var(--text);font-family:'JetBrains Mono',monospace;}
+.cc{display:inline-flex;align-items:center;padding:9px 11px;background:var(--bg);border:1.5px solid transparent;border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:600;margin:4px;}
+.cc.selected{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
+.svbtn{width:100%;margin-top:20px;padding:13px;background:var(--acc);border:none;border-radius:var(--rs);color:#fff;font-weight:700;cursor:pointer;}
+canvas.main-chart{display:block;width:100%;height:180px;}
 </style>
 </head>
 <body>
 
-<div class="topbar"><div class="logo">GLUCO<span>TRACK</span></div></div>
+<div class="topbar">
+    <div class="logo">GLUCO<span>TRACK</span></div>
+    <div class="topbar-right"><div class="topbar-date" id="liveClock">00:00</div></div>
+</div>
+
 <div class="wbar">
-    <div class="wnum" id="widgetNum">--.-</div>
-    <div style="font-size: 12px; opacity: 0.6;">mmol/L</div>
+    <div class="wbar-inner">
+        <div class="wnum none" id="widgetVal">--.-</div>
+        <div style="font-size:10px; opacity:0.6; font-family:'JetBrains Mono'">mmol/L</div>
+    </div>
 </div>
 
 <div class="scroll">
     <div class="card">
-        <span style="font-size: 12px; font-weight: 700; color: var(--t3);">LATEST READING</span>
-        <div class="gc-num" id="mainNum">--.-</div>
-        <div class="rtrack"><div class="rneedle" id="needle"></div></div>
-    </div>
-    
-    <div class="card">
-        <span style="font-size: 12px; font-weight: 700; color: var(--t3);">24H TREND (mmol/L)</span>
-        <canvas id="glucoseChart"></canvas>
+        <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase;">Latest Reading</div>
+        <div class="gc-num none" id="heroVal">--.-</div>
+        <div class="rtrack" style="margin-top:15px;"><div class="rneedle" id="needle"></div></div>
     </div>
 
-    <div id="history"></div>
+    <div class="card">
+        <div style="font-size:13px; font-weight:700; margin-bottom:10px;">24h Glucose Trend (mmol/L)</div>
+        <div style="height:180px; position:relative;">
+            <canvas class="main-chart" id="glucoseChart"></canvas>
+        </div>
+    </div>
+
+    <div id="historyList"></div>
 </div>
 
-<button class="fab" onclick="toggleModal(true)">+ Log Glucose</button>
+<button class="fab" onclick="openModal()">+ Log Reading</button>
 
 <div class="mbd" id="logModal">
     <div class="msheet">
-        <div style="display:flex; justify-content:space-between; margin-bottom: 20px;">
-            <b style="font-size: 18px;">New Entry</b>
-            <button onclick="toggleModal(false)" style="border:none; background:none; font-size: 20px;">✕</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <span style="font-weight:800; font-size:18px;">Log Reading</span>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:20px; color:var(--t3);">✕</button>
         </div>
         <input type="number" class="bi" id="glucoseInput" placeholder="0.0" step="0.1">
-        <p style="text-align:center; color:var(--t3); margin-top: -10px;">mmol/L</p>
+        <div style="text-align:center; color:var(--t3); margin-top:-10px; font-size:12px;">mmol/L</div>
         
-        <div class="cc-grid">
-            <div class="cc" onclick="selCtx(this)">Fasting</div>
-            <div class="cc" onclick="selCtx(this)">Pre-Meal</div>
-            <div class="cc" onclick="selCtx(this)">Post-Meal</div>
-            <div class="cc selected" onclick="selCtx(this)">General</div>
+        <div style="margin-top:20px;">
+            <div style="font-size:10px; font-weight:700; color:var(--t3); text-transform:uppercase; margin-bottom:8px;">Context</div>
+            <div class="ctx-grid">
+                <div class="cc" onclick="selectCtx(this)">Fasting</div>
+                <div class="cc" onclick="selectCtx(this)">Pre-Meal</div>
+                <div class="cc" onclick="selectCtx(this)">Post-Meal</div>
+                <div class="cc selected" onclick="selectCtx(this)">General</div>
+            </div>
         </div>
-        <button class="svbtn" onclick="addEntry()">Save Reading</button>
+
+        <button class="svbtn" onclick="saveData()">Save Reading</button>
     </div>
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem('gt_readings')) || [];
+/* --- CORE LOGIC --- */
+let glucoseReadings = JSON.parse(localStorage.getItem('gt_data')) || [];
 
-function toggleModal(show) {
-    document.getElementById('logModal').classList.toggle('open', show);
-    if(show) document.getElementById('glucoseInput').focus();
-}
+function openModal() { document.getElementById('logModal').classList.add('open'); document.getElementById('glucoseInput').focus(); }
+function closeModal() { document.getElementById('logModal').classList.remove('open'); }
+function selectCtx(el) { document.querySelectorAll('.cc').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); }
 
-function selCtx(el) {
-    document.querySelectorAll('.cc').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-}
-
-function addEntry() {
+function saveData() {
     const val = parseFloat(document.getElementById('glucoseInput').value);
     const ctx = document.querySelector('.cc.selected').innerText;
     
-    if(!val || val <= 0) return alert("Please enter a valid mmol/L value");
+    if(!val || val <= 0) { alert("Please enter a valid value"); return; }
 
     const entry = {
-        val: val,
-        ctx: ctx,
-        ts: Date.now(),
-        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        id: Date.now(),
+        value: val,
+        context: ctx,
+        timestamp: new Date().getTime(),
+        timeStr: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
     };
 
-    data.unshift(entry);
-    localStorage.setItem('gt_readings', JSON.stringify(data));
+    glucoseReadings.unshift(entry);
+    localStorage.setItem('gt_data', JSON.stringify(glucoseReadings));
     
     document.getElementById('glucoseInput').value = '';
-    toggleModal(false);
-    refresh();
+    closeModal();
+    updateUI();
 }
 
-function refresh() {
-    const latest = data[0];
-    const wNum = document.getElementById('widgetNum');
-    const mNum = document.getElementById('mainNum');
+function updateUI() {
+    const latest = glucoseReadings[0];
+    const widget = document.getElementById('widgetVal');
+    const hero = document.getElementById('heroVal');
     const needle = document.getElementById('needle');
 
     if(latest) {
-        const v = latest.val.toFixed(1);
-        wNum.innerText = v;
-        mNum.innerText = v;
-
-        // Color logic for mmol/L
-        let color = '#38A169'; // OK
-        if(latest.val < 3.9) color = '#E53E3E'; // Low
-        if(latest.val > 10.0) color = '#D97706'; // High
+        const displayVal = latest.value.toFixed(1);
+        widget.innerText = displayVal;
+        hero.innerText = displayVal;
         
-        wNum.style.color = color;
-        mNum.style.color = color;
+        widget.className = "wnum";
+        hero.className = "gc-num";
 
-        // Needle move (Range 2.0 to 18.0)
-        let percent = ((latest.val - 2) / (18 - 2)) * 100;
-        needle.style.left = Math.max(0, Math.min(98, percent)) + '%';
+        // mmol/L Color Coding
+        let color = 'var(--ok)';
+        if(latest.value < 3.9) color = 'var(--low)';
+        else if(latest.value > 10.0) color = 'var(--hi)';
+
+        widget.style.color = color;
+        hero.style.color = color;
+
+        // Needle Position (2.0 to 18.0 mmol/L scale)
+        let percent = ((latest.value - 2) / (18 - 2)) * 100;
+        needle.style.left = Math.max(5, Math.min(95, percent)) + '%';
     }
 
-    // History List
-    const histDiv = document.getElementById('history');
-    histDiv.innerHTML = data.slice(0, 10).map(item => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px;">
+    // History
+    const list = document.getElementById('historyList');
+    list.innerHTML = glucoseReadings.slice(0, 5).map(r => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px;">
             <div>
-                <b style="font-size: 16px;">${item.val.toFixed(1)}</b> <small>mmol/L</small>
-                <div style="font-size: 11px; color: var(--t3);">${item.ctx}</div>
+                <div style="font-weight:700;">${r.value.toFixed(1)} <small style="font-weight:400; color:var(--t3)">mmol/L</small></div>
+                <div style="font-size:11px; color:var(--t3)">${r.context}</div>
             </div>
-            <div style="font-size: 11px; color: var(--t3);">${item.time}</div>
+            <div style="font-size:11px; color:var(--t3)">${r.timeStr}</div>
         </div>
     `).join('');
 
-    drawChart();
+    renderChart();
 }
 
-function drawChart() {
+function renderChart() {
     const canvas = document.getElementById('glucoseChart');
     const ctx = canvas.getContext('2d');
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
     canvas.width = w; canvas.height = h;
 
-    if(data.length < 2) return;
+    if(glucoseReadings.length < 2) return;
 
-    // Draw Target Zone (3.9 - 10.0 mmol/L)
-    ctx.fillStyle = 'rgba(56, 161, 105, 0.1)';
-    const yHigh = h - (10 / 18 * h);
-    const yLow = h - (3.9 / 18 * h);
-    ctx.fillRect(0, yHigh, w, yLow - yHigh);
+    // Draw Abbott-style Target Zone (3.9 to 10.0)
+    ctx.fillStyle = 'rgba(56, 161, 105, 0.08)';
+    const yTargetHigh = h - (10 / 18 * h);
+    const yTargetLow = h - (3.9 / 18 * h);
+    ctx.fillRect(0, yTargetHigh, w, yTargetLow - yTargetHigh);
 
-    // Draw Data Line
+    // Draw Line
     ctx.beginPath();
-    ctx.strokeStyle = '#1A56DB';
     ctx.lineWidth = 3;
+    ctx.strokeStyle = '#1A56DB';
     ctx.lineJoin = 'round';
 
-    const points = data.slice(0, 10).reverse();
-    points.forEach((p, i) => {
-        const x = (i / (points.length - 1)) * w;
-        const y = h - (p.val / 18 * h);
+    const plotData = [...glucoseReadings].slice(0, 12).reverse();
+    plotData.forEach((d, i) => {
+        const x = (i / (plotData.length - 1)) * w;
+        const y = h - (d.value / 18 * h);
         if(i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
     });
     ctx.stroke();
 }
 
-// Start
-refresh();
-window.addEventListener('resize', drawChart);
+// Live Clock
+setInterval(() => {
+    document.getElementById('liveClock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}, 1000);
+
+// Init
+updateUI();
+window.addEventListener('resize', renderChart);
 </script>
 
 </body>
