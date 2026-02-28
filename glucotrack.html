@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0D1321">
-    <title>GlucoTrack 24h</title>
+    <title>GlucoTrack 24h mmol/L</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -35,7 +35,7 @@
         .card { background:var(--white); border-radius:var(--r); padding:16px; border:1px solid var(--border); box-shadow:var(--sh); margin-bottom:12px; }
         .card-title { font-size:12px; font-weight:800; color:var(--t3); margin-bottom:12px; text-transform:uppercase; }
         
-        .chart-container { height:200px; width:100%; position:relative; }
+        .chart-container { height:220px; width:100%; position:relative; }
         
         /* History Items */
         .ei { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
@@ -70,7 +70,7 @@
     </nav>
 
     <div class="hero">
-        <div class="hero-label">LAST READING</div>
+        <div class="hero-label">LATEST READING</div>
         <div class="hero-val" id="displayVal">--.-<span class="hero-unit">mmol/L</span></div>
     </div>
 
@@ -107,6 +107,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const TARGET_LOW = 3.9;
+        const TARGET_HIGH = 7.8;
         let historyData = JSON.parse(localStorage.getItem('gluco_history')) || [];
         let selectedCtx = { name: 'General', icon: '📍' };
         let chart;
@@ -134,7 +136,7 @@
                 document.getElementById('displayVal').innerHTML = `${historyData[0].val.toFixed(1)}<span class="hero-unit">mmol/L</span>`;
             }
             list.innerHTML = historyData.map((entry, index) => {
-                const color = entry.val < 3.9 ? 'var(--low)' : entry.val > 7.8 ? 'var(--hi)' : 'var(--ok)';
+                const color = entry.val < TARGET_LOW ? 'var(--low)' : entry.val > TARGET_HIGH ? 'var(--hi)' : 'var(--ok)';
                 return `
                     <div class="ei">
                         <div class="ei-dot" style="background:${color}"></div>
@@ -186,7 +188,7 @@
             const isDark = document.body.classList.contains('dark');
             
             const todayStr = new Date().toLocaleDateString([], {month:'short', day:'numeric'});
-            const todayData = historyData.filter(d => d.date === todayStr).reverse();
+            const todayData = historyData.filter(d => d.date === todayStr).sort((a,b) => a.timestamp - b.timestamp);
 
             chart = new Chart(ctx, {
                 type: 'line',
@@ -194,12 +196,13 @@
                     datasets: [{
                         data: todayData.map(p => ({ x: p.time, y: p.val, icon: p.icon })),
                         borderColor: '#1A56DB',
-                        backgroundColor: 'rgba(26, 86, 219, 0.1)',
+                        backgroundColor: isDark ? 'rgba(26, 86, 219, 0.2)' : 'rgba(26, 86, 219, 0.05)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 6,
-                        pointHoverRadius: 8,
-                        pointBackgroundColor: '#1A56DB'
+                        pointBackgroundColor: '#1A56DB',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
                     }]
                 },
                 options: {
@@ -226,7 +229,19 @@
                             grid: { display: false }
                         }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'targetBox',
+                    beforeDraw: (chart) => {
+                        const { ctx, chartArea: { left, right, width }, scales: { y } } = chart;
+                        const top = y.getPixelForValue(TARGET_HIGH);
+                        const bottom = y.getPixelForValue(TARGET_LOW);
+                        ctx.save();
+                        ctx.fillStyle = isDark ? 'rgba(56, 161, 105, 0.05)' : 'rgba(56, 161, 105, 0.1)';
+                        ctx.fillRect(left, top, width, bottom - top);
+                        ctx.restore();
+                    }
+                }]
             });
         }
 
