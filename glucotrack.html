@@ -54,7 +54,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .chart-wrap{width:100%;height:140px;margin-top:15px;position:relative;}
 canvas#glucoseChart{width:100%;height:100%;}
 
-.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;padding:14px 24px;border-radius:50px;font-weight:700;border:none;box-shadow:0 4px 15px rgba(26,86,219,0.4);cursor:pointer;z-index:100;}
+.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;padding:14px 24px;border-radius:50px;font-weight:700;border:none;box-shadow:0 4px 15px rgba(26,86,219,0.4);cursor:pointer;z-index:100;transition: all 0.2s;}
+.fab:disabled{background:var(--t3);opacity:0.7;cursor:not-allowed;}
+
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0D1321;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;opacity:0;transition:0.3s;z-index:1000;}
 .toast.show{opacity:1;}
 </style>
@@ -115,12 +117,13 @@ canvas#glucoseChart{width:100%;height:100%;}
     </div>
 </div>
 
-<button class="fab" onclick="simulateNewReading()">+ Log Reading</button>
+<button class="fab" id="log-btn" onclick="initiateReading()">+ Log Reading</button>
 
 <script>
 const AppState = {
     history: [5.4, 5.8, 6.1, 5.9, 5.7, 6.2, 5.8], 
-    lastReadingTimestamp: Date.now(),
+    lastReadingTimestamp: Date.now() - 300000, // Start with 5 mins ago
+    isProcessing: false,
     intervals: {}
 };
 
@@ -132,6 +135,9 @@ function updateClock() {
 }
 
 function updateRelativeTimers() {
+    // CRITICAL: Stop updating if a reading is being initiated
+    if (AppState.isProcessing) return;
+
     const diffMins = Math.floor((Date.now() - AppState.lastReadingTimestamp) / 60000);
     const ts = diffMins < 1 ? "Just now" : `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
     document.getElementById('widget-time').textContent = ts;
@@ -141,16 +147,10 @@ function updateRelativeTimers() {
 function updateClinicalStats() {
     const data = AppState.history;
     if (data.length === 0) return;
-
-    // 1. Time in Range (3.9 - 10.0 mmol/L)
     const inRangeCount = data.filter(v => v >= 3.9 && v <= 10.0).length;
     const tir = Math.round((inRangeCount / data.length) * 100);
-    
-    // 2. Average
     const sum = data.reduce((a, b) => a + b, 0);
     const avg = (sum / data.length).toFixed(1);
-
-    // 3. Estimated A1c (%) using (Average Glucose mmol/L + 2.59) / 1.59
     const a1c = ((parseFloat(avg) + 2.59) / 1.59).toFixed(1);
 
     document.getElementById('stat-tir').textContent = `${tir}%`;
@@ -177,11 +177,9 @@ function drawChart() {
     const getX = (i) => (i / (data.length - 1)) * width;
     const getY = (v) => height - ((v - min) / (max - min)) * height;
 
-    // Target Range Shading
     ctx.fillStyle = 'rgba(56, 161, 105, 0.08)';
     ctx.fillRect(0, getY(10.0), width, getY(3.9) - getY(10.0));
 
-    // Glucose Path
     ctx.beginPath();
     ctx.strokeStyle = '#1A56DB';
     ctx.lineWidth = 3;
@@ -191,7 +189,6 @@ function drawChart() {
     });
     ctx.stroke();
 
-    // Fill Gradient
     ctx.lineTo(width, height);
     ctx.lineTo(0, height);
     const grad = ctx.createLinearGradient(0, 0, 0, height);
@@ -201,24 +198,51 @@ function drawChart() {
     ctx.fill();
 }
 
-function simulateNewReading() {
+/**
+ * NEW: INITIATE READING (Stops Timers)
+ */
+function initiateReading() {
+    // 1. Enter Processing State
+    AppState.isProcessing = true;
+    
+    // 2. Visual Feedback
+    const btn = document.getElementById('log-btn');
+    btn.disabled = true;
+    btn.textContent = "Processing...";
+    document.getElementById('widget-time').textContent = "CALIBRATING...";
+    document.getElementById('hero-time').textContent = "Calculating clinical value...";
+
+    // 3. Simulated latency (e.g., waiting for sensor feedback)
+    setTimeout(() => {
+        completeReading();
+    }, 1500);
+}
+
+function completeReading() {
     const newVal = parseFloat((Math.random() * (13.0 - 3.0) + 3.0).toFixed(1));
     const oldVal = AppState.history[AppState.history.length - 1];
     
     AppState.history.push(newVal);
-    if(AppState.history.length > 20) AppState.history.shift(); // Extended history
-    AppState.lastReadingTimestamp = Date.now();
+    if(AppState.history.length > 20) AppState.history.shift();
     
+    // Reset State & Timestamp
+    AppState.lastReadingTimestamp = Date.now();
+    AppState.isProcessing = false;
+
+    // UI Updates
     document.getElementById('widget-val').textContent = newVal.toFixed(1);
     document.getElementById('hero-val').textContent = newVal.toFixed(1);
     
+    const btn = document.getElementById('log-btn');
+    btn.disabled = false;
+    btn.textContent = "+ Log Reading";
+
     const arrow = document.getElementById('trend-arrow');
     const diff = newVal - oldVal;
     arrow.textContent = diff > 0.4 ? "↑" : (diff < -0.4 ? "↓" : (diff > 0.1 ? "↗" : (diff < -0.1 ? "↘" : "→")));
     
     const banner = document.getElementById('alert-banner');
     banner.className = ''; 
-    
     if (newVal < 3.9) {
         banner.textContent = "⚠ HYPOGLYCEMIA DETECTED";
         banner.className = 'alert-hypo';
@@ -233,7 +257,7 @@ function simulateNewReading() {
     }
 
     drawChart();
-    updateRelativeTimers();
+    updateRelativeTimers(); // Resumes and shows "Just now"
     updateClinicalStats();
     
     const toast = document.getElementById('toast');
