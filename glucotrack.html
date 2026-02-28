@@ -11,13 +11,25 @@
 <meta name="application-name" content="GlucoTrack">
 <meta name="description" content="Personal glucose tracker with AI meal analysis">
 <link id="pwa-icon-57" rel="apple-touch-icon" sizes="57x57">
+<link id="pwa-icon-60" rel="apple-touch-icon" sizes="60x60">
+<link id="pwa-icon-72" rel="apple-touch-icon" sizes="72x72">
+<link id="pwa-icon-76" rel="apple-touch-icon" sizes="76x76">
+<link id="pwa-icon-114" rel="apple-touch-icon" sizes="114x114">
+<link id="pwa-icon-120" rel="apple-touch-icon" sizes="120x120">
+<link id="pwa-icon-144" rel="apple-touch-icon" sizes="144x144">
+<link id="pwa-icon-152" rel="apple-touch-icon" sizes="152x152">
 <link id="pwa-icon-180" rel="apple-touch-icon" sizes="180x180">
 <link id="pwa-manifest" rel="manifest">
+<link id="pwa-splash-2048" rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-1668" rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-1536" rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-1125" rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+<link id="pwa-splash-1242" rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
+<link id="pwa-splash-750" rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+<link id="pwa-splash-640" rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
 <title>GlucoTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-/* YOUR ORIGINAL CSS REMAINS UNTOUCHED */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
@@ -42,130 +54,1030 @@ body.dark{
   --sh:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
   --sh2:0 4px 16px rgba(0,0,0,.4);
 }
-/* All your specific screen and widget styles... */
+body.dark .card{background:var(--white);}
+body.dark .topbar{background:#111827;border-color:var(--border);}
+body.dark .drawer{background:#111827;}
+body.dark .msheet{background:#111827;}
+body.dark .sgcard{background:var(--white);}
+body.dark input,body.dark textarea{background:#0d1321;color:var(--text);border-color:var(--border2);}
+body.dark .cc{background:#0d1321;}
+body.dark .iif{background:#0d1321;}
+body.dark .nf{background:#0d1321;color:var(--text);}
+body.dark .tp.active{background:var(--white);}
+body.dark .cdr-btn.active{background:var(--white);}
 html{height:100%;background:var(--bg);}body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
+/* ─── TOAST ─── */
+.toast-wrap{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 32px);max-width:390px;}
+.toast{background:var(--text);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.25);animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:all;}
+.toast.error{background:#C53030;}.toast.success{background:#276749;}.toast.warn{background:#B7791F;}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 0 32px;animation:toastIn .2s ease;}
+.confirm-box{background:#fff;border-radius:16px;padding:20px;width:calc(100% - 32px);max-width:390px;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+body.dark .confirm-box{background:#1a2236;}
+.confirm-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:16px;line-height:1.4;text-align:center;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-btn{flex:1;padding:12px;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.confirm-btn.cancel{background:var(--bg);color:var(--t2);}
+.confirm-btn.danger{background:#E53E3E;color:#fff;}
+.confirm-btn.primary{background:var(--acc);color:#fff;}
+.toast-icon{font-size:16px;flex-shrink:0;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
+/* ─── AUTH SCREEN ─── */
+/* ─── TOPBAR ─── */
 .topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;z-index:210;}
 .logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}
-.gc-num{font-size:60px;font-weight:800;line-height:1;letter-spacing:-2.5px;color:var(--ok);font-family:'JetBrains Mono',monospace;}
+.logo span{color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.topbar-date{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.burger{width:40px;height:40px;border:none;background:none;cursor:pointer;position:relative;border-radius:8px;transition:background .15s;flex-shrink:0;}
+.burger:hover{background:var(--bg);}
+.bl{position:absolute;left:50%;width:20px;height:2px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:transform .3s ease,opacity .3s ease;}.bl:nth-child(1){top:11px;}.bl:nth-child(2){top:19px;}.bl:nth-child(3){top:27px;}
+.burger.open .bl:nth-child(1){transform:translateX(-50%) translateY(8px) rotate(45deg);}
+.burger.open .bl:nth-child(2){opacity:0;}
+.burger.open .bl:nth-child(3){transform:translateX(-50%) translateY(-8px) rotate(-45deg);}
+/* ─── WIDGET BAR ─── */
+.wbar{background:#0D1321;padding:10px 16px;flex-shrink:0;position:relative;overflow:hidden;}
+.wbar::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#1e293b,#0f172a);pointer-events:none;}
+.wbar-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.wbar-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;overflow:hidden;}
+.wval-grp{display:flex;align-items:baseline;gap:4px;flex-shrink:0;}
+.wnum{font-size:26px;font-weight:700;color:#34d399;font-family:'JetBrains Mono',monospace;transition:color .4s;letter-spacing:-1px;}
+.wnum.low{color:#f87171;}.wnum.hi{color:#fbbf24;}.wnum.vhi{color:#f87171;}.wnum.none{color:#475569;font-size:20px;}
+.wunit{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;}
+.wtrend{font-size:13px;color:#94a3b8;margin-left:1px;}
+.wtime{font-size:10px;color:#475569;font-family:'JetBrains Mono',monospace;}
+.wspark{flex:1;min-width:40px;max-width:110px;height:30px;}
+.wspark canvas{width:100%;height:100%;}
+.wcam{flex-shrink:0;flex-grow:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:7px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;white-space:nowrap;}
+.wcam:hover{background:rgba(255,255,255,.18);}
+/* ─── SCROLL AREA ─── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+/* ─── DRAWER ─── */
+.dov{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.45);z-index:190;opacity:0;pointer-events:none;transition:opacity .25s;}
+.dov.open{opacity:1;pointer-events:all;}
+.drawer{position:fixed;top:0;left:-300px;width:280px;height:100%;min-height:100vh;background:#fff;z-index:200;transition:left .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,.18);}
+.drawer.open{left:0;}
+.dh{padding:48px 20px 18px;border-bottom:1px solid var(--border);}
+.dh-user{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.dh-email{font-size:12px;color:var(--t3);}
+.dnav{flex:1;padding:8px 0;overflow-y:auto;}
+.di{display:flex;align-items:center;gap:11px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--t2);transition:all .15s;border:none;background:none;width:100%;text-align:left;}
+.di:hover{background:var(--bg);color:var(--text);}
+.di.active{color:var(--acc);background:var(--acc-bg);}
+.di-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--bg);flex-shrink:0;}
+.di.active .di-ic{background:var(--acc-bg);}
+.ddiv{height:1px;background:var(--border);margin:5px 20px;}
+.dfooter{padding:14px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--t3);}
+/* ─── FAB ─── */
+.fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100;background:var(--acc);color:#fff;border:none;border-radius:50px;padding:13px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(26,86,219,.35);transition:all .2s;white-space:nowrap;}
+.fab:hover{transform:translateX(-50%) translateY(-2px);}
+.fab-plus{width:18px;height:18px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;}
+/* ─── SCREENS ─── */
+.screen{display:none;padding-bottom:80px;}
+.screen.active{display:block;}
+/* ─── CARDS ─── */
 .card{margin:12px 14px 0;background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:16px;}
+.card-last{margin-bottom:12px;}
+.sc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sc-title{font-size:13px;font-weight:700;color:var(--text);}
+.tabs{display:flex;gap:3px;background:var(--bg);border-radius:7px;padding:3px;}
+.tp{padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border:none;background:transparent;transition:all .15s;}
+.tp.active{background:#fff;color:var(--acc);box-shadow:var(--sh);}
+/* GLUCOSE HERO */
+.gc-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.gc-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.gc-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border:1px solid;}
+.bok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b);}
+.blow{background:var(--low-bg);color:var(--low);border-color:var(--low-b);}
+.bhi{background:var(--hi-bg);color:var(--hi);border-color:var(--hi-b);}
+.bvhi{background:var(--low-bg);color:var(--vhi);border-color:var(--low-b);}
+.bdot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.gc-row{display:flex;align-items:flex-end;gap:7px;margin-top:2px;}
+.gc-num{font-size:60px;font-weight:800;line-height:1;letter-spacing:-2.5px;color:var(--ok);transition:color .4s;font-family:'JetBrains Mono',monospace;}
+.gc-num.low{color:var(--low);}.gc-num.hi{color:var(--hi);}.gc-num.vhi{color:var(--vhi);}.gc-num.none{color:var(--t3);font-size:42px;letter-spacing:-1px;}
+.gc-ucol{display:flex;flex-direction:column;padding-bottom:9px;gap:2px;}
+.gc-unit{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.gc-trend{font-size:18px;}
+.gc-meta{display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
+.gc-time{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.gc-rh{font-size:11px;color:var(--t3);}
+/* RANGE STRIP */
+.rstrip{margin-top:14px;}
+.rtrack{height:4px;border-radius:2px;background:linear-gradient(90deg,#E53E3E 0%,#E53E3E 18%,#38A169 23%,#38A169 65%,#D97706 70%,#D97706 88%,#E53E3E 93%,#E53E3E 100%);position:relative;}
+.rneedle{position:absolute;top:-5px;width:2px;height:14px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .5s cubic-bezier(.4,0,.2,1);}
+.raxis{display:flex;justify-content:space-between;margin-top:4px;}
+.raxis span{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+/* STAT TILES */
+.strow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 14px 0;}
+.st{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px 10px;box-shadow:var(--sh);}
+.stv{font-size:18px;font-weight:800;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace;}
+.stl{font-size:10px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+/* ══════ ABBOTT-QUALITY CHART ══════ */
+.chart-container{position:relative;width:100%;user-select:none;}
 .chart-canvas-wrap{position:relative;width:100%;height:180px;}
+canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
+.chart-tooltip{position:absolute;background:rgba(13,19,33,.9);color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:20;transform:translateX(-50%);}
+.chart-tooltip strong{font-family:'JetBrains Mono',monospace;font-size:14px;}
+.chart-date-range{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.cdr-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border:none;background:var(--bg);transition:all .15s;}
+.cdr-btn.active{background:#fff;color:var(--acc);box-shadow:var(--sh);}
+.cdr-custom{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.cdr-date-in{padding:4px 8px;border:1px solid var(--border2);border-radius:6px;font-size:11px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;}
+.cdr-date-in:focus{border-color:var(--acc);}
+/* ENTRIES */
+.ei{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ei:last-child{border-bottom:none;padding-bottom:0;}
+.ei-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ei-main{flex:1;min-width:0;}
+.ei-ctx{font-size:13px;font-weight:600;}
+.ei-sub{font-size:11px;color:var(--t3);margin-top:1px;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ei-r{text-align:right;flex-shrink:0;}
+.ei-val{font-size:18px;font-weight:800;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace;}
+.ei-u{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.empty{text-align:center;padding:24px 16px;color:var(--t3);font-size:13px;}
+.empty-ic{font-size:28px;margin-bottom:8px;}
+/* ─── FORECAST ─── */
+.ptitle{font-size:20px;font-weight:800;padding:14px 14px 2px;letter-spacing:-.5px;}
+.psub{font-size:13px;color:var(--t3);padding:0 14px 12px;}
+.fc-hero{background:linear-gradient(135deg,#1e1b4b,#1D4ED8);border:none;}
+.fc-hd-txt{font-size:11px;opacity:.5;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.fc-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;}
+.fc-item{text-align:center;}
+.fc-lbl{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.fc-num{font-size:30px;font-weight:800;letter-spacing:-1.5px;color:#fff;font-family:'JetBrains Mono',monospace;}
+.fc-arr{font-size:18px;color:rgba(255,255,255,.4);}
+.fc-meta{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:10px;}
+.fc-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.fpill{padding:3px 9px;background:rgba(255,255,255,.12);border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9);}
+.fc-note{font-size:11px;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.5;}
+.fc-chart-wrap{height:90px;position:relative;}
+/* ─── A1C ─── */
+.a1c-big{font-size:68px;font-weight:800;letter-spacing:-4px;line-height:1;font-family:'JetBrains Mono',monospace;}
+.a1c-pct{font-size:18px;letter-spacing:0;}
+.a1c-zone{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;}
+.gtrack{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--ok) 0%,#84CC16 30%,var(--hi) 60%,var(--low) 100%);position:relative;margin-top:16px;}
+.gneedle{position:absolute;top:-5px;width:3px;height:15px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .6s cubic-bezier(.4,0,.2,1);}
+.glabels{display:flex;justify-content:space-between;margin-top:4px;}
+.glabels span{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.a1c-note{font-size:11px;color:var(--t3);margin-top:10px;line-height:1.5;}
+.tir-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.tir-row:last-child{margin-bottom:0;}
+.tir-nm{font-size:11px;font-weight:600;width:54px;flex-shrink:0;}
+.tir-bw{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;}
+.tir-bf{height:100%;border-radius:3px;transition:width .6s ease;}
+.tir-pc{font-size:11px;font-weight:700;width:32px;text-align:right;font-family:'JetBrains Mono',monospace;}
+/* ─── HISTORY ─── */
+.hist-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0;}
+.dglabel{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:12px 14px 5px;}
+/* ─── SETTINGS ─── */
+.sg{margin:0 14px;}
+.sglbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:14px 0 7px;}
+.sgcard{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
+.sgi{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--border);}
+.sgi:last-child{border-bottom:none;}
+.sgi-l{display:flex;align-items:center;gap:10px;}
+.sgi-ic{font-size:16px;width:26px;text-align:center;}
+.sgi-t{font-size:13px;font-weight:500;}
+.sgi-s{font-size:11px;color:var(--t3);margin-top:1px;}
+.tsw{width:40px;height:24px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
+.tsw.on{background:var(--acc);}
+.tsw::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.tsw.on::after{left:19px;}
+.ri-wrap{display:flex;gap:9px;padding:13px 15px;}
+.ri-f{flex:1;display:flex;flex-direction:column;gap:4px;}
+.ri-f label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+.ri-f input{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;-moz-appearance:textfield;}
+.ri-f input:focus{border-color:var(--acc);}
+.ri-f input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.dbtn{width:100%;padding:13px 15px;background:none;border:none;color:var(--low);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;transition:background .15s;border-bottom:1px solid var(--border);}
+.dbtn:hover{background:var(--low-bg);}
+.dbtn:last-child{border-bottom:none;}
+/* ─── LOG MODAL ─── */
+.mbd{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+.mbd.open{opacity:1;pointer-events:all;}
+.msheet{width:100%;max-width:430px;background:#fff;border-radius:20px 20px 0 0;padding:0 0 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:88vh;overflow-y:auto;overflow-x:visible;}
+.mbd.open .msheet{transform:translateY(0);}
+.mhandle{width:30px;height:3px;background:var(--border2);border-radius:2px;margin:11px auto 0;}
+.mtop{padding:14px 20px 0;display:flex;align-items:center;justify-content:space-between;}
+.mtitle{font-size:18px;font-weight:800;}
+.mclose{width:28px;height:28px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;font-size:15px;color:var(--t2);display:flex;align-items:center;justify-content:center;}
+.biw{text-align:center;padding:12px 20px 2px;}
+.bi{font-size:60px;font-weight:800;width:200px;text-align:center;background:none;border:none;outline:none;color:var(--text);letter-spacing:-2.5px;font-family:'JetBrains Mono',monospace;-moz-appearance:textfield;}
+.bi::-webkit-inner-spin-button{-webkit-appearance:none;}
+.biu{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.rfb{min-height:18px;font-size:12px;font-weight:600;text-align:center;padding:2px 20px 4px;}
+.msec{padding:10px 20px 0;}
+.msec-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.ctxg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.cc{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg);border:1.5px solid transparent;border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);transition:all .15s;user-select:none;}
+.cc.selected{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
+.cc-ic{font-size:15px;}
+/* CARB/INSULIN SECTION */
+.carb-ins-box{background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:10px;padding:12px 14px;margin:0 20px;}
+.cib-row{display:flex;align-items:center;gap:10px;}
+.cib-field{flex:1;display:flex;flex-direction:column;gap:3px;}
+.cib-label{font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;}
+.cib-input{background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;padding:9px 10px;font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--text);outline:none;width:100%;-moz-appearance:textfield;transition:border-color .15s;}
+.cib-input:focus{border-color:var(--acc);}
+.cib-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.cib-arrow{font-size:18px;color:var(--acc);flex-shrink:0;margin-top:14px;}
+.cib-result{flex:1;display:flex;flex-direction:column;gap:3px;}
+.cib-result-label{font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;}
+.cib-result-val{font-size:30px;font-weight:800;color:var(--acc);font-family:'JetBrains Mono',monospace;letter-spacing:-1px;}
+.cib-result-unit{font-size:12px;color:var(--acc);opacity:.7;}
+.cib-note{font-size:11px;color:var(--acc);opacity:.7;margin-top:8px;line-height:1.5;}
+.iif{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 11px;display:flex;flex-direction:column;gap:3px;transition:border-color .15s;}
+.iif:focus-within{border-color:var(--acc);}
+.iif label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+.iif input{background:none;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--text);width:100%;-moz-appearance:textfield;}
+.iif input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.nf{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--text);resize:none;outline:none;transition:border-color .15s;}
+.nf:focus{border-color:var(--acc);}
+.nf::placeholder{color:var(--t3);}
+.svbtn{width:calc(100% - 40px);margin:14px 20px 0;padding:13px;background:var(--acc);border:none;border-radius:var(--rs);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;}
+.svbtn:hover{background:#1e40af;}
+.iins{display:flex;gap:8px;}
+/* ─── FOOD AUTOCOMPLETE ─── */
+.food-wrap{position:relative;flex:1;overflow:visible;}
+.food-suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--acc);border-radius:var(--rs);box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:500;margin-top:3px;overflow:hidden;display:none;max-height:220px;overflow-y:auto;}
+.food-suggestions.open{display:block;}
+.food-sugg-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .1s;}
+.food-sugg-item:last-child{border-bottom:none;}
+.food-sugg-item:hover{background:var(--acc-bg);}
+.food-sugg-name{font-size:13px;font-weight:600;color:var(--text);}
+.food-sugg-carbs{font-size:12px;font-weight:700;color:var(--acc);font-family:'JetBrains Mono',monospace;}
+.food-sugg-loading{padding:10px 12px;font-size:12px;color:var(--t3);text-align:center;}
+.food-sugg-per{font-size:10px;color:var(--t3);margin-left:4px;}
+/* ─── MEAL LOG MODAL ─── */
+.meal-tabs{display:flex;gap:3px;background:var(--bg);border-radius:8px;padding:3px;margin:12px 20px 0;}
+.meal-tab{flex:1;padding:8px;text-align:center;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:var(--t3);border:none;background:none;transition:all .15s;}
+.meal-tab.active{background:#fff;color:var(--acc);box-shadow:var(--sh);}
+.meal-content{padding:0 20px;}
+.meal-content.hidden{display:none;}
+/* MANUAL MEAL */
+.meal-item-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;overflow:visible;position:relative;}
+.meal-item-name{flex:1;padding:9px 11px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;}
+.meal-item-name:focus{border-color:var(--acc);}
+.meal-item-name::placeholder{color:var(--t3);}
+.meal-item-carbs{width:72px;padding:9px 9px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;color:var(--text);outline:none;font-family:'JetBrains Mono',monospace;text-align:center;-moz-appearance:textfield;}
+.meal-item-carbs:focus{border-color:var(--acc);}
+.meal-item-carbs::-webkit-inner-spin-button{-webkit-appearance:none;}
+.meal-del{width:30px;height:30px;border:none;background:var(--low-bg);border-radius:7px;color:var(--low);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.add-item-btn{width:100%;padding:9px;border:1.5px dashed var(--border2);border-radius:var(--rs);background:none;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s;}
+.add-item-btn:hover{border-color:var(--acc);color:var(--acc);}
+.meal-total-box{background:var(--acc-bg);border-radius:10px;padding:12px 14px;margin:10px 0;}
+.meal-total-row{display:flex;align-items:center;justify-content:space-between;}
+.meal-total-lbl{font-size:12px;color:var(--acc);font-weight:600;}
+.meal-total-val{font-size:22px;font-weight:800;color:var(--acc);font-family:'JetBrains Mono',monospace;letter-spacing:-.5px;}
+.meal-insulin-rec{font-size:12px;color:var(--acc);opacity:.75;margin-top:4px;}
+/* CAMERA MEAL */
+.cam-area{border:2px dashed var(--border2);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin:10px 0;}
+.cam-area:hover{border-color:var(--acc);background:var(--acc-bg);}
+.cam-area img{width:100%;border-radius:8px;max-height:200px;object-fit:cover;display:none;}
+.cam-area-placeholder{pointer-events:none;}
+.cam-area-ic{font-size:36px;margin-bottom:8px;}
+.cam-area-txt{font-size:13px;color:var(--t2);font-weight:600;}
+.cam-area-sub{font-size:12px;color:var(--t3);margin-top:3px;}
+.cam-result-box{background:var(--bg);border-radius:10px;padding:12px;margin:8px 0;display:none;}
+.crb-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.crb-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.crb-stat{padding:4px 10px;background:#fff;border-radius:6px;border:1px solid var(--border);font-size:12px;}
+.crb-stat span{font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--acc);}
+.crb-items{font-size:12px;color:var(--t2);line-height:1.6;}
+.analyze-btn{width:100%;padding:11px;background:var(--acc);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin:6px 0;}
+.analyze-btn:disabled{opacity:.6;cursor:not-allowed;}
+/* ─── ENTRY ACTION BUTTONS ─── */
+.ei-actions{display:flex;gap:4px;flex-shrink:0;margin-left:6px;}
+.ei-act{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;flex-shrink:0;}
+.ei-act.edit{background:var(--acc-bg);color:var(--acc);}
+.ei-act.edit:hover{background:var(--acc);color:#fff;}
+.ei-act.del{background:var(--low-bg);color:var(--low);}
+.ei-act.del:hover{background:var(--low);color:#fff;}
+/* ─── DRAWER SUBMENUS ─── */
+.di-group{width:100%;}
+.di-parent{display:flex;align-items:center;gap:11px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--t2);transition:all .15s;border:none;background:none;width:100%;text-align:left;justify-content:space-between;}
+.di-parent:hover{background:var(--bg);color:var(--text);}
+.di-parent.active{color:var(--acc);background:var(--acc-bg);}
+.di-parent-left{display:flex;align-items:center;gap:11px;}
+.di-arrow{font-size:10px;color:var(--t3);transition:transform .22s;flex-shrink:0;}
+.di-sub{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(.4,0,.2,1);}
+.di-sub.open{max-height:400px;}
+.di-sub .di{padding:9px 20px 9px 51px;font-size:13px;}
+/* ─── SECTION SCREENS ─── */
+.rpt-sub-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none;}
+.rpt-sub-tabs::-webkit-scrollbar{display:none;}
+.rpt-tab{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--t3);background:var(--bg);border:none;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.rpt-tab.active{background:var(--acc);color:#fff;}
+.rpt-panel{display:none;padding-bottom:80px;}
+.rpt-panel.active{display:block;}
+/* ─── ALARM CARDS ─── */
+.alarm-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;padding:14px 16px;box-shadow:var(--sh);}
+.alarm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.alarm-row:last-child{margin-bottom:0;}
+.alarm-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.alarm-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.alarm-title{font-size:13px;font-weight:700;color:var(--text);}
+.alarm-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+.alarm-val{display:flex;align-items:center;gap:6px;}
+.alarm-input{width:64px;padding:5px 7px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--text);outline:none;-moz-appearance:textfield;text-align:center;}
+.alarm-input:focus{border-color:var(--acc);}
+.alarm-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+/* ─── CONNECTED APPS ─── */
+.app-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;overflow:hidden;box-shadow:var(--sh);}
+.app-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);}
+.app-item:last-child{border-bottom:none;}
+.app-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:var(--bg);}
+.app-info{flex:1;min-width:0;}
+.app-name{font-size:13px;font-weight:700;}
+.app-desc{font-size:11px;color:var(--t3);margin-top:1px;}
+.app-connect{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;flex-shrink:0;}
+.app-connect.connected{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-b);}
+.app-connect.disconnected{background:var(--acc);color:#fff;}
+/* ─── REMINDERS ─── */
+.rem-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;padding:14px 16px;box-shadow:var(--sh);}
+.rem-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.rem-row:last-child{border-bottom:none;}
+.rem-left{display:flex;align-items:center;gap:10px;}
+.rem-ic{font-size:20px;width:32px;text-align:center;}
+.rem-title{font-size:13px;font-weight:600;}
+.rem-time{font-size:11px;color:var(--t3);margin-top:1px;}
+.rem-time input{background:none;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc);cursor:pointer;padding:0;width:70px;}
+/* ─── HELP & ABOUT ─── */
+.help-section{margin:10px 14px 0;}
+.help-q{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:8px;}
+.help-q-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;font-size:13px;font-weight:600;}
+.help-q-body{padding:0 16px;max-height:0;overflow:hidden;transition:max-height .25s ease,padding .25s ease;font-size:12px;color:var(--t2);line-height:1.7;}
+.help-q-body.open{max-height:300px;padding:0 16px 12px;}
+.about-card{background:linear-gradient(135deg,#0D1321,#1e293b);border-radius:var(--r);margin:10px 14px;padding:20px;color:#fff;text-align:center;}
+.about-logo{font-size:36px;margin-bottom:8px;}
+.about-name{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px;}
+.about-ver{font-size:12px;opacity:.5;font-family:'JetBrains Mono',monospace;}
+.about-divider{height:1px;background:rgba(255,255,255,.1);margin:16px 0;}
+.about-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;opacity:.7;}
+.about-disclaimer{font-size:11px;opacity:.4;margin-top:12px;line-height:1.6;}
+/* ─── LIBRELINK CONNECT MODAL ─── */
+.libre-modal-bd{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .22s;}
+.libre-modal-bd.open{opacity:1;pointer-events:all;}
+.libre-modal{background:#fff;border-radius:16px;width:100%;max-width:380px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.libre-modal-head{background:linear-gradient(135deg,#0077C8,#00A3E0);padding:20px;display:flex;align-items:center;gap:12px;}
+.libre-modal-logo{width:44px;height:44px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.libre-modal-htxt{color:#fff;}
+.libre-modal-htxt h3{font-size:16px;font-weight:800;margin-bottom:2px;}
+.libre-modal-htxt p{font-size:11px;opacity:.75;}
+.libre-modal-body{padding:20px;}
+.libre-modal-field{margin-bottom:14px;}
+.libre-modal-field label{display:block;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.libre-modal-field input,.libre-modal-field select{width:100%;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;font-size:14px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .15s;}
+.libre-modal-field input:focus,.libre-modal-field select:focus{border-color:#0077C8;}
+.libre-modal-connect-btn{width:100%;padding:13px;background:#0077C8;border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;margin-top:6px;}
+.libre-modal-connect-btn:hover{background:#005fa3;}
+.libre-modal-connect-btn:disabled{opacity:.6;cursor:not-allowed;}
+.libre-modal-cancel{width:100%;padding:10px;background:none;border:none;color:var(--t3);font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:6px;}
+.libre-modal-note{font-size:11px;color:var(--t3);line-height:1.6;margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;}
+.libre-live-card{background:linear-gradient(135deg,#0077C8,#00A3E0);border-radius:12px;padding:16px;margin:10px 14px 0;color:#fff;}
+.libre-live-label{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.libre-live-val{font-size:48px;font-weight:800;letter-spacing:-2px;font-family:'JetBrains Mono',monospace;line-height:1;}
+.libre-live-unit{font-size:12px;opacity:.6;margin-top:2px;}
+.libre-live-trend{font-size:20px;margin-left:8px;vertical-align:middle;}
+.libre-live-meta{font-size:11px;opacity:.55;margin-top:6px;}
+.libre-live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-top:8px;}
+.libre-sync-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.libre-sync-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.libre-sync-btn:hover{background:rgba(255,255,255,.3);}
+.app-connect.libre-connected{background:#0077C8;color:#fff;border:none;}
+.app-status-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:4px;animation:blink 2s infinite;}
+/* ─── CAMERA FULL SCREEN ─── */
+.camfs{position:fixed;inset:0;z-index:500;background:#000;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .2s;}
+.camfs.open{opacity:1;pointer-events:all;}
+.camfs-top{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:absolute;top:0;left:0;right:0;z-index:10;background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent);}
+.camfs-title{font-size:15px;font-weight:700;color:#fff;}
+.camfs-close{width:30px;height:30px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
+.camfs-vw{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+#camfsVideo{width:100%;height:100%;object-fit:cover;}
+#camfsPreview{width:100%;height:100%;object-fit:cover;display:none;}
+.camfs-frame{position:absolute;width:72%;aspect-ratio:4/3;border:2px solid rgba(255,255,255,.6);border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none;}
+.camfs-analyzing{position:absolute;inset:0;background:rgba(0,0,0,.7);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;font-size:14px;font-weight:600;}
+.camfs-analyzing.show{display:flex;}
+.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.camfs-bottom{padding:16px 16px 28px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:16px;}
+.camfs-hint{text-align:center;color:rgba(255,255,255,.5);font-size:12px;position:absolute;bottom:100px;width:100%;left:0;}
+.camfs-cap{width:60px;height:60px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .15s;}
+.camfs-cap:active{transform:scale(.9);}
+.camfs-upload{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+#fsFileInput{display:none;}
+/* ─── FIRST BITE PILLS ─── */
+.first-bite-btn{padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;}
+.first-bite-btn.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
+/* ─── EXERCISE SCREEN ─── */
+.ex-hero{background:linear-gradient(135deg,#064e3b,#065f46);border:none;color:#fff;}
+.ex-status{font-size:42px;font-weight:800;letter-spacing:-2px;font-family:'JetBrains Mono',monospace;line-height:1;}
+.ex-status-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;opacity:.6;margin-bottom:4px;}
+.ex-status-sub{font-size:13px;opacity:.75;margin-top:6px;line-height:1.5;}
+.ex-action{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;line-height:1.5;}
+.ex-action.go{background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.4);color:#34d399;}
+.ex-action.warn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.35);color:#fbbf24;}
+.ex-action.stop{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.35);color:#f87171;}
+.ex-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ex-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);}
+.ex-profile-row{display:flex;gap:8px;margin:10px 14px 0;}
+.ex-profile-btn{flex:1;padding:10px 6px;background:#fff;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--t2);transition:all .15s;}
+.ex-profile-btn.active{border-color:var(--acc);color:var(--acc);background:var(--acc-bg);}
+.ex-profile-btn .epb-ic{font-size:20px;margin-bottom:3px;}
+.ex-profile-btn .epb-lbl{font-size:10px;font-weight:700;}
+.ex-profile-btn .epb-sub{font-size:9px;color:var(--t3);margin-top:1px;font-weight:400;}
+.ex-table{width:100%;border-collapse:collapse;font-size:11px;}
+.ex-table th{background:var(--bg);padding:6px 8px;text-align:left;font-weight:700;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);}
+.ex-table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.4;}
+.ex-table tr:last-child td{border-bottom:none;}
+.ex-table .go-td{color:var(--ok);font-weight:600;}
+.ex-table .warn-td{color:var(--hi);font-weight:600;}
+.ex-table .stop-td{color:var(--low);font-weight:600;}
+.ex-timer-bar{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;padding:14px;display:flex;align-items:center;gap:12px;}
+.ex-timer-ic{font-size:28px;}
+.ex-timer-txt{flex:1;}
+.ex-timer-btn{padding:8px 14px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.ex-start-btn{background:var(--ok);color:#fff;}
+.ex-stop-btn{background:var(--low-bg);color:var(--low);}
+.ex-elapsed{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;color:var(--acc);}
 </style>
 </head>
-<body class="dark">
-
+<body>
+<!-- OFFLINE WARNING -->
+<div id="offlineWarning" style="display:none; position:fixed; top:0; left:0; right:0; background:#D97706; color:white; text-align:center; padding:8px; font-weight:600; z-index:9999;">
+  ⚠️ No internet — AI meal scan & Libre sync unavailable
+</div>
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="confirmOverlay" style="display:none;"></div>
+<!-- ══ MAIN APP ══ -->
 <div class="topbar">
-    <div class="logo">GlucoTrack <span>ELITE</span></div>
-    <div class="topbar-right">
-        <input type="file" id="csv-upload" style="display:none" onchange="importMySugr(event)">
-        <button onclick="document.getElementById('csv-upload').click()" style="padding:6px 12px; background:var(--acc); color:#fff; border:none; border-radius:6px; font-size:11px; font-weight:700;">IMPORT CSV</button>
-    </div>
+  <button class="burger" id="burgerBtn" onclick="toggleDrawer()">
+    <div class="bl"></div><div class="bl"></div><div class="bl"></div>
+  </button>
+  <div class="logo">Gluco<span>Track</span></div>
+  <div class="topbar-right">
+    <div class="topbar-date" id="topDate"></div>
+    <button onclick="toggleDark()" id="darkBtn" style="width:34px;height:34px;border:none;background:none;cursor:pointer;font-size:17px;border-radius:8px;transition:background .15s;display:flex;align-items:center;justify-content:center;" title="Toggle dark mode">🌙</button>
+  </div>
 </div>
-
-<div class="scroll">
-    <div class="card">
-        <div class="gc-lbl">Current Glucose</div>
-        <div class="gc-row">
-            <div class="gc-num" id="display-val">--</div>
-            <div class="gc-unit">mmol/L</div>
+<!-- WIDGET BAR -->
+<div class="wbar">
+  <div class="wbar-inner">
+    <div class="wbar-left">
+      <div>
+        <div class="wval-grp">
+          <div class="wnum none" id="wNum">—</div>
+          <div class="wunit">mmol/L</div>
+          <div class="wtrend" id="wTrend"></div>
         </div>
-        <div class="gc-time" id="display-time">No data</div>
+        <div class="wtime" id="wTime">No reading</div>
+      </div>
+      <div class="wspark"><canvas id="sparkCv"></canvas></div>
     </div>
-
-    <div class="card">
-        <div class="chart-canvas-wrap">
-            <canvas id="main-chart"></canvas>
-        </div>
-    </div>
+    <button class="wcam" onclick="openCamFull()">📷 Scan Meal</button>
+  </div>
 </div>
-
-<script>
-// --- YOUR APP STATE ---
-let appData = {
-    history: [] // This will store {val: number, ts: timestamp}
-};
-let myChart = null;
-
-// --- THE REPAIRED IMPORT LOGIC ---
-function importMySugr(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.split(/\r?\n/).filter(line => line.length > 10);
-        let addedCount = 0;
-
-        lines.slice(1).forEach(line => {
-            // Fix: Regex handles "7,7" inside quotes
-            const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-            
-            if (cols && cols.length >= 4) {
-                const dateRaw = cols[0].replace(/"/g, '');
-                const timeRaw = cols[1].replace(/"/g, '');
-                const valRaw  = cols[3].replace(/"/g, '').replace(',', '.'); // Fix decimal
-
-                const val = parseFloat(valRaw);
-                const ts  = new Date(`${dateRaw} ${timeRaw}`).getTime();
-
-                if (!isNaN(val) && !isNaN(ts)) {
-                    // DEDUPLICATION: Only add if timestamp doesn't exist
-                    const isDuplicate = appData.history.some(entry => entry.ts === ts);
-                    if (!isDuplicate) {
-                        appData.history.push({ val: val, ts: ts });
-                        addedCount++;
-                    }
-                }
-            }
-        });
-
-        // Sort: Newest first
-        appData.history.sort((a, b) => b.ts - a.ts);
-        
-        refreshUI();
-        alert("Imported " + addedCount + " new readings.");
-    };
-    reader.readAsText(file);
-}
-
-function refreshUI() {
-    if (appData.history.length === 0) return;
-
-    // Update Hero Number
-    const last = appData.history[0];
-    document.getElementById('display-val').innerText = last.val.toFixed(1);
-    document.getElementById('display-time').innerText = new Date(last.ts).toLocaleString();
-
-    // Update Chart
-    renderChart();
-}
-
-function renderChart() {
-    const ctx = document.getElementById('main-chart').getContext('2d');
-    if (myChart) myChart.destroy();
-
-    // Take last 20 readings for the view
-    const viewData = [...appData.history].reverse().slice(-20);
-
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: viewData.map(d => new Date(d.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})),
-            datasets: [{
-                label: 'Glucose',
-                data: viewData.map(d => d.val),
-                borderColor: '#1A56DB',
-                tension: 0.4,
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: false } }
-        }
-    });
-}
-</script>
-</body>
-</html>
+<!-- DRAWER -->
+<div class="dov" id="dov" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="dh">
+    <div class="dh-user" id="drawerUser">—</div>
+    <div class="dh-email" id="drawerEmail">—</div>
+  </div>
+  <nav class="dnav">
+    <!-- HOME -->
+    <button class="di active" id="nav-home" onclick="goTo('home')"><div class="di-ic">🏠</div>Home</button>
+    <!-- LOGBOOK group -->
+    <div class="di-group">
+      <button class="di-parent" id="nav-logbook" onclick="toggleSubMenu('sub-logbook',this)">
+        <div class="di-parent-left"><div class="di-ic">📓</div>Logbook</div>
+        <span class="di-arrow" id="arr-logbook">▶</span>
+      </button>
+      <div class="di-sub" id="sub-logbook">
+        <button class="di" id="nav-logmeal" onclick="openMealModal();closeDrawer()"><div class="di-ic">🍽️</div>Log Meal</button>
+        <button class="di" id="nav-forecast" onclick="goTo('forecast')"><div class="di-ic">🔮</div>Glucose Forecast</button>
+        <button class="di" id="nav-history" onclick="goTo('history')"><div class="di-ic">📋</div>Reading History</button>
+      </div>
+    </div>
+    <!-- REPORTS group -->
+    <div class="di-group">
+      <button class="di-parent" id="nav-reports" onclick="toggleSubMenu('sub-reports',this)">
+        <div class="di-parent-left"><div class="di-ic">📊</div>Reports</div>
+        <span class="di-arrow" id="arr-reports">▶</span>
+      </button>
+      <div class="di-sub" id="sub-reports">
+        <button class="di" id="nav-report-patterns" onclick="goTo('reports');setReportTab('patterns')"><div class="di-ic">📈</div>Daily Patterns</button>
+        <button class="di" id="nav-report-tir" onclick="goTo('reports');setReportTab('tir')"><div class="di-ic">🎯</div>Time In Range</button>
+        <button class="di" id="nav-report-low" onclick="goTo('reports');setReportTab('low')"><div class="di-ic">🚨</div>Low Glucose Events</button>
+        <button class="di" id="nav-report-avg" onclick="goTo('reports');setReportTab('avg')"><div class="di-ic">📉</div>Average Glucose</button>
+        <button class="di" id="nav-report-daily" onclick="goTo('reports');setReportTab('daily')"><div class="di-ic">📆</div>Daily Graph</button>
+        <button class="di" id="nav-a1c" onclick="goTo('a1c')"><div class="di-ic">🔬</div>Estimated A1c</button>
+      </div>
+    </div>
+    <!-- ALARMS -->
+    <button class="di" id="nav-alarms" onclick="goTo('alarms')"><div class="di-ic">🔔</div>Alarms</button>
+    <!-- REMINDERS -->
+    <button class="di" id="nav-reminders" onclick="goTo('reminders')"><div class="di-ic">⏰</div>Reminders</button>
+    <!-- EXERCISE -->
+    <button class="di" id="nav-exercise" onclick="goTo('exercise')"><div class="di-ic">🏃</div>Exercise Guide</button>
+    <!-- CONNECTED APPS -->
+    <button class="di" id="nav-apps" onclick="goTo('apps')"><div class="di-ic">🔗</div>Connected Apps</button>
+    <div class="ddiv"></div>
+    <!-- SETTINGS -->
+    <button class="di" id="nav-settings" onclick="goTo('settings')"><div class="di-ic">⚙️</div>Settings</button>
+    <!-- HELP -->
+    <div class="di-group">
+      <button class="di-parent" id="nav-helpgrp" onclick="toggleSubMenu('sub-help',this)">
+        <div class="di-parent-left"><div class="di-ic">❓</div>Help &amp; About</div>
+        <span class="di-arrow" id="arr-help">▶</span>
+      </button>
+      <div class="di-sub" id="sub-help">
+        <button class="di" id="nav-help" onclick="goTo('help')"><div class="di-ic">💬</div>Help</button>
+        <button class="di" id="nav-about" onclick="goTo('about')"><div class="di-ic">ℹ️</div>About</button>
+      </div>
+    </div>
+    <div class="ddiv"></div>
+    <button class="di" onclick="logOut()"><div class="di-ic">🚪</div>Sign Out</button>
+    <div class="ddiv"></div>
+    <button class="di" onclick="shareApp();closeDrawer()"><div class="di-ic">📤</div>Share GlucoTrack</button>
+  </nav>
+  <div class="dfooter">GlucoTrack v4.0 · mmol/L</div>
+</div>
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openLogModal()">
+  <div class="fab-plus">+</div> Log Reading
+</button>
+<!-- SCROLL AREA -->
+<div class="scroll" id="scrollArea">
+<!-- ── HOME ── -->
+<div class="screen active" id="screen-home">
+  <div class="card">
+    <div class="gc-top">
+      <div><div class="gc-lbl">Current Glucose</div></div>
+      <div class="gc-badge bok" id="statusBadge"><div class="bdot"></div><span id="statusText">—</span></div>
+    </div>
+    <div class="gc-row">
+      <div class="gc-num none" id="mainNum">—</div>
+      <div class="gc-ucol">
+        <div class="gc-unit">mmol/L</div>
+        <div class="gc-trend" id="trendArrow">—</div>
+      </div>
+    </div>
+    <div class="gc-meta">
+      <div class="gc-time" id="lastCheck">No readings yet</div>
+      <div class="gc-rh">Target: <span id="rHint">3.9–10.0</span></div>
+    </div>
+    <div class="rstrip">
+      <div class="rtrack"><div class="rneedle" id="rneedle" style="left:50%"></div></div>
+      <div class="raxis"><span>3.0</span><span>3.9</span><span>7.8</span><span>10.0</span><span>16.7+</span></div>
+    </div>
+  </div>
+  <div class="strow">
+    <div class="st"><div class="stv" id="sAvg">—</div><div class="stl">Avg Today</div></div>
+    <div class="st"><div class="stv" id="sTIR">—%</div><div class="stl">In Range</div></div>
+    <div class="st"><div class="stv" id="sCount">0</div><div class="stl">Readings</div></div>
+  </div>
+  <!-- CHART CARD -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd" style="margin-bottom:8px;">
+      <div class="sc-title">Glucose Levels (mmol/L)</div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-canvas-wrap">
+        <canvas id="mainChart" class="main-chart"></canvas>
+        <div class="chart-tooltip" id="chartTooltip"></div>
+      </div>
+      <div class="chart-date-range" style="margin-top:8px;">
+        <button class="cdr-btn active" onclick="setChartRange('3h',this)">3h</button>
+        <button class="cdr-btn" onclick="setChartRange('6h',this)">6h</button>
+        <button class="cdr-btn" onclick="setChartRange('today',this)">Today</button>
+        <button class="cdr-btn" onclick="setChartRange('3d',this)">3d</button>
+        <button class="cdr-btn" onclick="setChartRange('7d',this)">7d</button>
+        <button class="cdr-btn" onclick="setChartRange('14d',this)">14d</button>
+        <button class="cdr-btn" onclick="setChartRange('custom',this)" id="cdrCustomBtn">Custom</button>
+      </div>
+      <div id="customDateRow" style="display:none;margin-top:6px;padding:0 2px;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span style="font-size:11px;color:var(--t3);">From</span>
+        <input type="date" class="cdr-date-in" id="cdrFrom">
+        <span style="font-size:11px;color:var(--t3);">To</span>
+        <input type="date" class="cdr-date-in" id="cdrTo">
+        <button onclick="applyCustomRange()" style="padding:4px 10px;border-radius:6px;background:var(--acc);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;">Apply</button>
+      </div>
+    </div>
+  </div>
+  <!-- RECENT -->
+  <div class="card card-last" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">Recent Readings</div></div>
+    <div id="recentList"><div class="empty"><div class="empty-ic">💉</div>No readings yet.</div></div>
+  </div>
+</div>
+<!-- ── FORECAST ── -->
+<div class="screen" id="screen-forecast">
+  <div class="ptitle">Glucose Forecast</div>
+  <div class="psub">Predictive model · meals, insulin &amp; trend</div>
+  <div class="card fc-hero">
+    <div class="fc-hd-txt">Next 3 Hours Prediction</div>
+    <div class="fc-row">
+      <div class="fc-item"><div class="fc-lbl">Now</div><div class="fc-num" id="fcNow">—</div></div>
+      <div class="fc-arr">→</div>
+      <div class="fc-item"><div class="fc-lbl">1 hour</div><div class="fc-num" id="fc1h">—</div></div>
+      <div class="fc-arr">→</div>
+      <div class="fc-item"><div class="fc-lbl">2 hours</div><div class="fc-num" id="fc2h">—</div></div>
+      <div class="fc-arr">→</div>
+      <div class="fc-item"><div class="fc-lbl">3 hours</div><div class="fc-num" id="fc3h">—</div></div>
+    </div>
+    <div class="fc-meta" id="fcMeta">Log a reading to see your forecast</div>
+    <div class="fc-pills" id="fcPills"></div>
+    <div class="fc-chart-wrap"><canvas id="fcChart" class="ch" style="width:100%;height:100%;"></canvas></div>
+    <div class="fc-note" id="fcNote">Forecast is based on logged readings, meals, and insulin. Log regularly for accuracy.</div>
+  </div>
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">Active Factors</div></div>
+    <div id="fcFactors"><div class="empty" style="padding:12px;"><div class="empty-ic" style="font-size:20px;">⚡</div>No active meals or insulin</div></div>
+  </div>
+  <div class="card card-last" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">Recommendations</div></div>
+    <div id="fcRecs"><div class="empty" style="padding:12px;"><div class="empty-ic" style="font-size:20px;">💡</div>Log readings for personalised recommendations</div></div>
+  </div>
+  <!-- BASAL FEATURE 1: Adequacy -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd">
+      <div class="sc-title">🌙 Basal Adequacy</div>
+      <div style="font-size:10px;color:var(--t3);">Based on fasting readings</div>
+    </div>
+    <div id="basalAdequacy"><div class="empty" style="padding:10px;font-size:12px;">Log fasting readings (Before Bed &amp; Waking Up) for analysis</div></div>
+  </div>
+  <!-- BASAL FEATURE 2: Overnight drift -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd">
+      <div class="sc-title">🌜 Overnight Trend</div>
+      <div style="font-size:10px;color:var(--t3);">Bedtime → morning (7 days)</div>
+    </div>
+    <div id="overnightTrend"><div class="empty" style="padding:10px;font-size:12px;">Need both Before Bed and Waking Up readings</div></div>
+  </div>
+  <!-- BASAL FEATURE 3: Logging streak -->
+  <div class="card card-last" style="margin-top:10px;margin-bottom:12px;">
+    <div class="sc-hd">
+      <div class="sc-title">💉 Basal Injection Streak</div>
+      <div style="font-size:10px;color:var(--t3);">Daily logging record</div>
+    </div>
+    <div id="basalStreak"><div class="empty" style="padding:10px;font-size:12px;">No basal injections logged yet</div></div>
+  </div>
+</div>
+<!-- ── A1C ── -->
+<div class="screen" id="screen-a1c">
+  <div class="ptitle">A1c &amp; Trends</div>
+  <div class="psub">Estimated from your logged readings</div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Estimated HbA1c</div>
+    <div class="a1c-big" id="a1cBig" style="color:var(--ok)">—<span class="a1c-pct">%</span></div>
+    <div style="font-size:13px;color:var(--t3);margin-bottom:12px;" id="a1cSub">Log more readings to calculate</div>
+    <div class="a1c-zone" id="a1cZone" style="background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b)">—</div>
+    <div class="gtrack"><div class="gneedle" id="gneedle" style="left:0%"></div></div>
+    <div class="glabels"><span>4%</span><span>5%</span><span>6%</span><span>7%</span><span>8%</span><span>10%</span><span>14%</span></div>
+    <div class="a1c-note">Estimated: A1c ≈ (avg mmol/L × 1.5927 + 1.628) · Not a replacement for a lab HbA1c test.</div>
+  </div>
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">A1c Trend (weekly)</div></div>
+    <div style="width:100%;height:150px;position:relative;"><canvas id="a1cChart" style="width:100%;height:100%;"></canvas></div>
+  </div>
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">Time In Range (7 days)</div></div>
+    <div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--low)">Low</div><div class="tir-bw"><div class="tir-bf" id="tirLow" style="background:var(--low);width:0%"></div></div><div class="tir-pc" id="tirLowP" style="color:var(--low)">0%</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--ok)">Target</div><div class="tir-bw"><div class="tir-bf" id="tirOk" style="background:var(--ok);width:0%"></div></div><div class="tir-pc" id="tirOkP" style="color:var(--ok)">0%</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--hi)">High</div><div class="tir-bw"><div class="tir-bf" id="tirHigh" style="background:var(--hi);width:0%"></div></div><div class="tir-pc" id="tirHighP" style="color:var(--hi)">0%</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--vhi)">V.High</div><div class="tir-bw"><div class="tir-bf" id="tirVH" style="background:var(--vhi);width:0%"></div></div><div class="tir-pc" id="tirVHP" style="color:var(--vhi)">0%</div></div>
+    </div>
+  </div>
+  <div class="strow card-last" style="margin-bottom:12px;">
+    <div class="st"><div class="stv" id="a7avg">—</div><div class="stl">7d Avg</div></div>
+    <div class="st"><div class="stv" id="a7min" style="color:var(--low)">—</div><div class="stl">Lowest</div></div>
+    <div class="st"><div class="stv" id="a7max" style="color:var(--hi)">—</div><div class="stl">Highest</div></div>
+  </div>
+</div>
+<!-- ── HISTORY ── -->
+<div class="screen" id="screen-history">
+  <div class="hist-hd">
+    <div class="ptitle" style="padding:0;">History</div>
+    <div style="font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;" id="histCnt">0 readings</div>
+  </div>
+  <div id="histList"><div class="empty" style="margin:28px 0;"><div class="empty-ic">📋</div>No readings logged yet.</div></div>
+</div>
+<!-- ── SETTINGS ── -->
+<div class="screen" id="screen-settings">
+  <div class="ptitle">Settings</div>
+  <div class="sg">
+    <div class="sglbl">Target Range (mmol/L)</div>
+    <div class="sgcard">
+      <div class="ri-wrap">
+        <div class="ri-f"><label>Low Below</label><input type="number" id="sLow" value="3.9" step="0.1" onchange="saveSettings()"></div>
+        <div class="ri-f"><label>High Above</label><input type="number" id="sHigh" value="10.0" step="0.1" onchange="saveSettings()"></div>
+      </div>
+    </div>
+    <div class="sglbl">Bolus (Short-Acting) Insulin</div>
+    <div class="sgcard">
+      <div class="ri-wrap">
+        <div class="ri-f"><label>Carb Ratio (g/unit)</label><input type="number" id="sCarbRatio" value="10" step="1" onchange="saveSettings()"></div>
+        <div class="ri-f"><label>Correction (mmol/u)</label><input type="number" id="sCorrFactor" value="2.2" step="0.1" onchange="saveSettings()"></div>
+      </div>
+      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">
+        Uses the <strong>Walsh Bolus Calculator</strong> (medical standard):<br>
+        <strong>Meal dose</strong> = Carbs ÷ <strong id="carbRatioDisplay">10</strong>g/u &nbsp;·&nbsp;
+        <strong>Correction</strong> = (BG − target) ÷ <strong id="corrDisplay">2.2</strong> mmol/u<br>
+        Total = Meal + Correction − IOB &nbsp;·&nbsp; Always confirm with your diabetes care team.
+      </div>
+    </div>
+    <div class="sglbl">Basal (Long-Acting) Insulin</div>
+    <div class="sgcard">
+      <div class="ri-wrap">
+        <div class="ri-f"><label>Insulin Name</label><input type="text" id="sBasalName" placeholder="e.g. Lantus, Toujeo, Tresiba" onchange="saveSettings()" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;"></div>
+        <div class="ri-f"><label>Daily Dose (units)</label><input type="number" id="sBasalDose" value="0" step="1" min="0" max="200" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;-moz-appearance:textfield;"></div>
+      </div>
+      <div style="padding:0 15px 8px;">
+        <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Injection Time</div>
+        <input type="time" id="sBasalTime" value="18:00" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;outline:none;width:100%;color:var(--text);letter-spacing:1px;">
+      </div>
+      <div id="basalReminderStatus" style="margin:4px 15px 12px;padding:10px 12px;background:var(--ok-bg);border:1px solid var(--ok-b);border-radius:8px;font-size:12px;color:var(--ok);line-height:1.6;display:none;">
+        🔔 Reminders set — <strong id="basalPreRemindTime">—</strong> <span style="opacity:.7;">(15 min warning)</span> and <strong id="basalRemindTime">—</strong> <span style="opacity:.7;">(injection time)</span>
+      </div>
+      <div id="basalNoReminder" style="margin:4px 15px 12px;padding:10px 12px;background:var(--hi-bg);border:1px solid var(--hi-b);border-radius:8px;font-size:12px;color:var(--hi);line-height:1.6;display:none;">
+        ⚠️ Set your daily dose above to activate reminders.
+      </div>
+    </div>
+    <div class="sglbl">Alerts</div>
+    <div class="sgcard">
+      <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%;">
+          <div class="sgi-ic">🔔</div>
+          <div style="flex:1"><div class="sgi-t">Browser Notifications</div><div class="sgi-s" id="notifStatus">Tap to enable</div></div>
+          <button onclick="requestNotificationPermission(true)" style="padding:6px 12px;background:var(--acc);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Enable</button>
+        </div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.5;padding-left:36px;">Required for alarms and the pre-meal timer to fire when your screen is locked.</div>
+      </div>
+      <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🔴</div><div><div class="sgi-t">Low Glucose Alert</div><div class="sgi-s">Warn when below target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
+      <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🟡</div><div><div class="sgi-t">High Glucose Alert</div><div class="sgi-s">Warn when above target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
+    </div>
+    <div class="sglbl">Appearance</div>
+    <div class="sgcard">
+      <div class="sgi">
+        <div class="sgi-l"><div class="sgi-ic">🌙</div><div><div class="sgi-t">Dark Mode</div><div class="sgi-s">Easier on the eyes at night</div></div></div>
+        <button class="tsw" id="darkToggle" onclick="toggleDark()"></button>
+      </div>
+    </div>
+    <div class="sglbl">Data &amp; Backup</div>
+    <div class="sgcard">
+      <button class="dbtn" onclick="backupData()" style="color:var(--ok);">💾 Backup All Data (JSON)</button>
+      <button class="dbtn" onclick="document.getElementById('restoreInput').click()" style="color:var(--acc);">📥 Restore from Backup</button>
+      <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none;">
+      <button class="dbtn" onclick="exportCSV()">📤 Export Readings (CSV)</button>
+      <!-- FreeStyle Libre import — temporarily disabled
+      <button class="dbtn" onclick="document.getElementById('libreImportInput').click()" style="color:#0077C8;">📲 Import from FreeStyle Libre (CSV)</button>
+      <input type="file" id="libreImportInput" accept=".csv" onchange="importLibreCSV(event)" style="display:none;">
+      -->
+      <button class="dbtn" onclick="document.getElementById('mysugrsImportInput').click()" style="color:#E84D1C;">📲 Import from mySugr / Accu-Chek (CSV)</button>
+      <input type="file" id="mysugrsImportInput" accept=".csv" onchange="importMySugrCSV(event)" style="display:none;">
+      <button class="dbtn" onclick="clearAll()">🗑️ Clear All Readings</button>
+    </div>
+    <div class="sglbl">Share</div>
+    <div class="sgcard">
+      <button class="dbtn" onclick="shareApp()" style="color:var(--acc);border-bottom:none;">📲 Share GlucoTrack with others</button>
+    </div>
+    <div class="sglbl">Add to Home Screen</div>
+    <div class="sgcard">
+      <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:12px;padding:16px 15px;">
+        <!-- Icon preview -->
+        <div style="display:flex;align-items:center;gap:14px;width:100%;">
+          <canvas id="iconPreview" width="60" height="60" style="border-radius:13px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15);"></canvas>
+          <div>
+            <div class="sgi-t" style="font-size:15px;font-weight:800;">GlucoTrack</div>
+            <div class="sgi-s" style="font-size:12px;">Installs as a native-feeling app on your home screen with a custom icon</div>
+          </div>
+        </div>
+        <!-- iPhone Instructions -->
+        <div id="pwaInstructions" style="width:100%;background:#0D1321;border-radius:12px;padding:14px;display:none;">
+          <div style="font-size:12px;font-weight:700;color:#34d399;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">📱 iPhone / iPad — Safari Only</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">1</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Open this page in <strong style="color:#fff;">Safari</strong> (not Chrome or other browsers)</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">2</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap the <strong style="color:#fff;">Share button</strong> <span style="font-size:15px;">⬆️</span> at the bottom of the screen</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">3</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Scroll down and tap <strong style="color:#fff;">"Add to Home Screen"</strong></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#34d399;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0D1321;flex-shrink:0;">✓</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap <strong style="color:#fff;">"Add"</strong> — GlucoTrack appears on your home screen with the icon above</div>
+            </div>
+          </div>
+        </div>
+        <!-- Android Instructions -->
+        <div id="pwaAndroid" style="width:100%;background:#0D1321;border-radius:12px;padding:14px;display:none;">
+          <div style="font-size:12px;font-weight:700;color:#34d399;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">🤖 Android — Chrome</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">1</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap the <strong style="color:#fff;">⋮ menu</strong> in the top-right corner of Chrome</div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#1A56DB;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">2</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap <strong style="color:#fff;">"Add to Home Screen"</strong> or <strong style="color:#fff;">"Install App"</strong></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:24px;height:24px;background:#34d399;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0D1321;flex-shrink:0;">✓</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;">Tap <strong style="color:#fff;">"Add"</strong> to confirm</div>
+            </div>
+          </div>
+        </div>
+        <!-- Buttons -->
+        <button onclick="showPwaInstructions()" id="pwaShowBtn" style="width:100%;padding:13px;background:var(--acc);border:none;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span>📲</span> <span id="pwaShowBtnTxt">How to Add to Home Screen</span>
+        </button>
+        <button onclick="triggerPwaInstall()" id="pwaInstallBtn" style="width:100%;padding:12px;background:none;border:1.5px solid var(--acc);border-radius:9px;color:var(--acc);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none;">
+          ⬇️ Install App (tap to confirm)
+        </button>
+      </div>
+    </div>
+    <div class="sglbl">AI Features (Meal Analysis &amp; Food Search)</div>
+    <div class="sgcard">
+      <div style="padding:12px 15px 6px;">
+        <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px;">Enter your Anthropic API key to enable AI meal photo analysis and food carb lookup. Your key is stored only on this device.<br><a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--acc);font-weight:600;">Get a free key at console.anthropic.com →</a></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <input type="password" id="sApiKey" placeholder="sk-ant-…" onchange="saveApiKey()" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;outline:none;min-width:0;" autocomplete="off" spellcheck="false">
+          <button onclick="testApiKey()" style="padding:9px 14px;background:var(--acc);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;">Test</button>
+        </div>
+        <div id="apiKeyStatus" style="font-size:11px;line-height:1.6;display:none;padding:8px 10px;border-radius:7px;margin-bottom:6px;"></div>
+      </div>
+    </div>
+    <div style="padding:10px 0 16px;font-size:11px;color:var(--t3);line-height:1.6;">GlucoTrack v4.0 · mmol/L · Data stored locally on device.<br>AI meal analysis powered by Claude AI. Not a medical device. Always consult your endocrinologist or diabetes care team before adjusting insulin doses.</div>
+  </div>
+</div>
+<!-- ── REPORTS ── -->
+<div class="screen" id="screen-reports">
+  <div class="ptitle">Reports</div>
+  <div class="psub">Analyse your glucose patterns</div>
+  <div class="rpt-sub-tabs" id="rptTabs">
+    <button class="rpt-tab active" onclick="setReportTab('patterns',this)">Daily Patterns</button>
+    <button class="rpt-tab" onclick="setReportTab('tir',this)">Time In Range</button>
+    <button class="rpt-tab" onclick="setReportTab('low',this)">Low Events</button>
+    <button class="rpt-tab" onclick="setReportTab('avg',this)">Average Glucose</button>
+    <button class="rpt-tab" onclick="setReportTab('daily',this)">Daily Graph</button>
+  </div>
+  <!-- DAILY PATTERNS -->
+  <div class="rpt-panel active" id="rpt-patterns">
+    <div class="card"><div class="sc-hd"><div class="sc-title">Hourly Average (7 days)</div></div>
+      <div style="width:100%;height:170px;position:relative;"><canvas id="patternChart"></canvas></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:8px;line-height:1.6;">Shows your average glucose level per hour of the day across the last 7 days. Helps identify post-meal spikes and overnight patterns.</div>
+    </div>
+    <div class="strow card-last" style="margin-bottom:12px;">
+      <div class="st"><div class="stv" id="rptPeakHour">—</div><div class="stl">Peak Hour</div></div>
+      <div class="st"><div class="stv" id="rptLowHour">—</div><div class="stl">Lowest Hour</div></div>
+      <div class="st"><div class="stv" id="rptReadings7">0</div><div class="stl">7d Readings</div></div>
+    </div>
+  </div>
+  <!-- TIME IN RANGE -->
+  <div class="rpt-panel" id="rpt-tir">
+    <div class="card">
+      <div class="sc-hd"><div class="sc-title">Time In Range — 14 days</div></div>
+      <div style="width:100%;height:170px;position:relative;"><canvas id="tirDonutChart"></canvas></div>
+    </div>
+    <div class="card card-last" style="margin-top:10px;">
+      <div class="sc-hd"><div class="sc-title">Breakdown</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--low)">Low &lt;3.9</div><div class="tir-bw"><div class="tir-bf" id="rptTirLow" style="background:var(--low);width:0%"></div></div><div class="tir-pc" id="rptTirLowP" style="color:var(--low)">0%</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--ok)">Target</div><div class="tir-bw"><div class="tir-bf" id="rptTirOk" style="background:var(--ok);width:0%"></div></div><div class="tir-pc" id="rptTirOkP" style="color:var(--ok)">0%</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--hi)">High</div><div class="tir-bw"><div class="tir-bf" id="rptTirHigh" style="background:var(--hi);width:0%"></div></div><div class="tir-pc" id="rptTirHighP" style="color:var(--hi)">0%</div></div>
+      <div class="tir-row"><div class="tir-nm" style="color:var(--vhi)">V.High</div><div class="tir-bw"><div class="tir-bf" id="rptTirVH" style="background:var(--vhi);width:0%"></div></div><div class="tir-pc" id="rptTirVHP" style="color:var(--vhi)">0%</div></div>
+    </div>
+  </div>
+  <!-- LOW GLUCOSE EVENTS -->
+  <div class="rpt-panel" id="rpt-low">
+    <div class="card">
+      <div class="sc-hd"><div class="sc-title">Low Glucose Events (30 days)</div></div>
+      <div class="strow" style="margin:0 0 14px;">
+        <div class="st"><div class="stv" id="rptLowCount" style="color:var(--low)">0</div><div class="stl">Total Events</div></div>
+        <div class="st"><div class="stv" id="rptLowAvg" style="color:var(--low)">—</div><div class="stl">Avg Level</div></div>
+        <div class="st"><div class="stv" id="rptLowSev">—</div><div class="stl">Lowest</div></div>
+      </div>
+      <div id="rptLowList"><div class="empty"><div class="empty-ic">✅</div>No low glucose events. Great job!</div></div>
+    </div>
+    <div class="card card-last" style="margin-top:10px;">
+      <div class="sc-hd"><div class="sc-title">Low Events by Time of Day</div></div>
+      <div style="width:100%;height:140px;position:relative;"><canvas id="lowByHourChart"></canvas></div>
+    </div>
+  </div>
+  <!-- AVERAGE GLUCOSE -->
+  <div class="rpt-panel" id="rpt-avg">
+    <div class="card">
+      <div class="sc-hd"><div class="sc-title">Average Glucose Trend</div></div>
+      <div style="width:100%;height:170px;position:relative;"><canvas id="avgTrendChart"></canvas></div>
+    </div>
+    <div class="strow" style="margin:10px 14px 0;">
+      <div class="st"><div class="stv" id="rptAvg7">—</div><div class="stl">7-day Avg</div></div>
+      <div class="st"><div class="stv" id="rptAvg14">—</div><div class="stl">14-day Avg</div></div>
+      <div class="st"><div class="stv" id="rptAvg30">—</div><div class="stl">30-day Avg</div></div>
+    </div>
+    <div class="card card-last" style="margin:10px 14px 0;padding:14px 16px;">
+      <div style="font-size:11px;color:var(--t3);line-height:1.7;" id="rptAvgNote">Average glucose is calculated from all logged readings. Target: 3.9–10.0 mmol/L.</div>
+    </div>
+  </div>
+  <!-- DAILY GRAPH -->
+  <div class="rpt-panel" id="rpt-daily">
+    <div class="card">
+      <div class="sc-hd">
+        <div class="sc-title">Daily Glucose Graph</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button onclick="shiftDailyDay(-1)" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:12px;">◀</button>
+          <span id="dailyDayLabel" style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t2);min-width:70px;text-align:center;">Today</span>
+          <button onclick="shiftDailyDay(1)" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:12px;">▶</button>
+        </div>
+      </div>
+      <div style="width:100%;height:180px;position:relative;"><canvas id="dailyGraph"></canvas></div>
+    </div>
+    <div class="strow card-last" style="margin-bottom:12px;">
+      <div class="st"><div class="stv" id="dgAvg">—</div><div class="stl">Day Avg</div></div>
+      <div class="st"><div class="stv" id="dgMin" style="color:var(--low)">—</div><div class="stl">Min</div></div>
+      <div class="st"><div class="stv" id="dgMax" style="color:var(--hi)">—</div><div class="stl">Max</div></div>
+    </div>
+  </div>
+</div>
+<!-- ── ALARMS ── -->
+<div class="screen" id="screen-alarms">
+  <div class="ptitle">Alarms</div>
+  <div class="psub">Set glucose alert thresholds</div>
+  <div class="alarm-card">
+    <div class="sc-title" style="margin-bottom:12px;">Glucose Alarms</div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:var(--low-bg)">🚨</div>
+        <div><div class="alarm-title">Low Alarm</div><div class="alarm-sub">Alert when BG drops below threshold</div></div>
+      </div>
+      <div class="alarm-val">
+        <input type="number" class="alarm-input" id="alLow" value="3.9" step="0.1" min="2.0" max="5.0" onchange="saveAlarms()">
+        <button class="tsw on" id="alLowSw" onclick="toggleAlarm(this)"></button>
+      </div>
+    </div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:var(--hi-bg)">⚠️</div>
+        <div><div class="alarm-title">High Alarm</div><div class="alarm-sub">Alert when BG rises above threshold</div></div>
+      </div>
+      <div class="alarm-val">
+        <input type="number" class="alarm-input" id="alHigh" value="10.0" step="0.1" min="6.0" max="20.0" onchange="saveAlarms()">
+        <button class="tsw on" id="alHighSw" onclick="toggleAlarm(this)"></button>
+      </div>
+    </div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:var(--low-bg)">🔴</div>
+        <div><div class="alarm-title">Urgent Low Alarm</div><div class="alarm-sub">Critical alert for severe hypoglycaemia</div></div>
+      </div>
+      <div class="alarm-val">
+        <input type="number" class="alarm-input" id="alUrgLow" value="3.0" step="0.1" min="2.0" max="4.0" onchange="saveAlarms()">
+        <button class="tsw on" id="alUrgLowSw" onclick="toggleAlarm(this)"></button>
+      </div>
+    </div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:#FFF5F5">📈</div>
+        <div><div class="alarm-title">Rising Fast</div><div class="alarm-sub">Alert when glucose rising &gt;2 mmol/h</div></div>
+      </div>
+      <div class="alarm-val">
+        <button class="tsw" id="alRiseSw" onclick="toggleAlarm(this)"></button>
+      </div>
+    </div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:var(--acc-bg)">📉</div>
+        <div><div class="alarm-title">Falling Fast</div><div class="alarm-sub">Alert when glucose falling &gt;2 mmol/h</div></div>
+      </div>
+      <div class="alarm-val">
+        <button class="tsw on" id="alFallSw" onclick="toggleAlarm(this)"></button>
+      </div>
+    </div>
+  </div>
+  <div class="alarm-card card-last" style="margin-top:10px;margin-bottom:12px;">
+    <div class="sc-title" style="margin-bottom:12px;">Notification Settings</div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:var(--pur-bg)">🔊</div>
+        <div><div class="alarm-title">Sound Alerts</div><div class="alarm-sub">Play sound when alarm triggers</div></div>
+      </div>
+      <button class="tsw on" id="alSoundSw" onclick="toggleAlarm(this)"></button>
+    </div>
+    <div class="alarm-row">
+      <div class="alarm-info">
+        <div class="alarm-ic" style="background:var(--bg)">📳</div>
+        <div><div class="alarm-title">Vibration</div><div class="alarm-sub">Vibrate when alarm triggers</div></div>
+      </div>
+      <button class="tsw on" id="alVibeSw" onclick="toggleAlarm(this)"></button>
+    </div>
+    <div class="alarm-row">
+      <div
