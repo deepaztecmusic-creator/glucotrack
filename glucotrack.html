@@ -1,176 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>GlucoTrack Elite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* CSS INTEGRATION: Your high-end styling + lead-dev layout */
-        :root {
-            --bg: #F4F6F9; --white: #fff; --text: #0D1321; --acc: #1A56DB;
-            --low: #E53E3E; --ok: #38A169; --hi: #D97706; --border: #E2E6ED;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
-        .topbar { background: var(--white); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index: 100; }
-        .logo { font-weight: 800; color: var(--acc); font-size: 1.2rem; }
-        .card { background: var(--white); margin: 15px; padding: 20px; border-radius: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 15px; }
-        .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 800; display: block; }
-        .stat-lbl { font-size: 0.75rem; font-weight: 700; color: #677088; text-transform: uppercase; }
-        
-        /* Lead-Dev Parser UI */
-        .import-zone { text-align: center; padding: 10px; }
-        .btn-main { background: var(--acc); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); }
-        
-        /* Emergency Overlay */
-        #hypo-alert { position: fixed; inset:0; background: var(--low); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
-        .rule-15 { background: white; color: black; padding: 20px; border-radius: 15px; margin: 20px; max-width: 320px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1321">
+<title>GlucoTrack Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* YOUR ORIGINAL STYLING & VARIABLES */
+    :root {
+        --bg:#F4F6F9; --white:#fff; --text:#0D1321; --t2:#5A6478; --t3:#677088;
+        --acc:#1A56DB; --acc-bg:#EBF5FF; --low:#E53E3E; --ok:#38A169; --hi:#D97706;
+        --border:#E2E6ED; --sh:0 4px 12px rgba(0,0,0,.08);
+    }
+    body.dark {
+        --bg:#0D1321; --white:#1a2236; --text:#e8edf5; --border:#243049; --acc:#5b8dee;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--text); max-width:430px; margin:0 auto; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+    
+    /* UI COMPONENTS */
+    .topbar { background:var(--white); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); z-index:10; }
+    .logo { font-size:16px; font-weight:800; color:var(--acc); }
+    .scroll { flex:1; overflow-y:auto; padding-bottom:100px; }
+    .card { background:var(--white); margin:12px 14px; padding:16px; border-radius:16px; border:1px solid var(--border); box-shadow:var(--sh); }
+    
+    /* GLUCOSE DISPLAY */
+    .gc-num { font-family:'JetBrains Mono',monospace; font-size:54px; font-weight:800; letter-spacing:-2px; color:var(--ok); }
+    .gc-num.low { color:var(--low); }
+    .gc-num.hi { color:var(--hi); }
+    .a1c-big { font-family:'JetBrains Mono',monospace; font-size:48px; font-weight:800; color:var(--acc); }
+    
+    /* INPUTS */
+    .bi { width:100%; border:none; background:none; text-align:center; font-family:'JetBrains Mono',monospace; font-size:48px; font-weight:800; outline:none; color:var(--text); }
+    .cib-input { width:100%; background:var(--bg); border:1px solid var(--border); padding:12px; border-radius:10px; font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; margin-top:8px; }
+    .svbtn { width:100%; padding:14px; background:var(--acc); color:#fff; border:none; border-radius:12px; font-weight:700; margin-top:12px; cursor:pointer; }
+    
+    /* CHART */
+    .chart-canvas-wrap { position:relative; height:180px; width:100%; }
+</style>
 </head>
-<body>
-
-<div id="hypo-alert">
-    <h1 style="font-size: 4rem;" id="hypo-val">--</h1>
-    <h2 style="font-weight: 800;">HYPO ALERT</h2>
-    <div class="rule-15">
-        <h4 style="color: var(--low); margin-bottom: 10px;">RULE OF 15</h4>
-        <p>15g fast carbs. Wait 15 mins. Re-test.</p>
-    </div>
-    <button onclick="document.getElementById('hypo-alert').style.display='none'" style="background:white; color:var(--low); border:none; padding:15px 30px; border-radius:12px; font-weight:800;">DISMISS</button>
-</div>
+<body class="dark">
 
 <div class="topbar">
-    <div class="logo">GLUCOTRACK<span>ELITE</span></div>
-    <div class="import-zone">
-        <input type="file" id="csvFile" hidden onchange="eliteParser.handleFile(this)">
-        <button onclick="document.getElementById('csvFile').click()" style="background:none; border: 1px solid var(--acc); color: var(--acc); padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">IMPORT CSV</button>
-    </div>
+    <div class="logo">GlucoTrack <span>ELITE</span></div>
+    <input type="file" id="csv-upload" style="display:none" onchange="eliteSystem.import(event)">
+    <button onclick="document.getElementById('csv-upload').click()" style="background:var(--acc-bg); color:var(--acc); border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700;">IMPORT CSV</button>
 </div>
 
-<div class="grid">
+<div class="scroll">
     <div class="card">
-        <span class="stat-lbl">Predicted GMI</span>
-        <span id="gmi-val" class="stat-val">--%</span>
+        <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase;">Current Glucose</div>
+        <div class="gc-num" id="hero-num">--</div>
+        <div style="font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--t3)" id="hero-time">Waiting for data...</div>
     </div>
+
     <div class="card">
-        <span class="stat-lbl">Last Entry</span>
-        <span id="last-val" class="stat-val">--</span>
+        <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase;">Estimated GMI (A1c)</div>
+        <div class="a1c-big" id="a1c-val">--<span style="font-size:18px">%</span></div>
+        <div style="font-size:11px; color:var(--t3); line-height:1.4;">Based on recent mySugr history.</div>
     </div>
-</div>
 
-<div class="card">
-    <span class="stat-lbl">24-Hour Trend</span>
-    <canvas id="mainChart" style="margin-top: 15px;"></canvas>
-</div>
-
-<div class="card">
-    <h3 style="margin-bottom: 15px;">Elite Bolus Calculator</h3>
-    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="number" id="calc-bg" placeholder="Glucose" style="flex:1; padding: 12px; border-radius: 10px; border: 1px solid var(--border);">
-        <input type="number" id="calc-carbs" placeholder="Carbs (g)" style="flex:1; padding: 12px; border-radius: 10px; border: 1px solid var(--border);">
+    <div class="card">
+        <div class="chart-canvas-wrap">
+            <canvas id="main-chart"></canvas>
+        </div>
     </div>
-    <div id="dose-result" style="margin-bottom: 15px; font-weight: 800; color: var(--acc);">Dose Suggestion: 0.0 Units</div>
-    <button class="btn-main" onclick="eliteEngine.calculateDose()">Calculate & Log</button>
+
+    <div class="card">
+        <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase; margin-bottom:12px;">Elite Calculator</div>
+        <input type="number" class="bi" id="input-bg" placeholder="0.0" step="0.1">
+        <div style="text-align:center; font-size:11px; color:var(--t3); margin-bottom:15px;">Glucose (mmol/L)</div>
+        
+        <label style="font-size:11px; font-weight:700; color:var(--t3);">CARBS (G)</label>
+        <input type="number" class="cib-input" id="input-carbs" placeholder="0">
+        
+        <div style="margin-top:15px; padding:12px; background:var(--acc-bg); border-radius:10px; text-align:center;">
+            <div style="font-size:11px; color:var(--acc); font-weight:700;">SUGGESTED DOSE</div>
+            <div style="font-size:24px; font-weight:800; color:var(--acc);" id="dose-res">0.0 U</div>
+        </div>
+        
+        <button class="svbtn" onclick="eliteSystem.calculate()">Calculate & Save</button>
+    </div>
 </div>
 
 <script>
 /**
- * THE ELITE ENGINE: Lead Developer Logic
+ * ELITE SYSTEM v4.5 - LEAD ARCHITECT BUILD
  */
-const eliteEngine = {
+const eliteSystem = {
     history: [],
-    config: { hypo: 3.9, target: 6.0, icr: 10, isf: 2.0, conv: 18.018 },
+    chart: null,
+    config: { icr:10, isf:2.0, target:6.0, conv:18.018 },
 
-    calculateGMI: () => {
-        if (!eliteEngine.history.length) return "--";
-        const avgMmol = eliteEngine.history.reduce((a, b) => a + b.val, 0) / eliteEngine.history.length;
-        const avgMgdl = avgMmol * eliteEngine.config.conv;
-        // Clinical GMI Formula
-        return (3.31 + (0.02392 * avgMgdl)).toFixed(1);
-    },
-
-    calculateDose: () => {
-        const bg = parseFloat(document.getElementById('calc-bg').value);
-        const carbs = parseFloat(document.getElementById('calc-carbs').value) || 0;
-        
-        if (isNaN(bg)) return;
-        if (bg < eliteEngine.config.hypo) {
-            document.getElementById('hypo-val').innerText = bg;
-            document.getElementById('hypo-alert').style.display = 'flex';
-            return;
-        }
-
-        const mealDose = carbs / eliteEngine.config.icr;
-        const corrDose = (bg > eliteEngine.config.target) ? (bg - eliteEngine.config.target) / eliteEngine.config.isf : 0;
-        const total = (mealDose + corrDose).toFixed(1);
-
-        document.getElementById('dose-result').innerText = `Dose Suggestion: ${total} Units`;
-        eliteEngine.history.unshift({ val: bg, ts: Date.now() });
-        uiManager.refresh();
-    }
-};
-
-/**
- * THE PRECISION PARSER: Specifically for your mySugr CSV structure
- */
-const eliteParser = {
-    handleFile: (input) => {
+    // THE FIX: Robust Parser for mySugr "7,7" values
+    import: function(e) {
+        const file = e.target.files[0];
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const lines = e.target.result.split(/\r?\n/);
-            const imported = [];
+        reader.onload = (event) => {
+            const lines = event.target.result.split(/\r?\n/).filter(l => l.includes(','));
+            const data = [];
             
             lines.slice(1).forEach(line => {
-                // Regex: Correctly handles commas inside quotes like "7,7"
+                // Precision Regex: Correctly handles quoted commas
                 const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 if (cols && cols.length >= 4) {
-                    const valStr = cols[3].replace(/"/g, '').replace(',', '.');
-                    const val = parseFloat(valStr);
+                    const rawVal = cols[3].replace(/"/g, '').replace(',', '.');
+                    const val = parseFloat(rawVal);
                     const ts = new Date(`${cols[0].replace(/"/g,'')} ${cols[1].replace(/"/g,'')}`).getTime();
-                    
-                    if (!isNaN(val) && !isNaN(ts)) {
-                        imported.push({ val, ts });
-                    }
+                    if (!isNaN(val) && !isNaN(ts)) data.push({ val, ts });
                 }
             });
-            eliteEngine.history = imported.sort((a,b) => b.ts - a.ts);
-            uiManager.refresh();
+            this.history = data.sort((a,b) => b.ts - a.ts);
+            this.updateUI();
         };
-        reader.readAsText(input.files[0]);
-    }
-};
-
-const uiManager = {
-    chart: null,
-    refresh: () => {
-        document.getElementById('gmi-val').innerText = eliteEngine.calculateGMI() + "%";
-        if (eliteEngine.history.length) {
-            document.getElementById('last-val').innerText = eliteEngine.history[0].val;
-        }
-        uiManager.renderChart();
+        reader.readAsText(file);
     },
-    renderChart: () => {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        if (uiManager.chart) uiManager.chart.destroy();
-        const displayData = [...eliteEngine.history].reverse().slice(-15);
+
+    calculate: function() {
+        const bg = parseFloat(document.getElementById('input-bg').value);
+        const carbs = parseFloat(document.getElementById('input-carbs').value) || 0;
         
-        uiManager.chart = new Chart(ctx, {
+        if (isNaN(bg)) return alert("Enter BG");
+        
+        // Safety Interlock
+        if (bg < 3.9) {
+            document.getElementById('dose-res').innerText = "LOW - NO INSULIN";
+            return alert("HYPO ALERT: Follow Rule of 15!");
+        }
+
+        const dose = (carbs / this.config.icr) + ((bg - this.config.target) / this.config.isf);
+        const final = Math.max(0, dose).toFixed(1);
+        document.getElementById('dose-res').innerText = final + " U";
+        
+        this.history.unshift({ val: bg, ts: Date.now() });
+        this.updateUI();
+    },
+
+    updateUI: function() {
+        if (!this.history.length) return;
+        
+        const last = this.history[0];
+        const hero = document.getElementById('hero-num');
+        hero.innerText = last.val.toFixed(1);
+        hero.className = 'gc-num ' + (last.val < 3.9 ? 'low' : last.val > 10 ? 'hi' : '');
+        document.getElementById('hero-time').innerText = "Last: " + new Date(last.ts).toLocaleTimeString();
+
+        // GMI Calculation
+        const avg = this.history.reduce((a, b) => a + b.val, 0) / this.history.length;
+        const gmi = (3.31 + (0.02392 * (avg * this.config.conv))).toFixed(1);
+        document.getElementById('a1c-val').innerHTML = gmi + '<span style="font-size:18px">%</span>';
+
+        this.renderChart();
+    },
+
+    renderChart: function() {
+        const ctx = document.getElementById('main-chart').getContext('2d');
+        if (this.chart) this.chart.destroy();
+        
+        const plotData = [...this.history].reverse().slice(-20);
+        
+        this.chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: displayData.map(d => new Date(d.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})),
+                labels: plotData.map(d => new Date(d.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})),
                 datasets: [{
-                    data: displayData.map(d => d.val),
-                    borderColor: '#1A56DB',
+                    data: plotData.map(d => d.val),
+                    borderColor: '#5b8dee',
+                    borderWidth: 3,
+                    pointRadius: 0,
                     tension: 0.4,
                     fill: true,
-                    backgroundColor: 'rgba(26, 86, 219, 0.05)'
+                    backgroundColor: 'rgba(91, 141, 238, 0.1)'
                 }]
             },
-            options: { plugins: { legend: { display: false } }, scales: { y: { min: 2, max: 20 } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#677088', font: { family: 'JetBrains Mono' } } }
+                }
+            }
         });
     }
 };
