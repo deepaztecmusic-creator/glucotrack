@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -501,42 +501,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
 .camfs-cap:active{transform:scale(.9);}
 .camfs-upload{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 #fsFileInput{display:none;}
-
-/* ─── FIRST BITE PILLS ─── */
-.first-bite-btn{padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;}
-.first-bite-btn.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
-
-/* ─── EXERCISE SCREEN ─── */
-.ex-hero{background:linear-gradient(135deg,#064e3b,#065f46);border:none;color:#fff;}
-.ex-status{font-size:42px;font-weight:800;letter-spacing:-2px;font-family:'JetBrains Mono',monospace;line-height:1;}
-.ex-status-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;opacity:.6;margin-bottom:4px;}
-.ex-status-sub{font-size:13px;opacity:.75;margin-top:6px;line-height:1.5;}
-.ex-action{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;line-height:1.5;}
-.ex-action.go{background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.4);color:#34d399;}
-.ex-action.warn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.35);color:#fbbf24;}
-.ex-action.stop{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.35);color:#f87171;}
-.ex-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
-.ex-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);}
-.ex-profile-row{display:flex;gap:8px;margin:10px 14px 0;}
-.ex-profile-btn{flex:1;padding:10px 6px;background:#fff;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--t2);transition:all .15s;}
-.ex-profile-btn.active{border-color:var(--acc);color:var(--acc);background:var(--acc-bg);}
-.ex-profile-btn .epb-ic{font-size:20px;margin-bottom:3px;}
-.ex-profile-btn .epb-lbl{font-size:10px;font-weight:700;}
-.ex-profile-btn .epb-sub{font-size:9px;color:var(--t3);margin-top:1px;font-weight:400;}
-.ex-table{width:100%;border-collapse:collapse;font-size:11px;}
-.ex-table th{background:var(--bg);padding:6px 8px;text-align:left;font-weight:700;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);}
-.ex-table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.4;}
-.ex-table tr:last-child td{border-bottom:none;}
-.ex-table .go-td{color:var(--ok);font-weight:600;}
-.ex-table .warn-td{color:var(--hi);font-weight:600;}
-.ex-table .stop-td{color:var(--low);font-weight:600;}
-.ex-timer-bar{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;padding:14px;display:flex;align-items:center;gap:12px;}
-.ex-timer-ic{font-size:28px;}
-.ex-timer-txt{flex:1;}
-.ex-timer-btn{padding:8px 14px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-.ex-start-btn{background:var(--ok);color:#fff;}
-.ex-stop-btn{background:var(--low-bg);color:var(--low);}
-.ex-elapsed{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;color:var(--acc);}
 </style>
 </head>
 <body>
@@ -619,8 +583,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
     <button class="di" id="nav-alarms" onclick="goTo('alarms')"><div class="di-ic">🔔</div>Alarms</button>
     <!-- REMINDERS -->
     <button class="di" id="nav-reminders" onclick="goTo('reminders')"><div class="di-ic">⏰</div>Reminders</button>
-    <!-- EXERCISE -->
-    <button class="di" id="nav-exercise" onclick="goTo('exercise')"><div class="di-ic">🏃</div>Exercise Guide</button>
     <!-- CONNECTED APPS -->
     <button class="di" id="nav-apps" onclick="goTo('apps')"><div class="di-ic">🔗</div>Connected Apps</button>
     <div class="ddiv"></div>
@@ -834,40 +796,24 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <div class="ri-f"><label>Carb Ratio (g/unit)</label><input type="number" id="sCarbRatio" value="10" step="1" onchange="saveSettings()"></div>
         <div class="ri-f"><label>Correction (mmol/u)</label><input type="number" id="sCorrFactor" value="2.2" step="0.1" onchange="saveSettings()"></div>
       </div>
-      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">
-        Uses the <strong>Walsh Bolus Calculator</strong> (medical standard):<br>
-        <strong>Meal dose</strong> = Carbs ÷ <strong id="carbRatioDisplay">10</strong>g/u &nbsp;·&nbsp;
-        <strong>Correction</strong> = (BG − target) ÷ <strong id="corrDisplay">2.2</strong> mmol/u<br>
-        Total = Meal + Correction − IOB &nbsp;·&nbsp; Always confirm with your diabetes care team.
-      </div>
+      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">1 unit covers <strong id="carbRatioDisplay">10</strong>g carbs. 1 unit drops BG by <strong id="corrDisplay">2.2</strong> mmol/L. Confirm with your diabetes care team.</div>
     </div>
     <div class="sglbl">Basal (Long-Acting) Insulin</div>
     <div class="sgcard">
       <div class="ri-wrap">
-        <div class="ri-f"><label>Insulin Name</label><input type="text" id="sBasalName" placeholder="e.g. Lantus, Toujeo, Tresiba" onchange="saveSettings()" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;"></div>
-        <div class="ri-f"><label>Daily Dose (units)</label><input type="number" id="sBasalDose" value="0" step="1" min="0" max="200" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;-moz-appearance:textfield;"></div>
+        <div class="ri-f"><label>Insulin Name</label><input type="text" id="sBasalName" value="Lantus" placeholder="e.g. Lantus, Toujeo, Tresiba" onchange="saveSettings()" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;"></div>
+        <div class="ri-f"><label>Daily Dose (units)</label><input type="number" id="sBasalDose" value="0" step="1" min="0" max="200" onchange="saveSettings()"></div>
       </div>
-      <div style="padding:0 15px 8px;">
-        <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Injection Time</div>
-        <input type="time" id="sBasalTime" value="18:00" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;outline:none;width:100%;color:var(--text);letter-spacing:1px;">
+      <div class="ri-wrap" style="padding-top:0;">
+        <div class="ri-f"><label>Injection Time</label><input type="time" id="sBasalTime" value="18:00" onchange="saveSettings()" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;color:var(--text);"></div>
+        <div class="ri-f" style="justify-content:flex-end;padding-top:18px;">
+          <div style="font-size:11px;color:var(--t3);line-height:1.7;padding-top:6px;">Log basal via the<br><strong style="color:var(--acc)">Log Reading</strong> button below</div>
+        </div>
       </div>
-      <div id="basalReminderStatus" style="margin:4px 15px 12px;padding:10px 12px;background:var(--ok-bg);border:1px solid var(--ok-b);border-radius:8px;font-size:12px;color:var(--ok);line-height:1.6;display:none;">
-        🔔 Reminders set — <strong id="basalPreRemindTime">—</strong> <span style="opacity:.7;">(15 min warning)</span> and <strong id="basalRemindTime">—</strong> <span style="opacity:.7;">(injection time)</span>
-      </div>
-      <div id="basalNoReminder" style="margin:4px 15px 12px;padding:10px 12px;background:var(--hi-bg);border:1px solid var(--hi-b);border-radius:8px;font-size:12px;color:var(--hi);line-height:1.6;display:none;">
-        ⚠️ Set your daily dose above to activate reminders.
-      </div>
+      <div style="padding:0 15px 12px;font-size:11px;color:var(--t3);line-height:1.6;">A reminder will appear at your set injection time each day. Basal insulin is logged separately and not included in bolus calculations.</div>
     </div>
     <div class="sglbl">Alerts</div>
     <div class="sgcard">
-      <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px;">
-        <div style="display:flex;align-items:center;gap:10px;width:100%;">
-          <div class="sgi-ic">🔔</div>
-          <div style="flex:1"><div class="sgi-t">Browser Notifications</div><div class="sgi-s" id="notifStatus">Tap to enable</div></div>
-          <button onclick="requestNotificationPermission(true)" style="padding:6px 12px;background:var(--acc);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Enable</button>
-        </div>
-        <div style="font-size:11px;color:var(--t3);line-height:1.5;padding-left:36px;">Required for alarms and the pre-meal timer to fire when your screen is locked.</div>
-      </div>
       <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🔴</div><div><div class="sgi-t">Low Glucose Alert</div><div class="sgi-s">Warn when below target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
       <div class="sgi"><div class="sgi-l"><div class="sgi-ic">🟡</div><div><div class="sgi-t">High Glucose Alert</div><div class="sgi-s">Warn when above target</div></div></div><button class="tsw on" onclick="this.classList.toggle('on')"></button></div>
     </div>
@@ -884,12 +830,8 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       <button class="dbtn" onclick="document.getElementById('restoreInput').click()" style="color:var(--acc);">📥 Restore from Backup</button>
       <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" style="display:none;">
       <button class="dbtn" onclick="exportCSV()">📤 Export Readings (CSV)</button>
-      <!-- FreeStyle Libre import — temporarily disabled
       <button class="dbtn" onclick="document.getElementById('libreImportInput').click()" style="color:#0077C8;">📲 Import from FreeStyle Libre (CSV)</button>
       <input type="file" id="libreImportInput" accept=".csv" onchange="importLibreCSV(event)" style="display:none;">
-      -->
-      <button class="dbtn" onclick="document.getElementById('mysugrsImportInput').click()" style="color:#E84D1C;">📲 Import from mySugr / Accu-Chek (CSV)</button>
-      <input type="file" id="mysugrsImportInput" accept=".csv" onchange="importMySugrCSV(event)" style="display:none;">
       <button class="dbtn" onclick="clearAll()">🗑️ Clear All Readings</button>
     </div>
     <div class="sglbl">Share</div>
@@ -957,17 +899,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <button onclick="triggerPwaInstall()" id="pwaInstallBtn" style="width:100%;padding:12px;background:none;border:1.5px solid var(--acc);border-radius:9px;color:var(--acc);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none;">
           ⬇️ Install App (tap to confirm)
         </button>
-      </div>
-    </div>
-    <div class="sglbl">AI Features (Meal Analysis &amp; Food Search)</div>
-    <div class="sgcard">
-      <div style="padding:12px 15px 6px;">
-        <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px;">Enter your Anthropic API key to enable AI meal photo analysis and food carb lookup. Your key is stored only on this device.<br><a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--acc);font-weight:600;">Get a free key at console.anthropic.com →</a></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-          <input type="password" id="sApiKey" placeholder="sk-ant-…" onchange="saveApiKey()" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;outline:none;min-width:0;" autocomplete="off" spellcheck="false">
-          <button onclick="testApiKey()" style="padding:9px 14px;background:var(--acc);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;">Test</button>
-        </div>
-        <div id="apiKeyStatus" style="font-size:11px;line-height:1.6;display:none;padding:8px 10px;border-radius:7px;margin-bottom:6px;"></div>
       </div>
     </div>
     <div style="padding:10px 0 16px;font-size:11px;color:var(--t3);line-height:1.6;">GlucoTrack v4.0 · mmol/L · Data stored locally on device.<br>AI meal analysis powered by Claude AI. Not a medical device. Always consult your endocrinologist or diabetes care team before adjusting insulin doses.</div>
@@ -1406,103 +1337,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   </div>
 </div>
 
-
-<!-- ── EXERCISE ── -->
-<div class="screen" id="screen-exercise">
-  <div class="ptitle">Exercise Guide</div>
-  <div class="psub">EASD/ISPAD/ADA guidelines for Type 1 diabetes</div>
-
-  <!-- PROFILE SELECTOR -->
-  <div style="padding:0 14px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;margin-top:4px;">Your Exercise Profile</div>
-  <div class="ex-profile-row">
-    <div class="ex-profile-btn active" id="exProf0" onclick="setExProfile(0)">
-      <div class="epb-ic">🚶</div>
-      <div class="epb-lbl">Ex 0</div>
-      <div class="epb-sub">Minimal / High hypo risk</div>
-    </div>
-    <div class="ex-profile-btn" id="exProf1" onclick="setExProfile(1)">
-      <div class="epb-ic">🏃</div>
-      <div class="epb-lbl">Ex 1</div>
-      <div class="epb-sub">Moderate / Moderate risk</div>
-    </div>
-    <div class="ex-profile-btn" id="exProf2" onclick="setExProfile(2)">
-      <div class="epb-ic">🏋️</div>
-      <div class="epb-lbl">Ex 2</div>
-      <div class="epb-sub">Intensive / Low hypo risk</div>
-    </div>
-  </div>
-
-  <!-- CURRENT BG STATUS CARD -->
-  <div class="card ex-hero" style="margin-top:10px;">
-    <div class="ex-status-lbl">Current Glucose</div>
-    <div style="display:flex;align-items:flex-end;gap:8px;">
-      <div class="ex-status" id="exBgNum">—</div>
-      <div style="padding-bottom:8px;opacity:.6;font-size:12px;">mmol/L <span id="exTrend"></span></div>
-    </div>
-    <div class="ex-pills" id="exPills"></div>
-    <div class="ex-action go" id="exAction">Log a reading to see your exercise recommendation</div>
-  </div>
-
-  <!-- EXERCISE TIMER -->
-  <div class="ex-timer-bar" id="exTimerBar">
-    <div class="ex-timer-ic">⏱️</div>
-    <div class="ex-timer-txt">
-      <div style="font-size:13px;font-weight:700;color:var(--text);">Exercise Timer</div>
-      <div class="ex-elapsed" id="exElapsed">00:00</div>
-      <div style="font-size:11px;color:var(--t3);" id="exTimerSub">Start timer when you begin exercising</div>
-    </div>
-    <button class="ex-timer-btn ex-start-btn" id="exTimerBtn" onclick="toggleExTimer()">Start</button>
-  </div>
-
-  <!-- PRE-EXERCISE TABLE -->
-  <div class="card" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">Pre-Exercise BG Guide</div><div style="font-size:10px;color:var(--t3);" id="exProfLabel">Ex 0 — Minimal</div></div>
-    <div style="overflow-x:auto;">
-      <table class="ex-table" id="preExTable">
-        <thead><tr><th>BG (mmol/L)</th><th>Trend</th><th>Recommendation</th></tr></thead>
-        <tbody id="preExBody"></tbody>
-      </table>
-    </div>
-    <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.6;">Source: EASD/ISPAD position statement (Moser et al. 2020). CHO = carbohydrates. AE = aerobic exercise. RT = resistance training. HIT = high-intensity training.</div>
-  </div>
-
-  <!-- DURING EXERCISE TABLE -->
-  <div class="card" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">During Exercise BG Guide</div></div>
-    <div style="overflow-x:auto;">
-      <table class="ex-table" id="duringExTable">
-        <thead><tr><th>BG (mmol/L)</th><th>Trend</th><th>Action</th></tr></thead>
-        <tbody id="duringExBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- POST EXERCISE TABLE -->
-  <div class="card" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">Post-Exercise BG Guide</div></div>
-    <div style="overflow-x:auto;">
-      <table class="ex-table" id="postExTable">
-        <thead><tr><th>BG (mmol/L)</th><th>Trend</th><th>CHO</th></tr></thead>
-        <tbody id="postExBody"></tbody>
-      </table>
-    </div>
-    <div style="font-size:11px;color:var(--hi);background:var(--hi-bg);border:1px solid var(--hi-b);border-radius:8px;padding:10px;margin-top:10px;line-height:1.6;">
-      ⚠️ <strong>Nocturnal hypo risk:</strong> After evening/intense exercise, hypoglycaemia can occur 6–15 hours later. Set a low alert at 4.4 mmol/L overnight and consider a snack before bed.
-    </div>
-  </div>
-
-  <!-- POST EXERCISE NOCTURNAL REMINDER -->
-  <div class="card card-last" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">Nocturnal Hypo Reminder</div></div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:12px;line-height:1.6;">After an evening or high-intensity session, set a reminder to check your BG during the night. Hypos can occur up to 15 hours post-exercise.</div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="setNocturnalReminder(6)" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t2);">+6h reminder</button>
-      <button onclick="setNocturnalReminder(9)" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t2);">+9h reminder</button>
-      <button onclick="setNocturnalReminder(12)" style="flex:1;padding:10px;background:var(--acc);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:#fff;">+12h reminder</button>
-    </div>
-  </div>
-</div>
-
 </div><!-- /scroll -->
 
 <!-- ══ LOG READING MODAL ══ -->
@@ -1510,14 +1344,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   <div class="msheet" id="logSheet">
     <div class="mhandle"></div>
     <div class="mtop"><div class="mtitle">Log Reading</div><button class="mclose" onclick="closeLogModal()">✕</button></div>
-    <!-- Time edit row — shown only when editing -->
-    <div id="editTimeRow" style="display:none;margin:8px 20px 0;background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:10px;padding:10px 12px;">
-      <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">📅 Date &amp; Time Logged</div>
-      <div style="display:flex;gap:8px;">
-        <input type="date" id="editDate" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
-        <input type="time" id="editTime" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
-      </div>
-    </div>
     <div class="biw">
       <input type="number" class="bi" id="glIn" placeholder="0.0" min="1.0" max="33.3" step="0.1" oninput="onGlIn()">
       <div class="biu">mmol / L</div>
@@ -1583,14 +1409,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   <div class="msheet" id="mealSheet">
     <div class="mhandle"></div>
     <div class="mtop"><div class="mtitle">Log Meal</div><button class="mclose" onclick="closeMealModal()">✕</button></div>
-    <!-- Time edit row — shown only when editing -->
-    <div id="mealEditTimeRow" style="display:none;margin:8px 20px 0;background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:10px;padding:10px 12px;">
-      <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">📅 Date &amp; Time Logged</div>
-      <div style="display:flex;gap:8px;">
-        <input type="date" id="mealEditDate" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
-        <input type="time" id="mealEditTime" style="flex:1;padding:7px 9px;background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);outline:none;">
-      </div>
-    </div>
     <div class="meal-tabs">
       <button class="meal-tab active" id="mt-manual" onclick="switchMealTab('manual')">✏️ Manual Entry</button>
       <button class="meal-tab" id="mt-camera" onclick="switchMealTab('camera')">📷 Photo Scan</button>
@@ -1639,7 +1457,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
       </div>
       <input type="file" id="camFileInput" accept="image/*" capture="environment" onchange="handleCamUpload(event)" style="display:none;">
       <button class="analyze-btn" id="analyzeBtn" onclick="runMealAnalysis()" disabled>🔍 Analyse Meal with AI</button>
-      <div id="aiKeyHint" style="display:none;font-size:11px;color:var(--hi);text-align:center;padding:4px 0;">No API key — go to Settings → AI Features to add one</div>
       <div class="cam-result-box" id="camResultBox">
         <div class="crb-name" id="crbName"></div>
         <div class="crb-stats" id="crbStats"></div>
@@ -1655,18 +1472,6 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
           <div class="iif"><label>Insulin to take (units)</label><input type="number" id="aiMealIns" placeholder="0" min="0" max="100" step="0.5"></div>
         </div>
       </div>
-    </div>
-    <!-- FIRST BITE TIME -->
-    <div class="msec" style="margin-top:10px;" id="firstBiteSection">
-      <div class="msec-lbl">When did you start eating?</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="firstBitePills">
-        <button class="first-bite-btn active" data-min="0" onclick="setFirstBite(0,this)">Just now</button>
-        <button class="first-bite-btn" data-min="10" onclick="setFirstBite(10,this)">10 min ago</button>
-        <button class="first-bite-btn" data-min="20" onclick="setFirstBite(20,this)">20 min ago</button>
-        <button class="first-bite-btn" data-min="30" onclick="setFirstBite(30,this)">30 min ago</button>
-        <button class="first-bite-btn" data-min="45" onclick="setFirstBite(45,this)">45 min ago</button>
-      </div>
-      <div style="font-size:11px;color:var(--t3);margin-top:5px;" id="firstBiteHint">BG check reminder will fire at <strong id="firstBiteFireAt">—</strong></div>
     </div>
     <button class="svbtn" onclick="saveMeal()">Log Meal</button>
   </div>
@@ -1710,7 +1515,6 @@ let activeCamStream=null;
 let camImageData=null;
 let mealCamImageData=null;
 let mealTab='manual';
-let firstBiteOffsetMin=0; // minutes ago the user started eating
 
 // ══════════════ STORAGE ══════════════
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
@@ -1719,8 +1523,6 @@ function getUserKey(k){return currentUser?`gt_${currentUser.id}_${k}`:null;}
 function saveReadings(){if(getUserKey('r'))store(getUserKey('r'),readings);}
 function loadReadings(){if(getUserKey('r'))readings=load(getUserKey('r'),[]);}
 function saveCfg(){if(getUserKey('c'))store(getUserKey('c'),cfg);}
-function saveExProfile(){store('gt_exProfile',exProfile);}
-function loadExProfile(){exProfile=load('gt_exProfile',0);}
 function loadCfg(){if(getUserKey('c'))cfg={...cfg,...load(getUserKey('c'),{})};}
 
 // ══════════════ TOAST ══════════════
@@ -1735,72 +1537,6 @@ function toast(msg,type='info',icon='ℹ️'){
 function toastError(msg){toast(msg,'error','❌');}
 function toastSuccess(msg){toast(msg,'success','✅');}
 function toastWarn(msg){toast(msg,'warn','⚠️');}
-
-// ══════════════ BROWSER NOTIFICATIONS ══════════════
-function requestNotificationPermission(showPrompt){
-  if(!('Notification' in window)){
-    if(showPrompt) toastWarn('Your browser does not support notifications.');
-    return;
-  }
-  if(Notification.permission==='granted'){
-    if(showPrompt) toastSuccess('Notifications are already enabled ✅');
-    return;
-  }
-  if(Notification.permission==='denied'){
-    if(showPrompt) toastWarn('Notifications are blocked. Go to your browser/phone Settings → Site Settings → Notifications and allow GlucoTrack.');
-    return;
-  }
-  // 'default' — ask
-  Notification.requestPermission().then(p=>{
-    if(p==='granted') toastSuccess('✅ Notifications enabled! You will be alerted even when the screen is locked (Android) or app is in background.');
-    else toastWarn('⚠️ Notifications blocked. To enable: browser Settings → Site Settings → Notifications → Allow for this site.');
-  });
-}
-
-// Send a real browser notification + in-app toast + sound
-function notify(title, body, icon='💉', soundType='test'){
-  // In-app toast always
-  toast(body, 'info', icon);
-  // Sound + vibration
-  const a=load('gt_alarms',{});
-  if(a.soundOn!==false) playAlarmSound(soundType);
-  if(a.vibeOn!==false) triggerVibration(soundType);
-  // Use Service Worker notification — works in background on Android
-  if('serviceWorker' in navigator && Notification.permission==='granted'){
-    navigator.serviceWorker.ready.then(reg=>{
-      reg.showNotification(title,{
-        body,
-        tag:'glucotrack-'+soundType,
-        requireInteraction:true,
-        vibrate:[200,100,200,100,200],
-        icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💉</text></svg>',
-      }).catch(()=>{
-        // Fallback to basic Notification API
-        if(Notification.permission==='granted') try{new Notification(title,{body});}catch(e){}
-      });
-    }).catch(()=>{
-      if(Notification.permission==='granted') try{new Notification(title,{body});}catch(e){}
-    });
-  } else if('Notification' in window && Notification.permission==='granted'){
-    try{new Notification(title,{body,requireInteraction:true});}catch(e){}
-  }
-}
-
-// Schedule a notification via the Service Worker (survives screen lock on Android)
-function scheduleNotification(delayMs, title, body, tag){
-  if('serviceWorker' in navigator && Notification.permission==='granted'){
-    navigator.serviceWorker.ready.then(reg=>{
-      // Send to SW to schedule — SW setTimeout persists longer than page timers
-      reg.active && reg.active.postMessage({
-        type:'SCHEDULE_NOTIFICATION', delayMs, title, body, tag
-      });
-    }).catch(()=>{});
-  }
-  // Also keep a page-side timer as backup
-  return setTimeout(()=>{
-    notify(title, body, '🍽️', 'test');
-  }, delayMs);
-}
 
 // ── In-app confirm (replaces window.confirm which is blocked on iOS PWA) ──
 function appConfirm(msg, onConfirm, danger=true){
@@ -1829,8 +1565,8 @@ function closeConfirm(){
 
 
 // ══════════════ UTILS ══════════════
-const CTX_IC={'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️','Basal Insulin':'🌙'};
-const CTX_CL={'Before Meal':'#3B82F6','After Meal':'#8B5CF6','Before Exercise':'#F59E0B','After Exercise':'#059669','Before Bed':'#6366F1','Waking Up':'#F97316','Feeling Unwell':'#DC2626','Random Check':'#6B7280','Meal':'#3B82F6','Basal Insulin':'#7C3AED'};
+const CTX_IC={'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️'};
+const CTX_CL={'Before Meal':'#3B82F6','After Meal':'#8B5CF6','Before Exercise':'#F59E0B','After Exercise':'#059669','Before Bed':'#6366F1','Waking Up':'#F97316','Feeling Unwell':'#DC2626','Random Check':'#6B7280','Meal':'#3B82F6'};
 function fmt(v){return(Math.round(v*10)/10).toFixed(1);}
 function getSt(v){
   const lo=cfg.low,hi=cfg.high;
@@ -2296,9 +2032,11 @@ function fireAlarm(type,msg){
     const h=new Date().getHours();
     if(h>=22||h<7)return;
   }
+  if(a.soundOn!==false)playAlarmSound(type);
+  if(a.vibeOn!==false)triggerVibration(type);
   const icons={urgLow:'🚨',low:'🚨',high:'⚠️',rise:'📈',fall:'📉'};
-  const titles={urgLow:'🚨 URGENT LOW — Act Now',low:'🚨 Low Glucose',high:'⚠️ High Glucose',rise:'📈 Rising Fast',fall:'📉 Falling Fast'};
-  notify(titles[type]||'GlucoTrack Alert', msg, icons[type]||'🔔', type);
+  const ttype=(type==='urgLow'||type==='low')?'error':'warn';
+  toast(msg,ttype,icons[type]||'🔔');
 }
 
 // ── Check a glucose value against all enabled alarms ──
@@ -2756,7 +2494,6 @@ function goTo(n){
   if(n==='forecast'){setTimeout(updateForecast,60);setTimeout(updateBasalInsights,80);}
   if(n==='reports')setTimeout(updateReports,60);
   if(n==='alarms')loadAlarms();
-  if(n==='exercise'){setTimeout(()=>{renderExTables();updateExerciseScreen();},50);}
 }
 
 // ══════════════ HOME ══════════════
@@ -2805,13 +2542,12 @@ function updateRecent(){
   // Keep track of original indices before reversing
   const indexed=[...readings].map((r,i)=>({...r,_idx:i})).reverse().slice(0,10);
   el.innerHTML=indexed.map(r=>{
-    const s=r.basalOnly?{cls:'ok',bc:'bok',txt:'BASAL',col:'#7C3AED'}:r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
+    const s=r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
     const ic=CTX_IC[r.context]||'🩺',cl=CTX_CL[r.context]||'#6B7280';
     const sub=[fD(r.ts)+', '+fT(r.ts),r.insulin?'💉 '+r.insulin+'u bolus':'',r.basal?'🌙 '+r.basal+'u basal':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
-    const valDisplay=r.basalOnly?r.basal+'u':r.isMealOnly?'🍽️':r.value!=null&&r.value>0?fmt(r.value):'—';
-    const unitDisplay=r.basalOnly?'basal':r.isMealOnly?'meal':'mmol/L';
+    const valDisplay=r.isMealOnly?'—':fmt(r.value);
     const editFn=r.isMealOnly?`editMeal(${r._idx})`:`editReading(${r._idx})`;
-    return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${unitDisplay}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
+    return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${r.isMealOnly?'meal':'mmol/L'}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
   }).join('');
 }
 
@@ -3066,64 +2802,30 @@ function roundRect(ctx,x,y,w,h,r){
 
 function drawXAxis(ctx,pL,pT,pB,cW,cH,W,H,since,to){
   const dur=to-since;
-  ctx.font='9px JetBrains Mono';ctx.textAlign='center';
-
-  // ── Generate candidate ticks at the natural interval ──
+  ctx.fillStyle='#9AA3B5';ctx.font='9px JetBrains Mono';ctx.textAlign='center';
   let ticks=[];
-  if(dur<=4*3600000){
+  if(dur<=4*3600000){// 3-4h: every 30min
     const s=new Date(since);s.setMinutes(Math.ceil(s.getMinutes()/30)*30,0,0);
     for(let t=s.getTime();t<=to;t+=30*60000)ticks.push(t);
-  } else if(dur<=12*3600000){
+  } else if(dur<=12*3600000){// 6-12h: every 1h
     const s=new Date(since);s.setMinutes(0,0,0);s.setHours(s.getHours()+1);
     for(let t=s.getTime();t<=to;t+=3600000)ticks.push(t);
-  } else if(dur<=3*86400000){
+  } else if(dur<=3*86400000){// 3d: every 6h
     const s=new Date(since);s.setHours(Math.ceil(s.getHours()/6)*6,0,0,0);
     for(let t=s.getTime();t<=to;t+=6*3600000)ticks.push(t);
-  } else {
-    // 7–14d: generate every day then cull to fit
+  } else {// 7-14d: every day
     const s=new Date(since);s.setHours(0,0,0,0);s.setDate(s.getDate()+1);
     for(let t=s.getTime();t<=to;t+=86400000)ticks.push(t);
   }
-
   const tx2=(ts)=>pL+(ts-since)/(to-since)*cW;
-
-  // ── Build label strings ──
-  const labels=ticks.map(t=>{
+  ticks.forEach(t=>{
+    const x=tx2(t);if(x<pL||x>pL+cW)return;
     const d=new Date(t);
-    if(dur<=12*3600000) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    if(dur<=3*86400000) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    return d.toLocaleDateString([],{month:'short',day:'numeric'});
-  });
-
-  // ── Measure max label width and cull overlapping ticks ──
-  const MIN_GAP=6; // px breathing room between labels
-  const maxLblW=labels.reduce((mx,l)=>Math.max(mx,ctx.measureText(l).width),0);
-  const minSpacing=maxLblW+MIN_GAP;
-
-  // How many ticks can we fit?
-  const maxTicks=Math.floor(cW/minSpacing);
-  let step=1;
-  if(ticks.length>maxTicks){
-    step=Math.ceil(ticks.length/maxTicks);
-    // For multi-day views prefer steps that land on round days (2,3,7)
-    if(dur>3*86400000){
-      if(step<=2)step=2;
-      else if(step<=3)step=3;
-      else if(step<=7)step=7;
-    }
-  }
-
-  // ── Draw only the culled ticks ──
-  let lastX=-Infinity;
-  ticks.forEach((t,i)=>{
-    if(i%step!==0)return;
-    const x=tx2(t);
-    if(x<pL||x>pL+cW)return;
-    // Extra safety: skip if too close to last drawn label
-    if(x-lastX<minSpacing)return;
-    lastX=x;
-    const lbl=labels[i];
-    ctx.fillStyle='rgba(0,0,0,0.10)';ctx.fillRect(x,pT,1,cH);
+    let lbl;
+    if(dur<=12*3600000)lbl=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    else if(dur<=3*86400000)lbl=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    else lbl=d.toLocaleDateString([],{month:'short',day:'numeric'});
+    ctx.fillStyle='rgba(0,0,0,0.15)';ctx.fillRect(x,pT,1,cH);
     ctx.fillStyle='#9AA3B5';ctx.fillText(lbl,x,pT+cH+pB-6);
   });
 }
@@ -3211,18 +2913,8 @@ function updateForecast(){
   document.getElementById('fcFactors').innerHTML=fh||'<div class="empty" style="padding:10px;"><div class="empty-ic" style="font-size:20px;">⚡</div>No active factors</div>';
   // Recs
   const recs=[];
-  if(f1<cfg.low){
-    // Rule of 15: 15g fast-acting carbs raises BG ~2.1 mmol/L in most adults
-    const bgDeficit=Math.max(0,cfg.low-f1);
-    const rescueCarbs=Math.round((bgDeficit/2.1)*15);
-    recs.push({ic:'🚨',c:'var(--low)',t:'Low Predicted in 1h',b:`${fmt(f1)} mmol/L predicted. Rule of 15: ~${rescueCarbs}g fast-acting carbs to raise BG to target. Recheck in 15 min.`});
-  }
-  if(f3>cfg.high&&f1>cfg.high){
-    const targetBG=(cfg.low+cfg.high)/2;
-    const cu=Math.max(0,(f1-targetBG)/cfg.corrFactor);
-    const cuRounded=Math.round(cu*2)/2;
-    recs.push({ic:'💉',c:'var(--acc)',t:'Correction May Be Needed',b:`Predicted ${fmt(f1)} in 1h. Walsh correction: (${fmt(f1)}−${fmt(targetBG)}) ÷ ${cfg.corrFactor} ≈ ${cuRounded.toFixed(1)}u. Subtract any IOB. Always verify before dosing.`});
-  }
+  if(f1<cfg.low)recs.push({ic:'🚨',c:'var(--low)',t:'Low Predicted in 1h',b:`${fmt(f1)} mmol/L predicted. Consider ${Math.round((cfg.low-f1)*cfg.carbRatio*1.5)}g fast-acting carbs.`});
+  if(f3>cfg.high&&f1>cfg.high){const cu=((f1-cfg.high)/cfg.corrFactor).toFixed(1);recs.push({ic:'💉',c:'var(--acc)',t:'Correction May Be Needed',b:`Predicted ${fmt(f1)} in 1h. ~${cu}u correction estimated. Always verify before dosing.`});}
   if(!recs.length&&f3>=cfg.low&&f3<=cfg.high)recs.push({ic:'✅',c:'var(--ok)',t:'On Track',b:'Forecast looks good for the next 3 hours.'});
   if(!recs.length)recs.push({ic:'💡',c:'var(--t2)',t:'Keep Logging',b:'Log regularly for more accurate predictions.'});
   document.getElementById('fcRecs').innerHTML=recs.map(r=>`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:18px;flex-shrink:0">${r.ic}</div><div><div style="font-size:13px;font-weight:700;color:${r.c};margin-bottom:3px">${r.t}</div><div style="font-size:12px;color:var(--t2);line-height:1.5">${r.b}</div></div></div>`).join('');
@@ -3608,13 +3300,12 @@ function updateHistory(){
     <div class="dglabel">${date}</div>
     <div class="card" style="margin-bottom:0;border-radius:10px;padding:12px 14px;">
       ${rds.map(r=>{
-        const s=r.basalOnly?{cls:'ok',bc:'bok',txt:'BASAL',col:'#7C3AED'}:r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
+        const s=r.value&&r.value>0?getSt(r.value):{cls:'ok',bc:'bok',txt:'MEAL',col:'var(--acc)'};
         const ic=CTX_IC[r.context]||'🩺',cl=CTX_CL[r.context]||'#6B7280';
         const sub=[fT(r.ts),r.insulin?'💉 '+r.insulin+'u bolus':'',r.basal?'🌙 '+r.basal+'u basal':'',r.carbs?'🍞 '+r.carbs+'g':''].filter(Boolean).join(' · ');
-        const valDisplay=r.basalOnly?r.basal+'u':r.isMealOnly?'🍽️':r.value!=null&&r.value>0?fmt(r.value):'—';
-        const unitDisplay=r.basalOnly?'basal':r.isMealOnly?'meal':'mmol/L';
+        const valDisplay=r.isMealOnly?'—':fmt(r.value);
         const editFn=r.isMealOnly?`editMeal(${r._idx})`:`editReading(${r._idx})`;
-        return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col};font-size:${r.isMealOnly?'16px':'18px'}">${valDisplay}</div><div class="ei-u">${unitDisplay}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
+        return`<div class="ei"><div class="ei-ic" style="background:${cl}18">${ic}</div><div class="ei-main"><div class="ei-ctx">${r.context||'Reading'}</div><div class="ei-sub">${sub}</div>${r.notes?`<div class="ei-sub" style="color:var(--t2)">${r.notes}</div>`:''}</div><div class="ei-r"><div class="ei-val" style="color:${s.col}">${valDisplay}</div><div class="ei-u">${r.isMealOnly?'meal':'mmol/L'}</div></div><div class="ei-actions"><button class="ei-act edit" onclick="${editFn}" title="Edit">✏️</button><button class="ei-act del" onclick="deleteEntry(${r._idx})" title="Delete">🗑️</button></div></div>`;
       }).join('')}
     </div>
   `).join('');
@@ -3625,28 +3316,7 @@ function updateHistory(){
 let editingIdx = -1; // index in readings[] being edited
 
 function deleteEntry(idx){
-  const entry=readings[idx];
-  if(!entry)return;
-
-  // Build a descriptive confirmation message
-  const timeStr=fT(entry.ts)+' '+fD(entry.ts);
-  let entryDesc='';
-  if(entry.basalOnly) entryDesc=`basal insulin entry (${entry.basal}u) at ${timeStr}`;
-  else if(entry.isMealOnly) entryDesc=`meal entry "${entry.notes||'Meal'}" at ${timeStr}`;
-  else entryDesc=`reading of ${fmt(entry.value)} mmol/L at ${timeStr}`;
-
-  const hasPreTimer=preMealTimer && entry.insulin && entry.insulin>0 && (entry.context==='Before Meal'||entry.context==='Random Check');
-  const hasPostTimer=postMealTimer && (entry.context==='After Meal'||entry.isMealOnly);
-
-  const timerWarnings=[];
-  if(hasPreTimer) timerWarnings.push('⏱️ The pre-meal timer will be cancelled.');
-  if(hasPostTimer) timerWarnings.push('⏱️ The post-meal BG check timer will be cancelled.');
-
-  const msg=`Delete ${entryDesc}?${timerWarnings.length?' '+timerWarnings.join(' '):''}`;
-
-  appConfirm(msg,()=>{
-    if(hasPreTimer) cancelPreMealTimer();
-    if(hasPostTimer) cancelPostMealTimer();
+  appConfirm('Delete this entry?',()=>{
     readings.splice(idx,1);
     saveReadings();
     refreshAll();
@@ -3676,14 +3346,6 @@ function editReading(idx){
   // Change modal title and button
   document.querySelector('#logSheet .mtitle').textContent='Edit Reading';
   document.querySelector('#logSheet .svbtn').textContent='Update Reading';
-  // Show the date/time edit row and pre-fill with original timestamp
-  const etr=document.getElementById('editTimeRow');
-  if(etr){
-    etr.style.display='block';
-    const d=new Date(r.ts);
-    document.getElementById('editDate').value=d.toLocaleDateString('en-CA'); // YYYY-MM-DD
-    document.getElementById('editTime').value=d.toTimeString().slice(0,5);   // HH:MM
-  }
 }
 
 function editMeal(idx){
@@ -3729,22 +3391,11 @@ function editMeal(idx){
   // Update modal title and button
   document.querySelector('#mealSheet .mtitle').textContent='Edit Meal';
   document.querySelector('#mealSheet .svbtn').textContent='Update Meal';
-  // Show the date/time edit row and pre-fill with original timestamp
-  const metr=document.getElementById('mealEditTimeRow');
-  if(metr){
-    metr.style.display='block';
-    const d=new Date(r.ts);
-    document.getElementById('mealEditDate').value=d.toLocaleDateString('en-CA');
-    document.getElementById('mealEditTime').value=d.toTimeString().slice(0,5);
-  }
 }
 
 // ══════════════ LOG MODAL ══════════════
 function openLogModal(){
   document.getElementById('mbd').classList.add('open');
-  // Hide time edit row for new readings
-  const etr=document.getElementById('editTimeRow');
-  if(etr)etr.style.display='none';
   document.getElementById('glIn').value='';
   document.getElementById('mIns').value='';
   // Auto-fill basal with configured dose; update label with insulin name
@@ -3772,7 +3423,6 @@ function openLogModal(){
 }
 function closeLogModal(){
   document.getElementById('mbd').classList.remove('open');
-  const etr=document.getElementById('editTimeRow');if(etr)etr.style.display='none';
   if(editingIdx>=0){
     editingIdx=-1;
     document.querySelector('#logSheet .mtitle').textContent='Log Reading';
@@ -3795,34 +3445,22 @@ function onGlIn(){
 }
 
 function calcInsulinFromCarbs(){
-  // ── Walsh Bolus Calculator (medical standard) ──────────────────────
-  // Total Bolus = Meal Dose + Correction Dose - IOB
-  // Meal Dose   = Carbs ÷ ICR  (ICR = insulin-to-carb ratio, g per unit)
-  // Correction  = (Current BG - Target BG) ÷ ISF  (ISF = correction factor)
-  // Target BG   = midpoint of user's target range
-  // IOB not tracked here, so user is reminded to account for it
   const carbs=parseFloat(document.getElementById('carbIn').value)||0;
   const curBG=parseFloat(document.getElementById('glIn').value)||0;
-  let ins=0; let note='';
-  const targetBG=(cfg.low+cfg.high)/2; // personalised target midpoint
-
-  if(carbs>0 || curBG>cfg.high){
-    const mealDose = carbs>0 ? carbs/cfg.carbRatio : 0;
-    const corrDose = curBG>targetBG ? Math.max(0,(curBG-targetBG)/cfg.corrFactor) : 0;
-    const raw = mealDose + corrDose;
-    ins = Math.round(raw*2)/2; // round to nearest 0.5u (standard clinical rounding)
-
-    const parts=[];
-    if(mealDose>0) parts.push(`${carbs}g ÷ ${cfg.carbRatio}g/u = ${mealDose.toFixed(2)}u meal`);
-    if(corrDose>0) parts.push(`(${fmt(curBG)}−${fmt(targetBG)}) ÷ ${cfg.corrFactor} = ${corrDose.toFixed(2)}u correction`);
-    note = parts.join(' + ') + (ins!==raw?` → rounded to ${ins}u`:'');
-    if(ins>0) note += ' · ⚠️ Subtract any IOB';
-    document.getElementById('mIns').value=ins>0?ins:'';
+  let ins=0;let note='';
+  if(carbs>0){
+    const carbUnits=carbs/cfg.carbRatio;
+    let corrUnits=0;
+    if(curBG>cfg.high)corrUnits=Math.max(0,(curBG-cfg.high)/cfg.corrFactor);
+    ins=Math.round((carbUnits+corrUnits)*2)/2;// round to nearest 0.5
+    note=`${carbs}g ÷ ${cfg.carbRatio}g/u = ${carbUnits.toFixed(1)}u for carbs`;
+    if(corrUnits>0)note+=` + ${corrUnits.toFixed(1)}u correction`;
+    document.getElementById('mIns').value=ins;
   } else {
-    note='Enter carbs or a high BG to get a dose suggestion';
+    note='Enter carbs to get insulin suggestion';
     document.getElementById('mIns').value='';
   }
-  document.getElementById('suggestedIns').textContent=ins>0?ins.toFixed(1):'0.0';
+  document.getElementById('suggestedIns').textContent=carbs>0?ins.toFixed(1):'0.0';
   document.getElementById('cibNote').textContent=note;
 }
 
@@ -3849,21 +3487,7 @@ function saveReading(){
   if(carbs!==null&&(carbs<0||carbs>500)){toastError('Carbs must be between 0 and 500g.');return;}
   const basalVal=parseFloat(document.getElementById('mBasal').value)||null;
   if(basalVal!==null&&(isNaN(basalVal)||basalVal<0||basalVal>200)){toastError('Basal dose must be between 0 and 200 units.');return;}
-  // Use edited date/time if the time row is visible (editing mode), otherwise now
-  let entryTs=Date.now();
-  if(editingIdx>=0){
-    const etr=document.getElementById('editTimeRow');
-    const dateVal=document.getElementById('editDate').value;
-    const timeVal=document.getElementById('editTime').value;
-    if(etr&&etr.style.display!=='none'&&dateVal&&timeVal){
-      const parsed=new Date(`${dateVal}T${timeVal}`);
-      if(!isNaN(parsed.getTime()))entryTs=parsed.getTime();
-      else entryTs=readings[editingIdx].ts;
-    } else {
-      entryTs=readings[editingIdx].ts;
-    }
-  }
-  const entry={ts:entryTs,value:Math.round(v*10)/10,context:selCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
+  const entry={ts:editingIdx>=0?readings[editingIdx].ts:Date.now(),value:Math.round(v*10)/10,context:selCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
   if(editingIdx>=0){
     readings[editingIdx]=entry;
     editingIdx=-1;
@@ -3879,49 +3503,14 @@ function saveReading(){
   refreshAll();
   // Trigger alarm check on every new reading (not edits)
   if(editingIdx<0) setTimeout(()=>checkAlarms(Math.round(v*10)/10), 400);
-  // Timer logic — only ONE timer at a time:
-  // Pre-meal (20 min wait): when bolus insulin logged BEFORE eating
-  // Post-meal (2 hr BG check): when logging AFTER meal, or auto-chains from pre-meal timer
-  if(editingIdx<0){
-    if(ins && ins>0 && (selCtx==='Before Meal'||selCtx==='Random Check')){
-      // Pre-meal timer only — post-meal will auto-chain when pre-meal completes
-      startPreMealTimer(ins, /*chainPostMeal=*/true);
-    } else if(selCtx==='After Meal'){
-      // Post-meal only — user has already eaten
-      if(preMealTimer){
-        // Pre-meal was running — cancel it, the meal has started
-        cancelPreMealTimer(/*silent=*/true);
-      }
-      startPostMealTimer(0); // No offset from Log Reading — starts from now
-    }
-  }
 }
 
 // ══════════════ MEAL LOG MODAL ══════════════
-function setFirstBite(min, btn){
-  firstBiteOffsetMin=min;
-  document.querySelectorAll('.first-bite-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  // Show when BG check will fire
-  const fireAt=new Date(Date.now()+(2*60-min)*60000);
-  const timeStr=fireAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  const hint=document.getElementById('firstBiteFireAt');
-  if(hint) hint.textContent=timeStr;
-}
-
 function openMealModal(){
   document.getElementById('mealMbd').classList.add('open');
   switchMealTab('manual');
   resetManualMeal();
   mealCamImageData=null;
-  // Reset first bite picker
-  firstBiteOffsetMin=0;
-  document.querySelectorAll('.first-bite-btn').forEach(b=>b.classList.remove('active'));
-  const firstJustNow=document.querySelector('.first-bite-btn[data-min="0"]');
-  if(firstJustNow) firstJustNow.classList.add('active');
-  // Set default fire time label
-  const hint=document.getElementById('firstBiteFireAt');
-  if(hint){const t=new Date(Date.now()+2*3600000);hint.textContent=t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
   // Reset camera tab
   const img=document.getElementById('camPreviewImg');
   img.style.display='none';img.src='';
@@ -3935,7 +3524,6 @@ function openMealModal(){
 }
 function closeMealModal(){
   document.getElementById('mealMbd').classList.remove('open');
-  const metr=document.getElementById('mealEditTimeRow');if(metr)metr.style.display='none';
   if(editingIdx>=0){
     editingIdx=-1;
     document.querySelector('#mealSheet .mtitle').textContent='Log Meal';
@@ -4009,98 +3597,51 @@ function onFoodInput(input) {
   foodDebounceTimers.set(input, timer);
 }
 
-// ── Built-in food database (works offline, no API key needed) ──
-const FOOD_DB = [
-  // Grains & Staples
-  {n:'White rice, cooked',c:43,g:186,cat:'🍚'},{n:'Brown rice, cooked',c:46,g:195,cat:'🍚'},
-  {n:'Basmati rice, cooked',c:38,g:180,cat:'🍚'},{n:'Pap / Maize meal, cooked',c:48,g:200,cat:'🫓'},
-  {n:'Samp, cooked',c:52,g:200,cat:'🫓'},{n:'Mielie bread (1 slice)',c:22,g:40,cat:'🍞'},
-  {n:'White bread (1 slice)',c:15,g:30,cat:'🍞'},{n:'Brown bread (1 slice)',c:13,g:30,cat:'🍞'},
-  {n:'Whole wheat bread (1 slice)',c:12,g:30,cat:'🍞'},{n:'Rye bread (1 slice)',c:15,g:32,cat:'🍞'},
-  {n:'Pasta, cooked (1 cup)',c:43,g:140,cat:'🍝'},{n:'Spaghetti, cooked (1 cup)',c:43,g:140,cat:'🍝'},
-  {n:'Couscous, cooked (1 cup)',c:36,g:157,cat:'🫓'},{n:'Oats, cooked (1 cup)',c:27,g:234,cat:'🥣'},
-  {n:'Cornflakes (1 cup)',c:24,g:28,cat:'🥣'},{n:'Weetbix (2 biscuits)',c:26,g:37,cat:'🥣'},
-  {n:'Pronutro (3/4 cup)',c:30,g:50,cat:'🥣'},{n:'Maltabella (1 cup cooked)',c:32,g:200,cat:'🥣'},
-  // Potatoes & Starchy Veg
-  {n:'Potato, boiled (medium)',c:37,g:150,cat:'🥔'},{n:'Potato, baked (medium)',c:37,g:150,cat:'🥔'},
-  {n:'Sweet potato, cooked (medium)',c:27,g:130,cat:'🍠'},{n:'Chips / French fries (medium)',c:48,g:150,cat:'🍟'},
-  {n:'Butternut, cooked (1 cup)',c:22,g:205,cat:'🎃'},{n:'Gem squash, cooked (1)',c:8,g:200,cat:'🥦'},
-  // Legumes
-  {n:'Lentils, cooked (1 cup)',c:40,g:198,cat:'🫘'},{n:'Chickpeas, cooked (1 cup)',c:45,g:164,cat:'🫘'},
-  {n:'Kidney beans, cooked (1 cup)',c:40,g:177,cat:'🫘'},{n:'Baked beans (1/2 cup)',c:27,g:130,cat:'🫘'},
-  {n:'Butter beans, cooked (1 cup)',c:41,g:180,cat:'🫘'},{n:'Hummus (2 tbsp)',c:6,g:30,cat:'🫘'},
-  // Fruits
-  {n:'Apple (medium)',c:25,g:182,cat:'🍎'},{n:'Banana (medium)',c:27,g:118,cat:'🍌'},
-  {n:'Orange (medium)',c:15,g:131,cat:'🍊'},{n:'Mango (1 cup)',c:25,g:165,cat:'🥭'},
-  {n:'Grapes (1 cup)',c:28,g:151,cat:'🍇'},{n:'Watermelon (1 cup)',c:12,g:152,cat:'🍉'},
-  {n:'Pear (medium)',c:27,g:178,cat:'🍐'},{n:'Peach (medium)',c:15,g:150,cat:'🍑'},
-  {n:'Pawpaw / Papaya (1 cup)',c:16,g:145,cat:'🍈'},{n:'Pineapple (1 cup)',c:22,g:165,cat:'🍍'},
-  {n:'Strawberries (1 cup)',c:11,g:152,cat:'🍓'},{n:'Melon (1 cup)',c:13,g:160,cat:'🍈'},
-  // Dairy
-  {n:'Full cream milk (1 cup)',c:12,g:244,cat:'🥛'},{n:'Low fat milk (1 cup)',c:12,g:244,cat:'🥛'},
-  {n:'Plain yoghurt (1 cup)',c:17,g:245,cat:'🥛'},{n:'Flavoured yoghurt (1 cup)',c:31,g:245,cat:'🥛'},
-  {n:'Ice cream (1 scoop)',c:17,g:66,cat:'🍦'},
-  // Snacks & Sweets
-  {n:'Provitas (4 crackers)',c:20,g:32,cat:'🍘'},{n:'Cream crackers (4)',c:24,g:40,cat:'🍘'},
-  {n:'Marie biscuits (4)',c:28,g:40,cat:'🍪'},{n:'Tennis biscuits (4)',c:24,g:36,cat:'🍪'},
-  {n:'Rusks (1 piece)',c:30,g:50,cat:'🍪'},{n:'Chocolate (1 small bar)',c:28,g:50,cat:'🍫'},
-  {n:'Chips / Crisps (small bag)',c:26,g:45,cat:'🥨'},{n:'Popcorn (2 cups)',c:14,g:32,cat:'🍿'},
-  // Drinks
-  {n:'Orange juice (1 cup)',c:26,g:248,cat:'🥤'},{n:'Apple juice (1 cup)',c:29,g:248,cat:'🥤'},
-  {n:'Coke / Cola (330ml can)',c:35,g:330,cat:'🥤'},{n:'Fanta / Soft drink (330ml)',c:36,g:330,cat:'🥤'},
-  {n:'Milk (250ml)',c:12,g:250,cat:'🥛'},
-  // SA-specific meals
-  {n:'Bunny chow (quarter loaf)',c:80,g:350,cat:'🍛'},{n:'Boerewors roll',c:30,g:180,cat:'🌭'},
-  {n:'Vetkoek (1 medium)',c:45,g:120,cat:'🫓'},{n:'Koeksister (1)',c:30,g:50,cat:'🍩'},
-  {n:'Melktert (1 slice)',c:35,g:120,cat:'🥧'},{n:'Paptert (1 slice)',c:40,g:150,cat:'🥧'},
-  {n:'Braai bread (1 slice)',c:22,g:50,cat:'🍞'},{n:'Samoosa (1)',c:18,g:50,cat:'🥟'},
-  {n:'Roti (1 medium)',c:30,g:80,cat:'🫓'},{n:'Naan (1 piece)',c:45,g:120,cat:'🍞'},
-  // Proteins (low carb — still shown for completeness)
-  {n:'Egg (1 large)',c:0,g:50,cat:'🥚'},{n:'Chicken breast, grilled (100g)',c:0,g:100,cat:'🍗'},
-  {n:'Beef mince, cooked (100g)',c:0,g:100,cat:'🥩'},{n:'Tuna in water (1 can)',c:0,g:140,cat:'🐟'},
-  // Common combos
-  {n:'Pap & vleis (1 plate)',c:60,g:400,cat:'🍽️'},{n:'Rice & chicken curry (1 plate)',c:65,g:400,cat:'🍛'},
-  {n:'Spaghetti bolognaise (1 plate)',c:55,g:350,cat:'🍝'},{n:'Fish & chips (1 portion)',c:70,g:400,cat:'🐟'},
-];
+async function fetchFoodSuggestions(query, input, dropdown) {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        messages: [{role: 'user', content: `List 4 common serving sizes for "${query}" with carb content. Return ONLY a raw JSON array, no markdown, no explanation:\n[{"name":"Cooked white rice (1 cup)","carbs":45,"grams":186},{"name":"Brown bread (1 slice)","carbs":15,"grams":30}]\nRules: realistic portions, accurate carbs. If food unknown, estimate. Always return at least 1 result.`}]
+      })
+    });
+    if (!resp.ok) {
+      dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ Lookup unavailable — enter carbs manually</div>';
+      return;
+    }
+    const data = await resp.json();
+    if (data.error) {
+      dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ ' + (data.error.message||'API error — enter carbs manually') + '</div>';
+      return;
+    }
+    const txt = (data.content || []).map(c => c.text || '').join('');
+    let items;
+    try {
+      const clean = txt.replace(/```json|```/g,'').trim();
+      items = JSON.parse(clean);
+      if (!Array.isArray(items)) items = [];
+    } catch { items = []; }
 
-function fetchFoodSuggestions(query, input, dropdown) {
-  const q = query.toLowerCase().trim();
-  if (!q) { dropdown.classList.remove('open'); return; }
+    if (!items.length) {
+      dropdown.innerHTML = '<div class="food-sugg-loading">No results — enter carbs manually</div>';
+      return;
+    }
 
-  // Score each food by how well it matches
-  const results = FOOD_DB
-    .map(f => {
-      const name = f.n.toLowerCase();
-      let score = 0;
-      if (name.startsWith(q)) score = 100;
-      else if (name.includes(q)) score = 50;
-      else {
-        // word-by-word match
-        const words = q.split(' ');
-        words.forEach(w => { if (w.length > 2 && name.includes(w)) score += 20; });
-      }
-      return { ...f, score };
-    })
-    .filter(f => f.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-
-  if (!results.length) {
-    dropdown.innerHTML = '<div class="food-sugg-loading">No matches — try a different name or enter carbs manually</div>';
+    dropdown.innerHTML = items.map((item) => `
+      <div class="food-sugg-item" onmousedown="selectFood(event,'${escQ(item.name)}',${item.carbs},this)">
+        <div>
+          <div class="food-sugg-name">${escH(item.name)}</div>
+          <div class="food-sugg-per">${item.grams ? item.grams + 'g serving' : ''}</div>
+        </div>
+        <div class="food-sugg-carbs">${item.carbs}g <span style="font-size:10px;color:var(--t3)">carbs</span></div>
+      </div>`).join('');
     dropdown.classList.add('open');
-    return;
+  } catch(e) {
+    dropdown.innerHTML = '<div class="food-sugg-loading">⚠️ Network error — enter carbs manually</div>';
   }
-
-  dropdown.innerHTML = results.map(f =>
-    `<div class="food-sugg-item" onmousedown="selectFood(event,'${escQ(f.n)}',${f.c},this)">
-      <div>
-        <div class="food-sugg-name">${f.cat} ${escH(f.n)}</div>
-        <div class="food-sugg-per">${f.g}g serving</div>
-      </div>
-      <div class="food-sugg-carbs">${f.c}g <span style="font-size:10px;color:var(--t3)">carbs</span></div>
-    </div>`
-  ).join('');
-  dropdown.classList.add('open');
 }
 
 function escQ(s){ return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
@@ -4147,13 +3688,11 @@ function recalcMealTotals(){
     }
   }
   if(total>0){
-    // Walsh meal dose — carbs only (no current BG available in meal modal)
-    const mealDose=total/cfg.carbRatio;
-    const ins=Math.round(mealDose*2)/2;
-    document.getElementById('mealInsRec').textContent=`💉 Meal dose: ${Math.round(total)}g ÷ ${cfg.carbRatio}g/u = ${ins.toFixed(1)}u · Add correction if BG is high`;
+    const ins=Math.round((total/cfg.carbRatio)*2)/2;
+    document.getElementById('mealInsRec').textContent=`💉 Suggested insulin: ${ins.toFixed(1)}u (${Math.round(total)}g ÷ ${cfg.carbRatio}g/u)`;
     document.getElementById('mealIns').value=ins;
   } else {
-    document.getElementById('mealInsRec').textContent='Search foods above or enter carbs manually';
+    document.getElementById('mealInsRec').textContent='Search foods above or tap AI Carb Lookup';
     document.getElementById('mealIns').value='';
   }
 }
@@ -4165,13 +3704,12 @@ async function analyseFullMeal(){
     if(inp.value.trim())items.push(inp.value.trim());
   });
   if(!items.length){toastWarn('Add at least one food item first.');return;}
-  if(!getApiKey()){toastError('Add your Anthropic API key in Settings → AI Features.');return;}
   const btn=document.getElementById('fullMealAiBtn');
   btn.textContent='🔄 Analysing…';btn.disabled=true;
   try{
-    const resp=await fetch(getApiEndpoint(),{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:getApiHeaders(),
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-haiku-4-5-20251001',
         max_tokens:500,
@@ -4224,8 +3762,6 @@ function handleCamUpload(e){
     img.src=mealCamImageData;img.style.display='block';
     document.getElementById('camAreaPlaceholder').style.display='none';
     document.getElementById('analyzeBtn').disabled=false;
-    const hint=document.getElementById('aiKeyHint');
-    if(hint)hint.style.display=getApiKey()?'none':'block';
   };
   r.readAsDataURL(file);
   e.target.value='';
@@ -4233,15 +3769,14 @@ function handleCamUpload(e){
 
 async function runMealAnalysis(){
   if(!mealCamImageData){toastError('Please take or upload a photo first.');return;}
-  if(!getApiKey()){toastError('Add your Anthropic API key in Settings → AI Features.');return;}
   const btn=document.getElementById('analyzeBtn');
   btn.disabled=true;btn.textContent='🔄 Analysing…';
   try{
     const b64=mealCamImageData.split(',')[1];
     const mt=mealCamImageData.startsWith('data:image/png')?'image/png':'image/jpeg';
-    const resp=await fetch(getApiEndpoint(),{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:getApiHeaders(),
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:[
@@ -4278,7 +3813,7 @@ function showCamResult(d){
     `<div class="crb-stat">GI: <span>${d.glycemicIndex||'—'}</span></div>`;
   document.getElementById('crbItems').innerHTML=d.items?.map(i=>`• ${i}`).join('<br>')||'';
   document.getElementById('aiCarbs').textContent=d.totalCarbs||0;
-  document.getElementById('aiInsRec').textContent=`💉 Meal dose: ${d.totalCarbs}g ÷ ${cfg.carbRatio}g/u = ${ins.toFixed(1)}u · Add correction if BG is high`;
+  document.getElementById('aiInsRec').textContent=`💉 Suggested insulin: ${ins.toFixed(1)}u (${d.totalCarbs}g ÷ ${cfg.carbRatio}g/u)`;
   document.getElementById('aiMealIns').value=ins;
   document.getElementById('camResultBox').style.display='block';
   document.getElementById('analyzeBtn').textContent='🔍 Re-analyse';
@@ -4308,20 +3843,8 @@ function saveMeal(){
   if(ins<0||ins>100){toastError('Insulin dose must be between 0 and 100 units.');return;}
   // Use last BG value for context, or mark as meal-only with value=null stored as -1 (filtered from chart)
   const latBG=readings.filter(r=>!r.isMealOnly&&r.value>0).slice(-1)[0]?.value||0;
-  // Use edited date/time if time row is visible (editing mode)
-  let mealTs=Date.now();
-  if(editingIdx>=0){
-    const metr=document.getElementById('mealEditTimeRow');
-    const dateVal=document.getElementById('mealEditDate').value;
-    const timeVal=document.getElementById('mealEditTime').value;
-    if(metr&&metr.style.display!=='none'&&dateVal&&timeVal){
-      const parsed=new Date(`${dateVal}T${timeVal}`);
-      if(!isNaN(parsed.getTime()))mealTs=parsed.getTime();
-      else mealTs=readings[editingIdx].ts;
-    } else mealTs=readings[editingIdx].ts;
-  }
   const mealEntry={
-    ts:mealTs,
+    ts:editingIdx>=0?readings[editingIdx].ts:Date.now(),
     value:latBG>0?latBG:null,
     context:'Meal',
     insulin:ins>0?ins:null,
@@ -4338,14 +3861,6 @@ function saveMeal(){
   } else {
     readings.push(mealEntry);
     toastSuccess(`Meal logged: ${Math.round(carbs)}g carbs · ${ins>0?ins+'u insulin':''}`);
-    // Only pre-meal timer when logging a meal with insulin (about to eat)
-    // Post-meal timer will auto-chain once the 20-min pre-meal wait is done
-    if(ins>0){
-      startPreMealTimer(ins, /*chainPostMeal=*/true);
-    } else {
-      // No insulin — meal already being eaten, start post-meal BG check directly
-      startPostMealTimer(firstBiteOffsetMin);
-    }
   }
   saveReadings();
   closeMealModal();
@@ -4394,13 +3909,12 @@ function showFsPreview(dataUrl){
   document.getElementById('camfsVideo').style.display='none';
 }
 async function analyzeFsMeal(imgData){
-  if(!getApiKey()){closeCamFull();toastError('Add your Anthropic API key in Settings → AI Features.');return;}
   document.getElementById('camfsAnalyzing').classList.add('show');
   try{
     const b64=imgData.split(',')[1];
     const mt=imgData.startsWith('data:image/png')?'image/png':'image/jpeg';
-    const resp=await fetch(getApiEndpoint(),{
-      method:'POST',headers:getApiHeaders(),
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mt,data:b64}},
@@ -4445,74 +3959,6 @@ If no meal: {"error":"Could not identify a meal"}`}
 }
 
 // ══════════════ SETTINGS ══════════════
-// ══════════════ API KEY ══════════════
-function getApiKey(){return localStorage.getItem('gt_apikey')||'';}
-
-function saveApiKey(){
-  const v=(document.getElementById('sApiKey')?.value||'').trim();
-  if(v)localStorage.setItem('gt_apikey',v);
-  else localStorage.removeItem('gt_apikey');
-  const st=document.getElementById('apiKeyStatus');
-  if(st){
-    if(v){st.style.display='block';st.style.background='var(--ok-bg)';st.style.color='var(--ok)';st.textContent='✅ API key saved — AI features active.';}
-    else{st.style.display='block';st.style.background='var(--hi-bg)';st.style.color='var(--hi)';st.textContent='⚠️ API key cleared — AI features disabled.';}
-    setTimeout(()=>{st.style.display='none';},3000);
-  }
-}
-
-async function testApiKey(){
-  const key=getApiKey();
-  if(!key){toastError('Enter your API key first.');return;}
-  const st=document.getElementById('apiKeyStatus');
-  if(st){st.style.display='block';st.style.background='var(--acc-bg)';st.style.color='var(--acc)';st.textContent='🔄 Testing key…';}
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:getApiHeaders(),
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:20,messages:[{role:'user',content:'Say OK'}]})
-    });
-    const d=await r.json();
-    if(d.error)throw new Error(d.error.message||'API error');
-    if(st){st.style.background='var(--ok-bg)';st.style.color='var(--ok)';st.textContent='✅ Key works! AI features active.';}
-    toastSuccess('API key works! AI features active.');
-  }catch(e){
-    if(st){st.style.background='var(--low-bg)';st.style.color='var(--low)';st.textContent='❌ '+(e.message||'Invalid key — check and try again.');}
-    toastError('Key test failed: '+(e.message||'Invalid key'));
-  }
-}
-
-function loadApiKeyUI(){
-  const el=document.getElementById('sApiKey');
-  if(el){const k=getApiKey();el.value=k?'•'.repeat(Math.min(k.length,36)):'';}
-  const st=document.getElementById('apiKeyStatus');
-  if(st&&!getApiKey()){
-    st.style.display='block';
-    st.style.background='var(--hi-bg)';st.style.color='var(--hi)';
-    st.textContent='⚠️ No API key set — AI features (meal scan, food search) are disabled.';
-  }
-}
-
-function getApiHeaders(){
-  return{
-    'Content-Type':'application/json',
-    'anthropic-version':'2023-06-01',
-    'anthropic-dangerous-direct-browser-access':'true',
-    'x-api-key':getApiKey()
-  };
-}
-
-function getApiEndpoint(){
-  return 'https://api.anthropic.com/v1/messages';
-}
-
-function checkApiKey(){
-  if(!getApiKey()){
-    toastError('No API key set — go to Settings → AI Features to add your key.');
-    return false;
-  }
-  return true;
-}
-
 function saveSettings(){
   const lo=parseFloat(document.getElementById('sLow').value);
   const hi=parseFloat(document.getElementById('sHigh').value);
@@ -4529,10 +3975,6 @@ function saveSettings(){
   cfg={low:lo,high:hi,carbRatio:cr,corrFactor:cf,basalName,basalDose,basalTime};
   saveCfg();
   scheduleBasalReminder();
-  updateBasalReminderStatus(
-    parseInt((cfg.basalTime||'18:00').split(':')[0]),
-    parseInt((cfg.basalTime||'18:00').split(':')[1])
-  );
   document.getElementById('carbRatioDisplay').textContent=cr;
   document.getElementById('corrDisplay').textContent=cf;
   refreshAll();
@@ -4540,15 +3982,6 @@ function saveSettings(){
 }
 
 function loadSettingsUI(){
-  loadApiKeyUI();
-  // Update notification permission status
-  const ns=document.getElementById('notifStatus');
-  if(ns){
-    if(!('Notification' in window)) ns.textContent='Not supported in this browser';
-    else if(Notification.permission==='granted') ns.textContent='✅ Enabled — alerts fire even when screen is locked';
-    else if(Notification.permission==='denied') ns.textContent='❌ Blocked — go to phone Settings → Apps → Browser → Notifications';
-    else ns.textContent='Not yet enabled — tap Enable';
-  }
   document.getElementById('sLow').value=cfg.low;
   document.getElementById('sHigh').value=cfg.high;
   document.getElementById('sCarbRatio').value=cfg.carbRatio||10;
@@ -4558,9 +3991,6 @@ function loadSettingsUI(){
   if(document.getElementById('sBasalName'))document.getElementById('sBasalName').value=cfg.basalName||'Lantus';
   if(document.getElementById('sBasalDose'))document.getElementById('sBasalDose').value=cfg.basalDose||0;
   if(document.getElementById('sBasalTime'))document.getElementById('sBasalTime').value=cfg.basalTime||'18:00';
-  // Update reminder status display
-  const bt=cfg.basalTime||'18:00';
-  updateBasalReminderStatus(parseInt(bt.split(':')[0]),parseInt(bt.split(':')[1]));
 }
 
 function exportCSV(){
@@ -4585,7 +4015,6 @@ function exportCSV(){
   toastSuccess('Exported '+readings.length+' readings.');
 }
 // ══════════════ LIBRE CSV IMPORT ══════════════
-/* FreeStyle Libre import — temporarily disabled
 function importLibreCSV(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
@@ -4690,213 +4119,6 @@ function importLibreCSV(e){
   reader.readAsText(file);
 }
 
-*/
-
-// ══════════════ MYSUGR / ACCU-CHEK CSV IMPORT ══════════════
-// mySugr export format (Settings → More → Export Data → CSV):
-// Columns include: Date, Time, Blood Sugar Measurement (mg/dL or mmol/L),
-// Bolus Amount, Meal Bolus, Correction Bolus, Carbohydrates, Notes, Tags
-// The app auto-detects mmol/L vs mg/dL and converts if needed.
-
-function importMySugrCSV(e){
-  const file=e.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const text=ev.target.result;
-      const lines=text.split(/\r?\n/).filter(l=>l.trim());
-      if(lines.length<2){toastError('File appears empty. Export from mySugr and try again.');e.target.value='';return;}
-
-      // ── Find header row ──
-      // mySugr exports vary by locale — scan first 10 rows
-      let headerIdx=-1;
-      for(let i=0;i<Math.min(10,lines.length);i++){
-        const lower=lines[i].toLowerCase();
-        const hasDate=lower.includes('date')||lower.includes('datum')||lower.includes('fecha')||lower.includes('data');
-        const hasMeasure=lower.includes('blood')||lower.includes('glucose')||lower.includes('blutzucker')||lower.includes('bolus')||lower.includes('sugar')||lower.includes('zucker')||lower.includes('mg/')||lower.includes('mmol');
-        if(hasDate&&hasMeasure){headerIdx=i;break;}
-      }
-      if(headerIdx===-1){
-        // Fallback: row with most commas/semicolons
-        let maxSep=0;
-        for(let i=0;i<Math.min(8,lines.length);i++){
-          const seps=(lines[i].match(/[,;]/g)||[]).length;
-          if(seps>maxSep){maxSep=seps;headerIdx=i;}
-        }
-      }
-      if(headerIdx===-1){
-        toastError('Could not read mySugr CSV format. Export via mySugr → More → Export Data.');
-        e.target.value='';return;
-      }
-
-      // mySugr uses semicolons in European locales
-      const sep=(lines[headerIdx].match(/;/g)||[]).length>(lines[headerIdx].match(/,/g)||[]).length?';':',';
-      const parseRow=(line)=>{
-        if(sep===';') return line.split(';').map(f=>f.trim().replace(/^"|"$/g,''));
-        return parseCSVRow(line);
-      };
-
-      const headers=parseRow(lines[headerIdx]).map(h=>h.trim().toLowerCase().replace(/["\']/g,''));
-
-      // ── Broad column matching — English, German, Portuguese ──
-      const col=(keywords)=>headers.findIndex(h=>keywords.some(k=>h.includes(k)));
-
-      const dateCol = col(['date','datum','fecha','data dia']);
-      const timeCol = col(['time','zeit','hora','uhrzeit']);
-      const bgCol   = col(['blood sugar measurement','blood sugar','blood glucose','blutzucker','glucose (mmol','glucose (mg','glucose(','sugar (','messung','measurement','medição','glucosa','mmol/l','mg/dl']);
-      const bolusCol  = col(['bolus (insulin)','bolus(insulin)','bolus amount','total bolus','bolus (u','insulindosis','total insulin','bolus [']);
-      const mealBCol  = col(['meal bolus','food bolus','mahlzeitenbolus','meal insulin']);
-      const corrBCol  = col(['correction bolus','korrekturbolus','correction insulin']);
-      const carbCol   = col(['carbohydrates (g)','carbohydrates(g)','carbohydrates [','carbohydrates','kohlenhydrate','kh (g)','carb [','carboidratos','hidratos']);
-      const notesCol  = col(['note','notes','comment','notiz','remark','kommentar']);
-      const tagsCol   = col(['tags','tag','activity','context','kategorie']);
-      const unitCol   = col(['unit','units','einheit']);
-
-      if(dateCol===-1||bgCol===-1){
-        const sample=headers.slice(0,8).join(' | ');
-        toastError(`Could not map columns. Headers found: ${sample}`);
-        console.warn('mySugr columns: headers=',headers,'dateCol=',dateCol,'bgCol=',bgCol);
-        e.target.value='';return;
-      }
-
-      // ── Detect unit (mmol/L vs mg/dL) ──
-      let isMgDl=false;
-      if(bgCol>-1){
-        const bgHeader=headers[bgCol]||'';
-        if(bgHeader.includes('mg/dl')||bgHeader.includes('mg dl')||bgHeader.includes('mg_dl'))isMgDl=true;
-        else if(bgHeader.includes('mmol'))isMgDl=false;
-        else{
-          // Sniff first 15 data rows — mg/dL values are >30, mmol/L are <30
-          let sniffVals=[];
-          for(let i=headerIdx+1;i<Math.min(headerIdx+16,lines.length);i++){
-            const row=parseRow(lines[i]);
-            const v=parseFloat((row[bgCol]||'').replace(/[^0-9.]/g,''));
-            if(!isNaN(v)&&v>0)sniffVals.push(v);
-          }
-          if(sniffVals.length>0){
-            const avgVal=sniffVals.reduce((a,b)=>a+b,0)/sniffVals.length;
-            isMgDl=avgVal>30; // mmol/L is always <30, mg/dL always >40
-          }
-        }
-      }
-
-      let imported=0, skipped=0, duplicates=0;
-      const newReadings=[];
-
-      for(let i=headerIdx+1;i<lines.length;i++){
-        const row=parseRow(lines[i]);
-        if(row.length<2)continue;
-
-        // ── Parse date + time ──
-        const dateRaw=(row[dateCol]||'').replace(/["\']/g,'').trim();
-        const timeRaw=timeCol>-1?(row[timeCol]||'').replace(/["\']/g,'').trim():'00:00';
-        if(!dateRaw)continue;
-
-        const ts=parseMySugrTimestamp(dateRaw,timeRaw);
-        if(!ts){skipped++;continue;}
-
-        // ── Parse glucose ──
-        const bgRaw=(row[bgCol]||'').replace(/[^0-9.]/g,'').trim();
-        if(!bgRaw){skipped++;continue;}
-        let val=parseFloat(bgRaw);
-        if(isNaN(val)||val<=0){skipped++;continue;}
-        // Convert mg/dL → mmol/L
-        if(isMgDl) val=Math.round((val/18.0182)*10)/10;
-        if(val<1.0||val>33.3){skipped++;continue;}
-
-        // ── Parse insulin ──
-        let insulin=null;
-        const bolusRaw=bolusCol>-1?(row[bolusCol]||'').replace(/[^0-9.]/g,''):
-                       mealBCol>-1?(row[mealBCol]||'').replace(/[^0-9.]/g,''):
-                       corrBCol>-1?(row[corrBCol]||'').replace(/[^0-9.]/g,''):'';
-        if(bolusRaw){const b=parseFloat(bolusRaw);if(!isNaN(b)&&b>0)insulin=b;}
-
-        // ── Parse carbs ──
-        let carbs=null;
-        if(carbCol>-1){const c=parseFloat((row[carbCol]||'').replace(/[^0-9.]/g,''));if(!isNaN(c)&&c>0)carbs=Math.round(c);}
-
-        // ── Parse context from tags ──
-        let context='Random Check';
-        if(tagsCol>-1){
-          const tag=(row[tagsCol]||'').toLowerCase();
-          if(tag.includes('before meal')||tag.includes('pre meal')||tag.includes('pre-meal'))context='Before Meal';
-          else if(tag.includes('after meal')||tag.includes('post meal')||tag.includes('post-meal'))context='After Meal';
-          else if(tag.includes('bed')||tag.includes('sleep')||tag.includes('night'))context='Before Bed';
-          else if(tag.includes('wak')||tag.includes('morning')||tag.includes('fasting'))context='Waking Up';
-          else if(tag.includes('exercise')||tag.includes('sport')||tag.includes('gym'))context='After Exercise';
-        }
-
-        // ── Parse notes ──
-        const notes=notesCol>-1?(row[notesCol]||'').replace(/["\']/g,'').trim():'';
-
-        // ── Skip duplicates (within 1 min) ──
-        const isDupe=readings.some(r=>Math.abs(r.ts-ts)<60000&&!r.isMealOnly);
-        if(isDupe){duplicates++;continue;}
-
-        newReadings.push({
-          ts,
-          value:Math.round(val*10)/10,
-          context,
-          insulin,
-          carbs,
-          isMealOnly:false,
-          notes:notes||'mySugr import'
-        });
-        imported++;
-      }
-
-      if(imported===0){
-        // Diagnostic: show what headers were detected to help debug
-        const foundCols=`Date:${dateCol} BG:${bgCol} Time:${timeCol}`;
-        const headerSample=headers.slice(0,6).join(' | ');
-        toastError(`No readings imported. Headers found: ${headerSample}. Skipped:${skipped} Dupes:${duplicates}`);
-        console.warn('mySugr import: headers detected:',headers,'dateCol:',dateCol,'bgCol:',bgCol,'sep:',sep);
-        e.target.value='';return;
-      }
-
-      readings=[...readings,...newReadings].sort((a,b)=>a.ts-b.ts);
-      saveReadings();
-      refreshAll();
-
-      // Navigate to history so user can see the imported data
-      goTo('history');
-
-      let msg=`✅ Imported ${imported} readings from mySugr`;
-      if(isMgDl) msg+=` (converted from mg/dL to mmol/L)`;
-      if(duplicates>0) msg+=` · ${duplicates} duplicates skipped`;
-      if(skipped>0) msg+=` · ${skipped} invalid rows skipped`;
-      toastSuccess(msg);
-
-    }catch(err){
-      toastError('Import failed: '+(err.message||'Unknown error'));
-      console.error('mySugr import error:',err);
-    }
-    e.target.value='';
-  };
-  reader.readAsText(file);
-}
-
-function parseMySugrTimestamp(dateRaw, timeRaw){
-  // mySugr uses: DD.MM.YYYY or DD/MM/YYYY or YYYY-MM-DD
-  // Time: HH:MM or HH:MM:SS
-  dateRaw=dateRaw.trim(); timeRaw=(timeRaw||'00:00').trim();
-  let d;
-  if(/^\d{2}\.\d{2}\.\d{4}/.test(dateRaw)){
-    // DD.MM.YYYY (European, most common in mySugr)
-    const [dd,mm,yyyy]=dateRaw.split('.');
-    d=new Date(`${yyyy}-${mm}-${dd}T${timeRaw.length===5?timeRaw+':00':timeRaw}`);
-  } else if(/^\d{4}-\d{2}-\d{2}/.test(dateRaw)){
-    d=new Date(`${dateRaw}T${timeRaw.length===5?timeRaw+':00':timeRaw}`);
-  } else if(/^\d{2}\/\d{2}\/\d{4}/.test(dateRaw)){
-    const [dd,mm,yyyy]=dateRaw.split('/');
-    d=new Date(`${yyyy}-${mm}-${dd}T${timeRaw.length===5?timeRaw+':00':timeRaw}`);
-  } else {
-    d=new Date(dateRaw+' '+timeRaw);
-  }
-  if(isNaN(d.getTime()))return null;
-  return d.getTime();
-}
-
 function parseCSVRow(line){
   // Handles quoted fields with commas inside
   const result=[];let cur='';let inQ=false;
@@ -4979,241 +4201,32 @@ function doLogBasal(dose,name){
   toastSuccess(`🌙 ${name} ${dose}u logged`);
 }
 
-let basalPreTimer=null;   // fires 15 min before
-let basalOnTimeTimer=null; // fires at injection time
-
+let basalReminderTimer=null;
 function scheduleBasalReminder(){
-  // Clear any existing timers
-  if(basalPreTimer){clearTimeout(basalPreTimer);clearInterval(basalPreTimer);basalPreTimer=null;}
-  if(basalOnTimeTimer){clearTimeout(basalOnTimeTimer);clearInterval(basalOnTimeTimer);basalOnTimeTimer=null;}
-
+  if(basalReminderTimer)clearTimeout(basalReminderTimer);
   const timeStr=cfg.basalTime||'18:00';
-  const [h,m]=timeStr.split(':').map(Number);
-  if(isNaN(h)||isNaN(m))return;
-
-  const dose=cfg.basalDose||0;
-  if(!dose)return; // no reminder if dose not configured
-
-  // Calculate next injection time
+  const [h,m]=(timeStr).split(':').map(Number);
   const now=new Date();
-  const nextInject=new Date();
-  nextInject.setHours(h,m,0,0);
-  if(nextInject<=now)nextInject.setDate(nextInject.getDate()+1);
-
-  // 15-min pre-reminder
-  const nextPre=new Date(nextInject.getTime()-15*60000);
-  const msPre=nextPre-now;
-
-  // Update the status display in settings
-  updateBasalReminderStatus(h,m);
-
-  // Schedule 15-min warning
-  const schedulePre=()=>{
-    fireBasalPreReminder();
-    basalPreTimer=setInterval(fireBasalPreReminder,24*3600000);
-  };
-  if(msPre>0){
-    basalPreTimer=setTimeout(schedulePre,msPre);
-  } else {
-    // Pre-time already passed today, schedule for tomorrow
-    basalPreTimer=setTimeout(schedulePre,msPre+24*3600000);
-  }
-
-  // Schedule on-time reminder
-  const msInject=nextInject-now;
-  const scheduleOnTime=()=>{
-    fireBasalOnTimeReminder();
-    basalOnTimeTimer=setInterval(fireBasalOnTimeReminder,24*3600000);
-  };
-  basalOnTimeTimer=setTimeout(scheduleOnTime,msInject);
+  const next=new Date();
+  next.setHours(h,m,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);// schedule for tomorrow if already passed
+  const msUntil=next-now;
+  basalReminderTimer=setTimeout(()=>{
+    fireBasalReminder();
+    // Then repeat every 24h
+    basalReminderTimer=setInterval(fireBasalReminder,24*3600000);
+  },msUntil);
 }
 
-function updateBasalReminderStatus(h,m){
-  const el=document.getElementById('basalReminderStatus');
-  const noEl=document.getElementById('basalNoReminder');
-  const preEl=document.getElementById('basalPreRemindTime');
-  const onEl=document.getElementById('basalRemindTime');
-  if(!el)return;
-  const dose=cfg.basalDose||0;
-  if(!dose){
-    el.style.display='none';
-    if(noEl)noEl.style.display='block';
-    return;
-  }
-  if(noEl)noEl.style.display='none';
-  if(!preEl||!onEl){el.style.display='none';return;}
-  // Calculate 15-min pre-reminder time
-  const preH=m>=15?h:(h===0?23:h-1);
-  const preM=m>=15?m-15:m+45;
-  const fmt2=(n)=>String(n).padStart(2,'0');
-  preEl.textContent=`${fmt2(preH)}:${fmt2(preM)}`;
-  onEl.textContent=`${fmt2(h)}:${fmt2(m)}`;
-  el.style.display='block';
-}
-
-function fireBasalPreReminder(){
+function fireBasalReminder(){
   const name=cfg.basalName||'Basal';
   const dose=cfg.basalDose||0;
   if(!dose)return;
-  notify(`⏰ GlucoTrack Reminder`,`15 minutes until your ${name} injection (${dose}u) — get ready`,'🌙','test');
-}
-
-function fireBasalOnTimeReminder(){
-  const name=cfg.basalName||'Basal';
-  const dose=cfg.basalDose||0;
-  if(!dose)return;
-  notify(`💉 GlucoTrack — Injection Time`,`Time for your ${name} injection (${dose}u) — inject now and log it`,'💉','test');
-}
-
-// ══════════════ PRE-MEAL INSULIN TIMER ══════════════
-let preMealTimer=null;
-let preMealCountdownInterval=null;
-
-function startPreMealTimer(insulinUnits, chainPostMeal=false){
-  // Cancel any running pre-meal timer first
-  if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
-  if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
-  // Also cancel any running post-meal timer — only one at a time
-  if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
-  if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
-  hidePostMealBanner();
-
-  const WAIT_MS=20*60*1000; // 20 minutes
-  const fireAt=Date.now()+WAIT_MS;
-
-  toastSuccess(`💉 ${insulinUnits}u logged — wait 20 min before eating. Timer started!`);
-  showPreMealBanner(fireAt);
-
-  // Notification at 20 min
-  scheduleNotification(
-    WAIT_MS,
-    '🍽️ Time to eat!',
-    '20 minutes since your insulin. You can start eating now!',
-    'premeal'
-  );
-
-  // Cleanup + optional chain to post-meal timer
-  preMealTimer=setTimeout(()=>{
-    hidePreMealBanner();
-    preMealTimer=null;
-    if(chainPostMeal){
-      // Now the meal starts — begin the 2-hour post-meal BG check
-      startPostMealTimer();
-    }
-  }, WAIT_MS);
-}
-
-function showPreMealBanner(fireAt){
-  // Create or update the countdown banner
-  let banner=document.getElementById('preMealBanner');
-  if(!banner){
-    banner=document.createElement('div');
-    banner.id='preMealBanner';
-    banner.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:300;background:#0D1321;color:#fff;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.35);white-space:nowrap;font-family:Plus Jakarta Sans,sans-serif;';
-    banner.innerHTML=`<span>🍽️</span><span id="preMealCountdown">20:00</span><span style="font-weight:500;opacity:.8">until you can eat</span><button onclick="cancelPreMealTimer()" style="margin-left:8px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;font-family:Plus Jakarta Sans,sans-serif;">✕ Cancel</button>`;
-    document.body.appendChild(banner);
-  }
-  banner.style.display='flex';
-
-  // Update countdown every second
-  preMealCountdownInterval=setInterval(()=>{
-    const remaining=Math.max(0,fireAt-Date.now());
-    const mins=Math.floor(remaining/60000);
-    const secs=Math.floor((remaining%60000)/1000);
-    const el=document.getElementById('preMealCountdown');
-    if(el) el.textContent=`${mins}:${secs.toString().padStart(2,'0')}`;
-    if(remaining<=0){
-      clearInterval(preMealCountdownInterval);
-      preMealCountdownInterval=null;
-      hidePreMealBanner();
-    }
-  },1000);
-}
-
-function hidePreMealBanner(){
-  const banner=document.getElementById('preMealBanner');
-  if(banner) banner.style.display='none';
-}
-
-function cancelPreMealTimer(silent=false){
-  if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
-  if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
-  hidePreMealBanner();
-  if(!silent) toast('Pre-meal timer cancelled','info','✕');
-}
-
-// ══════════════ POST-MEAL BG CHECK TIMER (2 hours) ══════════════
-let postMealTimer=null;
-let postMealCountdownInterval=null;
-
-function startPostMealTimer(offsetMin=0){
-  // Ensure pre-meal timer is not running simultaneously
-  if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
-  if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
-  hidePreMealBanner();
-  // Clear any existing post-meal timer
-  if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
-  if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
-
-  // 2 hours from first bite — subtract time already elapsed since eating started
-  const alreadyElapsedMs=Math.min(offsetMin,110)*60*1000; // cap at 110 min so at least 10 min remain
-  const WAIT_MS=Math.max(10*60*1000, 2*60*60*1000 - alreadyElapsedMs);
-  const fireAt=Date.now()+WAIT_MS;
-  const minsLeft=Math.round(WAIT_MS/60000);
-
-  const msg=offsetMin>0
-    ? `🍽️ Started eating ${offsetMin} min ago — BG check in ${minsLeft} min!`
-    : '🍽️ Meal started — check your BG in 2 hours!';
-  toastSuccess(msg);
-  showPostMealBanner(fireAt);
-
-  postMealTimer=scheduleNotification(
-    WAIT_MS,
-    '🩸 GlucoTrack — Time to Check BG',
-    '2 hours since your meal. Time to check your blood glucose now!',
-    'postmeal'
-  );
-  setTimeout(()=>{ hidePostMealBanner(); postMealTimer=null; }, WAIT_MS);
-}
-
-function showPostMealBanner(fireAt){
-  let banner=document.getElementById('postMealBanner');
-  if(!banner){
-    banner=document.createElement('div');
-    banner.id='postMealBanner';
-    const preBanner=document.getElementById('preMealBanner');
-    const bottomOffset=(preBanner&&preBanner.style.display!=='none')?'136px':'80px';
-    banner.style.cssText=`position:fixed;bottom:${bottomOffset};left:50%;transform:translateX(-50%);z-index:299;background:#276749;color:#fff;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.35);white-space:nowrap;font-family:Plus Jakarta Sans,sans-serif;`;
-    banner.innerHTML=`<span>🩸</span><span id="postMealCountdown">2:00:00</span><span style="font-weight:500;opacity:.8">until BG check</span><button onclick="cancelPostMealTimer()" style="margin-left:8px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;font-family:Plus Jakarta Sans,sans-serif;">✕ Cancel</button>`;
-    document.body.appendChild(banner);
-  }
-  banner.style.display='flex';
-
-  postMealCountdownInterval=setInterval(()=>{
-    const remaining=Math.max(0,fireAt-Date.now());
-    const hrs=Math.floor(remaining/3600000);
-    const mins=Math.floor((remaining%3600000)/60000);
-    const secs=Math.floor((remaining%60000)/1000);
-    const el=document.getElementById('postMealCountdown');
-    if(el) el.textContent=`${hrs}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-    if(remaining<=0){
-      clearInterval(postMealCountdownInterval);
-      postMealCountdownInterval=null;
-      hidePostMealBanner();
-    }
-  },1000);
-}
-
-function hidePostMealBanner(){
-  const banner=document.getElementById('postMealBanner');
-  if(banner) banner.style.display='none';
-}
-
-function cancelPostMealTimer(){
-  if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
-  if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
-  hidePostMealBanner();
-  toast('Post-meal timer cancelled','info','✕');
+  // Sound + vibrate using alarm engine
+  const a=load('gt_alarms',{});
+  if(a.soundOn!==false)playAlarmSound('test');
+  if(a.vibeOn!==false)triggerVibration('test');
+  toast(`🌙 Time for your ${name} injection (${dose}u)`,'info','🌙');
 }
 
 function clearAll(){appConfirm('Delete ALL readings? This cannot be undone.',()=>{readings=[];saveReadings();refreshAll();toastSuccess('All readings cleared.');});}
@@ -5325,9 +4338,8 @@ function setupPWA(){
   // Register inline service worker for offline support
   if('serviceWorker' in navigator){
     const swCode=`
-      const CACHE='glucotrack-v5';
+      const CACHE='glucotrack-v4';
       const ASSETS=[self.location.origin+self.location.pathname];
-
       self.addEventListener('install',e=>e.waitUntil(
         caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
       ));
@@ -5341,46 +4353,6 @@ function setupPWA(){
           return res;
         }).catch(()=>caches.match(e.request)))
       ));
-
-      // Handle notification display from main thread
-      self.addEventListener('message', e => {
-        if(e.data && e.data.type === 'SHOW_NOTIFICATION'){
-          const {title, body, tag, requireInteraction} = e.data;
-          e.waitUntil(
-            self.registration.showNotification(title, {
-              body,
-              tag: tag || 'glucotrack',
-              requireInteraction: requireInteraction !== false,
-              icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💉</text></svg>',
-              vibrate: [200, 100, 200, 100, 200],
-            })
-          );
-        }
-        if(e.data && e.data.type === 'SCHEDULE_NOTIFICATION'){
-          const {delayMs, title, body, tag} = e.data;
-          // Store in IDB/memory for this SW session
-          setTimeout(()=>{
-            self.registration.showNotification(title, {
-              body,
-              tag: tag || 'glucotrack-scheduled',
-              requireInteraction: true,
-              icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>',
-              vibrate: [300, 100, 300],
-            });
-          }, delayMs);
-        }
-      });
-
-      // Handle notification click — focus the app
-      self.addEventListener('notificationclick', e => {
-        e.notification.close();
-        e.waitUntil(
-          clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
-            if(cs.length) return cs[0].focus();
-            return clients.openWindow(self.location.origin+self.location.pathname);
-          })
-        );
-      });
     `;
     const swBlob=new Blob([swCode],{type:'application/javascript'});
     const swUrl=URL.createObjectURL(swBlob);
@@ -5517,259 +4489,8 @@ function logOut(){
 }
 
 // ══════════════ REFRESH ══════════════
-
-// ══════════════ EXERCISE GUIDE (EASD/ISPAD/ADA) ══════════════
-let exProfile = 0; // 0=Ex0 (minimal/high risk), 1=Ex1 (moderate), 2=Ex2 (intensive/low risk)
-let exTimerStart = null;
-let exTimerInterval = null;
-let exRunning = false;
-
-// ── Full pre-exercise table from EASD paper (per profile column) ──
-// Each row: { bgRange, trend, action, cls }
-// trend: 'rise2'=↑↑, 'rise1'=↗, 'flat'=→, 'fall1'=↘, 'fall2'=↓↓
-// cls: 'go-td','warn-td','stop-td'
-const PRE_EX_TABLE = [
-  // >15.0 AND >1.5 mmol/L ketones — ALL profiles same
-  { bg:'>15.0 + ketones >1.5', trend:'Any', action:['No Ex. Insulin correction','No Ex. Insulin correction','No Ex. Insulin correction'], cls:'stop-td' },
-  // >15.0 AND ≤1.5 mmol/L ketones
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↑↑ ↗', action:['Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE'], cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'→', action:['Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE'], cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↘ ↓↓', action:['Can start all Ex','Can start all Ex','Can start all Ex'], cls:'go-td' },
-  // 10.1–15.0 / 11.1–15.0 / 12.1–15.0 (per profile)
-  { bg:'10.1–15.0 / 11.1–15.0 / 12.1–15.0', trend:'↑↑ ↗', action:['Can start AE, consider insulin correction for RT/HIT','Can start AE, consider insulin correction for RT/HIT','Can start AE, consider insulin correction for RT/HIT'], cls:'warn-td' },
-  { bg:'10.1–15.0 / 11.1–15.0 / 12.1–15.0', trend:'→', action:['Can start all Ex, consider insulin correction','Can start all Ex, consider insulin correction','Can start all Ex'], cls:'go-td' },
-  { bg:'10.1–15.0 / 11.1–15.0 / 12.1–15.0', trend:'↘ ↓↓', action:['Can start all Ex','Can start all Ex','Can start all Ex'], cls:'go-td' },
-  // 7.0–10.0 / 8.0–11.0 / 9.0–12.0
-  { bg:'7.0–10.0 / 8.0–11.0 / 9.0–12.0', trend:'↑↑ ↗ →', action:['Can start all Ex','Can start all Ex','Can start all Ex'], cls:'go-td' },
-  { bg:'7.0–10.0 / 8.0–11.0 / 9.0–12.0', trend:'↘ ↓↓', action:['~15g CHO, Can start all Ex','~15g CHO, Can start all Ex','Can start all Ex'], cls:'warn-td' },
-  // 5.0–6.9 / 5.0–7.9 / 5.0–8.9
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'↑↑ ↗', action:['~15g CHO, Can start all Ex','Can start all Ex','Can start all Ex'], cls:'warn-td' },
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'→', action:['~20g CHO, Can start all Ex','~10g CHO, Can start all Ex','Can start all Ex'], cls:'warn-td' },
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'↘', action:['~25g CHO, Delay Ex','~15g CHO, Delay Ex','Can start all Ex'], cls:'warn-td' },
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'↓↓', action:['~30g CHO, Delay Ex','~20g CHO, Delay Ex','Can start all Ex'], cls:'warn-td' },
-  // 3.9–4.9
-  { bg:'3.9–4.9', trend:'↑↑', action:['~10g CHO, Can start all Ex','~10g CHO, Can start all Ex','~10g CHO, Can start all Ex'], cls:'warn-td' },
-  { bg:'3.9–4.9', trend:'↗', action:['~15g CHO, Delay Ex','~15g CHO, Delay Ex','~15g CHO, Delay Ex'], cls:'warn-td' },
-  { bg:'3.9–4.9', trend:'→', action:['30g CHO, Delay Ex','20g CHO, Delay Ex','20g CHO, Delay Ex'], cls:'stop-td' },
-  { bg:'3.9–4.9', trend:'↘', action:['~35g CHO, Delay Ex','~25g CHO, Delay Ex','~25g CHO, Delay Ex'], cls:'stop-td' },
-  { bg:'3.9–4.9', trend:'↓↓', action:['Individual CHO, Delay Ex','Individual CHO, Delay Ex','Individual CHO, Delay Ex'], cls:'stop-td' },
-  // <3.9
-  { bg:'<3.9', trend:'Any', action:['Individual CHO ingestion, Delay all Ex','Individual CHO ingestion, Delay all Ex','Individual CHO ingestion, Delay all Ex'], cls:'stop-td' },
-];
-
-// During-exercise table (same for all profiles — simplified key rows)
-const DURING_EX_TABLE = [
-  { bg:'>15.0 + ketones >1.5', trend:'Any', action:'Stop Ex, Insulin correction, No restart', cls:'stop-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↑↑ ↗', action:'Consider insulin (50%), Proceed all Ex', cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'→', action:'Consider insulin (50%), Proceed all Ex', cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↘ ↓↓', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'10.1–15.0', trend:'↑↑ ↗', action:'Proceed all Ex, Consider insulin correction', cls:'warn-td' },
-  { bg:'10.1–15.0', trend:'→ ↘ ↓↓', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'7.0–10.0', trend:'↑↑ ↗ →', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'7.0–10.0', trend:'↘ ↓↓', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'<7.0 Ex2 / <8.0 Ex1 / <9.0 Ex0', trend:'→', action:'~10–15g CHO, Proceed all Ex', cls:'warn-td' },
-  { bg:'<7.0 Ex2 / <8.0 Ex1 / <9.0 Ex0', trend:'↘', action:'~15–25g CHO, Proceed all Ex', cls:'warn-td' },
-  { bg:'<7.0 Ex2 / <8.0 Ex1 / <9.0 Ex0', trend:'↓↓', action:'~20–35g CHO, Proceed all Ex', cls:'warn-td' },
-  { bg:'<3.9', trend:'Any', action:'Stop all Ex, Confirmatory SMBG, Individual CHO, Restart possible', cls:'stop-td' },
-  { bg:'<3.0', trend:'Any', action:'Stop all Ex, Confirmatory SMBG, Individual CHO, No restart', cls:'stop-td' },
-];
-
-// Post-exercise table (thresholds differ by profile)
-const POST_EX_TABLE = [
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↑↑', action:'No CHO needed', cls:'go-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↗', action:'No CHO needed', cls:'go-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'→', action:'~10g CHO', cls:'warn-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↘', action:'~15g CHO', cls:'warn-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↓↓', action:'Individual CHO ingestion', cls:'stop-td' },
-];
-
-function setExProfile(p){
-  exProfile=p;
-  [0,1,2].forEach(i=>{
-    document.getElementById('exProf'+i).classList.toggle('active',i===p);
-  });
-  const labels=['Ex 0 — Minimal / High hypo risk','Ex 1 — Moderate','Ex 2 — Intensive / Low hypo risk'];
-  document.getElementById('exProfLabel').textContent=labels[p];
-  renderExTables();
-  updateExerciseScreen();
-}
-
-function renderExTables(){
-  // Pre-exercise
-  const preBody=document.getElementById('preExBody');
-  if(preBody){
-    preBody.innerHTML=PRE_EX_TABLE.map(r=>`
-      <tr>
-        <td style="font-size:10px;font-family:'JetBrains Mono',monospace;">${r.bg}</td>
-        <td style="font-size:14px;text-align:center;">${r.trend}</td>
-        <td class="${r.cls}">${r.action[Math.min(exProfile,r.action.length-1)]}</td>
-      </tr>`).join('');
-  }
-  // During exercise
-  const duringBody=document.getElementById('duringExBody');
-  if(duringBody){
-    duringBody.innerHTML=DURING_EX_TABLE.map(r=>`
-      <tr>
-        <td style="font-size:10px;font-family:'JetBrains Mono',monospace;">${r.bg}</td>
-        <td style="font-size:14px;text-align:center;">${r.trend}</td>
-        <td class="${r.cls}">${r.action}</td>
-      </tr>`).join('');
-  }
-  // Post exercise
-  const postBody=document.getElementById('postExBody');
-  if(postBody){
-    postBody.innerHTML=POST_EX_TABLE.map(r=>`
-      <tr>
-        <td style="font-size:10px;font-family:'JetBrains Mono',monospace;">${r.bg}</td>
-        <td style="font-size:14px;text-align:center;">${r.trend}</td>
-        <td class="${r.cls}">${r.action}</td>
-      </tr>`).join('');
-  }
-}
-
-function getTrendArrow(){
-  const bgR=readings.filter(r=>!r.isMealOnly&&r.value>0);
-  if(bgR.length<2) return null;
-  const last=bgR[bgR.length-1];
-  const prev=bgR[bgR.length-2];
-  const dtMin=(last.ts-prev.ts)/60000;
-  if(dtMin<=0||dtMin>120) return null;
-  const rate=(last.value-prev.value)/dtMin*60; // mmol/L per hour
-  if(rate>2.0) return '↑↑';
-  if(rate>1.0) return '↗';
-  if(rate>-1.0) return '→';
-  if(rate>-2.0) return '↘';
-  return '↓↓';
-}
-
-function getExRecommendation(bg, trend, profile){
-  const p=profile;
-  // <3.9 — universal stop
-  if(bg<3.9) return {cls:'stop', msg:'🛑 Do NOT exercise. BG too low. Take individual amount of fast-acting carbs immediately. Delay all exercise until BG recovers to at least 5.0 mmol/L.'};
-  // 3.9–4.9
-  if(bg<5.0){
-    if(trend==='↑↑') return {cls:'warn', msg:'⚠️ BG rising. Take ~10g CHO. Can start all exercise once BG stable.'};
-    if(trend==='↗')  return {cls:'warn', msg:`⚠️ Take ~${p>=1?15:15}g CHO. Delay exercise until BG reaches at least ${p===2?'3.9':'5.0'} mmol/L.`};
-    if(trend==='→')  return {cls:'stop', msg:`🛑 Take ${p===2?'20':'20–30'}g CHO. Delay exercise until BG ≥ 5.0 mmol/L.`};
-    if(trend==='↘')  return {cls:'stop', msg:`🛑 Take ~${p===2?'25':'25–35'}g CHO. Delay all exercise.`};
-    return {cls:'stop', msg:'🛑 Individual carb intake needed. Delay all exercise.'};
-  }
-  // 5.0–6.9 (Ex0) / 5.0–7.9 (Ex1) / 5.0–8.9 (Ex2)
-  const hiLow=[6.9,7.9,8.9][p];
-  if(bg<=hiLow){
-    if(trend==='↑↑'||trend==='↗') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':p===1?'✅ Can start all exercise.':'⚠️ Take ~15g CHO then can start all exercise.'};
-    if(trend==='→') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':`⚠️ Take ~${p===1?'10':'20'}g CHO. Can start all exercise.`};
-    if(trend==='↘') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':`⚠️ Take ~${p===1?'15':'25'}g CHO. Delay exercise.`};
-    return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':`⚠️ Take ~${p===1?'20':'30'}g CHO. Delay exercise.`};
-  }
-  // 7.0–10.0 (Ex0) / 8.0–11.0 (Ex1) / 9.0–12.0 (Ex2) — green zone
-  const hiMid=[10.0,11.0,12.0][p];
-  if(bg<=hiMid){
-    if(trend==='↘'||trend==='↓↓') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':'⚠️ Take ~15g CHO then can start all exercise.'};
-    return {cls:'go', msg:'✅ Great range for exercise. Can start all exercise types.'};
-  }
-  // 10.1–15.0 / 11.1–15.0 / 12.1–15.0
-  const hiHigh=[15.0,15.0,15.0][p];
-  if(bg<=15.0){
-    if(trend==='↑↑'||trend==='↗') return {cls:'warn', msg:'⚠️ Consider 50% insulin correction. Can start aerobic exercise. Delay resistance/HIT training.'};
-    if(trend==='→') return {cls:'warn', msg:'⚠️ Consider 50% insulin correction. Can start all exercise.'};
-    return {cls:'go', msg:'✅ Can start all exercise.'};
-  }
-  // >15.0
-  return {cls:'stop', msg:'🛑 BG very high. Insulin correction required before exercise. Do NOT exercise until BG is below 15 mmol/L.'};
-}
-
-function updateExerciseScreen(){
-  const bgR=readings.filter(r=>!r.isMealOnly&&r.value>0);
-  const exBgNum=document.getElementById('exBgNum');
-  const exAction=document.getElementById('exAction');
-  const exPills=document.getElementById('exPills');
-  const exTrend=document.getElementById('exTrend');
-  if(!exBgNum) return;
-
-  if(!bgR.length){
-    exBgNum.textContent='—';
-    exAction.className='ex-action warn';
-    exAction.textContent='Log a blood glucose reading to get your exercise recommendation.';
-    exPills.innerHTML='';
-    return;
-  }
-
-  const last=bgR[bgR.length-1];
-  const trend=getTrendArrow()||'→';
-  const ageMin=(Date.now()-last.ts)/60000;
-
-  exBgNum.textContent=fmt(last.value);
-  exTrend.textContent=trend;
-
-  // Staleness warning
-  const pills=[];
-  if(ageMin>30) pills.push(`⚠️ Reading ${Math.round(ageMin)}m old`);
-  if(ageMin>60) pills.push('🔴 Log a fresh reading');
-  pills.push(['🚶 Ex 0','🏃 Ex 1','🏋️ Ex 2'][exProfile]);
-  exPills.innerHTML=pills.map(p=>`<div class="ex-pill">${p}</div>`).join('');
-
-  const rec=getExRecommendation(last.value, trend, exProfile);
-  exAction.className='ex-action '+rec.cls;
-  exAction.textContent=rec.msg;
-}
-
-// ── Exercise Timer ──
-function toggleExTimer(){
-  if(!exRunning){
-    exRunning=true;
-    exTimerStart=Date.now();
-    document.getElementById('exTimerBtn').textContent='Stop';
-    document.getElementById('exTimerBtn').className='ex-timer-btn ex-stop-btn';
-    document.getElementById('exTimerSub').textContent='Exercise in progress…';
-    exTimerInterval=setInterval(tickExTimer,1000);
-    // Remind about during-exercise BG checks
-    scheduleNotification(20*60000,'⏱️ Exercise check','Check your blood glucose — 20 minutes into exercise.','ex-check-20');
-    scheduleNotification(45*60000,'⏱️ Exercise check','Check your blood glucose — 45 minutes into exercise.','ex-check-45');
-    toastSuccess('Exercise timer started. BG check reminders set at 20 and 45 minutes.');
-  } else {
-    stopExTimer();
-    // Offer nocturnal reminder if it's afternoon/evening
-    const hr=new Date().getHours();
-    if(hr>=14){
-      toast('Evening session detected. Consider setting a nocturnal hypo reminder below.','warn','🌙');
-    }
-  }
-}
-
-function tickExTimer(){
-  if(!exTimerStart) return;
-  const elapsed=Math.floor((Date.now()-exTimerStart)/1000);
-  const m=Math.floor(elapsed/60).toString().padStart(2,'0');
-  const s=(elapsed%60).toString().padStart(2,'0');
-  const el=document.getElementById('exElapsed');
-  if(el) el.textContent=m+':'+s;
-}
-
-function stopExTimer(){
-  exRunning=false;
-  clearInterval(exTimerInterval);
-  exTimerInterval=null;
-  const elapsed=exTimerStart?Math.floor((Date.now()-exTimerStart)/1000):0;
-  const m=Math.floor(elapsed/60);
-  document.getElementById('exTimerBtn').textContent='Start';
-  document.getElementById('exTimerBtn').className='ex-timer-btn ex-start-btn';
-  document.getElementById('exTimerSub').textContent=`Last session: ${m} min. Start timer when you begin exercising.`;
-  exTimerStart=null;
-}
-
-// ── Nocturnal hypo reminder ──
-function setNocturnalReminder(hours){
-  const ms=hours*3600000;
-  const fireAt=new Date(Date.now()+ms);
-  scheduleNotification(ms,'🌙 Nocturnal hypo check',`Check your blood glucose now — ${hours}h after your exercise session. Hypos can occur 6–15h post-exercise.`,'nocturnal-hypo');
-  toastSuccess(`Nocturnal reminder set for ${fireAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
-  notify('🌙 Reminder set',`Nocturnal BG check reminder in ${hours} hours at ${fireAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}. Stay safe!`,'','info');
-}
-
 function refreshAll(){
   updateDate();updateHome();updateRecent();
-  if(curScreen==='exercise')updateExerciseScreen();
   setTimeout(drawMainChart,80);
   if(curScreen==='a1c')setTimeout(updateA1c,50);
   if(curScreen==='history')updateHistory();
@@ -5826,8 +4547,6 @@ setInterval(refreshTimestamps, 30000);
   currentUser=guest;
   loadReadings();
   loadCfg();
-  loadExProfile();
-  requestNotificationPermission();
   const du=document.getElementById('drawerUser'); if(du) du.textContent='Guest';
   const de=document.getElementById('drawerEmail'); if(de) de.textContent='';
   loadSettingsUI();
