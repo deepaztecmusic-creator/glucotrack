@@ -1,57 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GlucoTrack">
-<meta name="theme-color" content="#0D1321">
-<title>GlucoTrack | Enterprise Grade</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<style>
-/* ─── SYSTEM ARCHITECTURE ─── */
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{
-  --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--text:#0D1321;--t3:#9AA3B5;
-  --low:#E53E3E;--ok:#38A169;--hi:#D97706;--acc:#1A56DB;
-  --r:14px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.06);
-}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0D1321">
+    <title>GlucoTrack | Clinical</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ─── SYSTEM CORE ─── */
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+        :root{
+            --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--text:#0D1321;--t3:#9AA3B5;
+            --low:#E53E3E;--ok:#38A169;--hi:#D97706;--acc:#1A56DB;
+            --r:14px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.06);
+        }
+        body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
-/* ─── UI COMPONENTS ─── */
-.topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);z-index:10;}
-.logo{font-size:16px;font-weight:800;color:var(--acc);}
-.topbar-date{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+        /* ─── TOPBAR & WIDGET ─── */
+        .topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);z-index:100;}
+        .logo{font-size:16px;font-weight:800;color:var(--acc);}
+        .topbar-date{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
 
-.wbar{background:#0D1321;padding:12px 16px;color:#fff;}
-.wbar-inner{display:flex;align-items:center;justify-content:space-between;}
-.wnum{font-size:28px;font-weight:700;color:#34d399;font-family:'JetBrains Mono',monospace;}
-.wunit{font-size:12px;color:#64748b;margin-left:4px;}
-.wtime{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;text-transform:uppercase;}
+        .wbar{background:#0D1321;padding:12px 16px;color:#fff;position:relative;}
+        .wbar-inner{display:flex;align-items:center;justify-content:space-between;}
+        .wnum{font-size:32px;font-weight:700;color:#34d399;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;}
+        .wunit{font-size:12px;color:#64748b;margin-left:4px;}
+        .wtime{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;text-transform:uppercase;}
 
-.scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
-.card{margin:12px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
-.gc-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;}
-.gc-num{font-size:56px;font-weight:800;color:var(--ok);font-family:'JetBrains Mono',monospace;line-height:1;}
-.gc-u{font-size:16px;color:var(--t3);font-weight:700;margin-left:6px;}
-.gc-time{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:8px;}
+        /* ─── MAIN CONTENT ─── */
+        .scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
+        .card{margin:12px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
+        .gc-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;}
+        .gc-row{display:flex;align-items:baseline;gap:6px;}
+        .gc-num{font-size:56px;font-weight:800;color:var(--ok);font-family:'JetBrains Mono',monospace;line-height:1;}
+        .gc-u{font-size:16px;color:var(--t3);font-weight:700;}
+        .gc-time{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:8px;}
 
-/* ─── ALERTS & STATS ─── */
-#alert-banner{display:none;margin:12px 12px 0;padding:12px;border-radius:var(--rs);font-weight:800;font-size:12px;text-align:center;animation:pulse 2s infinite;}
-.alert-hypo{display:block !important;background:var(--low);color:#fff;}
-.alert-hyper{display:block !important;background:var(--hi);color:#fff;}
-@keyframes pulse{0%{opacity:1}50%{opacity:0.8}100%{opacity:1}}
+        /* ─── CLINICAL STATS ─── */
+        .stats-grid{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+        .stat-val{font-size:18px;font-weight:800;color:var(--text);}
+        .stat-label{font-size:10px;color:var(--t3);font-weight:700;}
 
-.stats-grid{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
-.stat-val{font-size:18px;font-weight:800;color:var(--text);}
-.stat-label{font-size:10px;color:var(--t3);font-weight:700;}
+        /* ─── CHART ─── */
+        .chart-wrap{width:100%;height:150px;margin-top:15px;position:relative;}
+        canvas#mainChart{width:100%;height:100%;}
 
-.chart-wrap{width:100%;height:140px;margin-top:15px;}
-canvas#glucoseChart{width:100%;height:100%;}
-
-.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;padding:14px 24px;border-radius:50px;font-weight:700;border:none;box-shadow:0 4px 15px rgba(26,86,219,0.4);cursor:pointer;z-index:100;}
-</style>
+        /* ─── FAB ─── */
+        .fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;padding:14px 28px;border-radius:50px;font-weight:700;border:none;box-shadow:0 4px 15px rgba(26,86,219,0.4);cursor:pointer;z-index:200;}
+        
+        /* ─── ALERTS ─── */
+        #alert-banner{display:none;padding:10px;text-align:center;font-weight:800;font-size:12px;color:#fff;}
+        .alert-low{background:var(--low);display:block;}
+        .alert-hi{background:var(--hi);display:block;}
+    </style>
 </head>
 <body>
 
@@ -59,71 +62,71 @@ canvas#glucoseChart{width:100%;height:100%;}
 
 <div class="topbar">
     <div class="logo">GLUCO<span>TRACK</span></div>
-    <div class="topbar-date">--- -- --:--</div>
+    <div id="clock" class="topbar-date">--:--</div>
 </div>
 
 <div class="wbar">
     <div class="wbar-inner">
         <div>
-            <span class="wnum" id="widget-val">5.8</span><span class="wunit">mmol/L</span>
-            <div class="wtime" id="widget-time">Just now</div>
+            <span class="wnum" id="w-val">5.8</span><span class="wunit">mmol/L</span>
+            <div class="wtime" id="w-time">Just now</div>
         </div>
         <div style="text-align:right">
-            <div style="font-size:10px; opacity:0.6">TREND</div>
-            <div id="trend-arrow" style="font-size:18px;">→</div>
+            <div id="trend" style="font-size:24px; color:#34d399">→</div>
         </div>
     </div>
 </div>
 
 <div class="scroll">
     <div class="card">
-        <div class="gc-lbl">Glucose History (mmol/L)</div>
-        <div style="display:flex; align-items:baseline;">
+        <div class="gc-lbl">Current Reading</div>
+        <div class="gc-row">
             <div class="gc-num" id="hero-val">5.8</div>
             <div class="gc-u">mmol/L</div>
         </div>
-        <div class="gc-time" id="hero-time">Last Reading: Just now</div>
-        <div class="chart-wrap"><canvas id="glucoseChart"></canvas></div>
+        <div class="gc-time" id="hero-time">Last updated: Just now</div>
+        
+        <div class="chart-wrap">
+            <canvas id="mainChart"></canvas>
+        </div>
     </div>
 
     <div class="card">
-        <div class="gc-lbl">Clinical Indicators</div>
+        <div class="gc-lbl">24h Performance</div>
         <div class="stats-grid">
             <div><div class="stat-val" id="stat-tir">100%</div><div class="stat-label">IN RANGE</div></div>
-            <div><div class="stat-val" id="stat-avg">5.8</div><div class="stat-label">AVG GLUCOSE</div></div>
+            <div><div class="stat-val" id="stat-avg">5.8</div><div class="stat-label">AVG GLY</div></div>
             <div><div class="stat-val" id="stat-a1c">5.4</div><div class="stat-label">EST. A1C</div></div>
         </div>
     </div>
 </div>
 
-<button class="fab" onclick="initiateReading()">+ Log Reading</button>
+<button class="fab" onclick="logReading()">+ Log Glucose</button>
 
 <script>
 /**
- * CLINICAL CORE ENGINE
+ * MEDICAL CONFIGURATION
+ * Target Range: 3.9 - 10.0 mmol/L (Clinical Standard)
  */
 const AppState = {
-    history: [5.4, 5.8, 6.1, 5.9, 5.7, 6.2, 5.8], 
-    lastReadingTimestamp: Date.now(),
-    timerRef: null,
-    clockRef: null
+    history: [5.2, 5.8, 6.4, 5.9, 5.5, 6.1, 5.8],
+    lastTimestamp: Date.now(),
+    timerInterval: null
 };
 
 function updateClock() {
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
-    const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-    document.querySelector('.topbar-date').textContent = `${dateStr} ${timeStr}`;
+    document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
 }
 
-function updateRelativeTimers() {
-    const diffMins = Math.floor((Date.now() - AppState.lastReadingTimestamp) / 60000);
-    const label = diffMins < 1 ? "Just now" : `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
-    document.getElementById('widget-time').textContent = label;
-    document.getElementById('hero-time').textContent = `Last Reading: ${label}`;
+function updateRelativeTime() {
+    const diff = Math.floor((Date.now() - AppState.lastTimestamp) / 60000);
+    const label = diff < 1 ? "Just now" : `${diff}m ago`;
+    document.getElementById('w-time').textContent = label;
+    document.getElementById('hero-time').textContent = `Last updated: ${label}`;
 }
 
-function updateClinicalStats() {
+function calculateClinicalStats() {
     const data = AppState.history;
     const tir = Math.round((data.filter(v => v >= 3.9 && v <= 10.0).length / data.length) * 100);
     const avg = (data.reduce((a, b) => a + b, 0) / data.length).toFixed(1);
@@ -135,96 +138,84 @@ function updateClinicalStats() {
 }
 
 function drawChart() {
-    const canvas = document.getElementById('glucoseChart');
+    const canvas = document.getElementById('mainChart');
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
     ctx.scale(dpr, dpr);
 
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
     const data = AppState.history;
-    const w = rect.width;
-    const h = rect.height;
+
     ctx.clearRect(0, 0, w, h);
 
-    const getX = (i) => (i / (data.length - 1)) * w;
-    const getY = (v) => h - ((v - 2.0) / (15.0 - 2.0)) * h;
+    // Render Range Zone (3.9 - 10.0)
+    ctx.fillStyle = 'rgba(56, 161, 105, 0.05)';
+    const yTargetTop = h - ((10 - 2) / 13) * h;
+    const yTargetBot = h - ((3.9 - 2) / 13) * h;
+    ctx.fillRect(0, yTargetTop, w, yTargetBot - yTargetTop);
 
-    // Green Range (Target Zone: 3.9 - 10.0 mmol/L)
-    ctx.fillStyle = 'rgba(56, 161, 105, 0.08)';
-    ctx.fillRect(0, getY(10.0), w, getY(3.9) - getY(10.0));
-
-    // Glucose Path
+    // Render Line
     ctx.beginPath();
     ctx.strokeStyle = '#1A56DB';
     ctx.lineWidth = 3;
     ctx.lineJoin = 'round';
-    data.forEach((val, i) => i === 0 ? ctx.moveTo(getX(i), getY(val)) : ctx.lineTo(getX(i), getY(val)));
+    
+    data.forEach((val, i) => {
+        const x = (i / (data.length - 1)) * w;
+        const y = h - ((val - 2) / 13) * h;
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
     ctx.stroke();
 }
 
-/**
- * ATOMIC READING INITIATION (Stops and Resets Timer)
- */
-function initiateReading() {
-    // 1. KILL the background timer interval immediately to prevent race conditions
-    clearInterval(AppState.timerRef);
-
-    // 2. Commit new data (Realistic mmol/L range)
-    const newVal = parseFloat((Math.random() * (12.0 - 3.5) + 3.5).toFixed(1));
-    const oldVal = AppState.history[AppState.history.length - 1];
-    AppState.history.push(newVal);
-    if(AppState.history.length > 25) AppState.history.shift();
+function logReading() {
+    // Atomic Reset of Timers
+    clearInterval(AppState.timerInterval);
     
-    // 3. Reset the Global Timestamp to "now"
-    AppState.lastReadingTimestamp = Date.now();
+    const newVal = parseFloat((Math.random() * (12 - 3.5) + 3.5).toFixed(1));
+    const oldVal = AppState.history[AppState.history.length - 1];
+    
+    AppState.history.push(newVal);
+    if(AppState.history.length > 20) AppState.history.shift();
+    AppState.lastTimestamp = Date.now();
 
-    // 4. Update UI Components
-    document.getElementById('widget-val').textContent = newVal.toFixed(1);
+    // UI Updates
+    document.getElementById('w-val').textContent = newVal.toFixed(1);
     document.getElementById('hero-val').textContent = newVal.toFixed(1);
     
-    const arrow = document.getElementById('trend-arrow');
-    const diff = newVal - oldVal;
-    arrow.textContent = diff > 0.4 ? "↑" : (diff < -0.4 ? "↓" : "→");
-    
-    // Clinical Threshold Handling
+    // Trend Logic
+    const trend = document.getElementById('trend');
+    if(newVal > oldVal + 0.3) trend.textContent = "↑";
+    else if(newVal < oldVal - 0.3) trend.textContent = "↓";
+    else trend.textContent = "→";
+
+    // Alert Handling
     const banner = document.getElementById('alert-banner');
-    if (newVal < 3.9) {
-        banner.textContent = "⚠ HYPOGLYCEMIA ALERT";
-        banner.className = 'alert-hypo';
-        document.getElementById('hero-val').style.color = 'var(--low)';
-    } else if (newVal > 10.0) {
-        banner.textContent = "⚠ HYPERGLYCEMIA ALERT";
-        banner.className = 'alert-hyper';
-        document.getElementById('hero-val').style.color = 'var(--hi)';
-    } else {
-        banner.style.display = 'none';
-        document.getElementById('hero-val').style.color = 'var(--ok)';
-    }
+    banner.className = '';
+    if(newVal < 3.9) { banner.textContent = "⚠ HYPO ALERT: LOW GLUCOSE"; banner.classList.add('alert-low'); }
+    else if(newVal > 10.0) { banner.textContent = "⚠ HYPER ALERT: HIGH GLUCOSE"; banner.classList.add('alert-hi'); }
+    else { banner.style.display = 'none'; }
 
-    // 5. Finalize State and RESTART background logic
+    // Refresh Modules
     drawChart();
-    updateClinicalStats();
-    updateRelativeTimers(); // Immediate update to "Just now"
-    AppState.timerRef = setInterval(updateRelativeTimers, 10000);
+    calculateClinicalStats();
+    updateRelativeTime();
+    
+    // Restart Timer
+    AppState.timerInterval = setInterval(updateRelativeTime, 60000);
 }
 
-function boot() {
+// Boot Sequence
+window.onload = () => {
     updateClock();
-    updateRelativeTimers();
-    updateClinicalStats();
+    setInterval(updateClock, 1000);
+    calculateClinicalStats();
     drawChart();
-    
-    if(AppState.clockRef) clearInterval(AppState.clockRef);
-    if(AppState.timerRef) clearInterval(AppState.timerRef);
-    
-    AppState.clockRef = setInterval(updateClock, 1000);
-    AppState.timerRef = setInterval(updateRelativeTimers, 10000);
-}
-
-window.onload = boot;
-window.onresize = drawChart;
+    AppState.timerInterval = setInterval(updateRelativeTime, 60000);
+};
 </script>
 </body>
 </html>
