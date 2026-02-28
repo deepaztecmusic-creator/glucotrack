@@ -7,10 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GlucoTrack">
 <meta name="theme-color" content="#0D1321">
-<title>GlucoTrack | Precision Health</title>
+<title>GlucoTrack | Clinical Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-/* ─── BASE STYLES ─── */
+/* ─── SYSTEM ARCHITECTURE STYLES ─── */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--text:#0D1321;--t3:#9AA3B5;
@@ -19,7 +19,7 @@
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
-/* ─── TOPBAR & WIDGET ─── */
+/* ─── HEADER & WIDGET ─── */
 .topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);z-index:10;}
 .logo{font-size:16px;font-weight:800;color:var(--acc);}
 .logo span{color:var(--text);}
@@ -31,7 +31,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .wunit{font-size:12px;color:#64748b;margin-left:4px;}
 .wtime{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;text-transform:uppercase;}
 
-/* ─── MAIN CONTENT ─── */
+/* ─── CORE UI ─── */
 .scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
 .card{margin:12px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
 .gc-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;}
@@ -40,13 +40,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .gc-u{font-size:16px;color:var(--t3);font-weight:700;}
 .gc-time{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:8px;}
 
-/* ─── ALERT SYSTEM ─── */
-#alert-banner{display:none;margin:12px 12px 0;padding:12px;border-radius:var(--rs);font-weight:800;font-size:12px;text-align:center;letter-spacing:0.5px;animation:pulse 2s infinite;}
+/* ─── CLINICAL ALERTS ─── */
+#alert-banner{display:none;margin:12px 12px 0;padding:12px;border-radius:var(--rs);font-weight:800;font-size:12px;text-align:center;animation:pulse 2s infinite;}
 .alert-hypo{display:block !important;background:var(--low);color:#fff;}
 .alert-hyper{display:block !important;background:var(--hi);color:#fff;}
 @keyframes pulse{0%{opacity:1}50%{opacity:0.8}100%{opacity:1}}
 
-/* ─── STATS GRID ─── */
+/* ─── ANALYTICS ─── */
 .stats-grid{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
 .stat-val{font-size:18px;font-weight:800;color:var(--text);}
 .stat-label{font-size:10px;color:var(--t3);font-weight:700;}
@@ -54,8 +54,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .chart-wrap{width:100%;height:140px;margin-top:15px;position:relative;}
 canvas#glucoseChart{width:100%;height:100%;}
 
+/* ─── INTERACTION ─── */
 .fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;padding:14px 24px;border-radius:50px;font-weight:700;border:none;box-shadow:0 4px 15px rgba(26,86,219,0.4);cursor:pointer;z-index:100;transition: all 0.2s;}
-.fab:disabled{background:var(--t3);opacity:0.7;cursor:not-allowed;}
+.fab:disabled{background:var(--t3);opacity:0.6;transform:translateX(-50%) scale(0.98);}
 
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0D1321;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;opacity:0;transition:0.3s;z-index:1000;}
 .toast.show{opacity:1;}
@@ -63,7 +64,7 @@ canvas#glucoseChart{width:100%;height:100%;}
 </head>
 <body>
 
-<div id="toast" class="toast">New Measurement Synced</div>
+<div id="toast" class="toast">New Reading Sequenced</div>
 <div id="alert-banner"></div>
 
 <div class="topbar">
@@ -75,7 +76,7 @@ canvas#glucoseChart{width:100%;height:100%;}
     <div class="wbar-inner">
         <div>
             <span class="wnum" id="widget-val">5.8</span><span class="wunit">mmol/L</span>
-            <div class="wtime" id="widget-time">Just now</div>
+            <div class="wtime" id="widget-time">Updating...</div>
         </div>
         <div style="text-align:right">
             <div style="font-size:10px; opacity:0.6">TREND</div>
@@ -91,7 +92,7 @@ canvas#glucoseChart{width:100%;height:100%;}
             <div class="gc-num" id="hero-val">5.8</div>
             <div class="gc-u">mmol/L</div>
         </div>
-        <div class="gc-time" id="hero-time">Last Reading: Just now</div>
+        <div class="gc-time" id="hero-time">Last Reading: Initializing...</div>
         
         <div class="chart-wrap">
             <canvas id="glucoseChart"></canvas>
@@ -99,7 +100,7 @@ canvas#glucoseChart{width:100%;height:100%;}
     </div>
 
     <div class="card">
-        <div class="gc-lbl">Clinical Indicators</div>
+        <div class="gc-lbl">Daily Performance</div>
         <div class="stats-grid">
             <div>
                 <div class="stat-val" id="stat-tir">100%</div>
@@ -120,13 +121,20 @@ canvas#glucoseChart{width:100%;height:100%;}
 <button class="fab" id="log-btn" onclick="initiateReading()">+ Log Reading</button>
 
 <script>
+/**
+ * APP ENGINE STATE
+ */
 const AppState = {
     history: [5.4, 5.8, 6.1, 5.9, 5.7, 6.2, 5.8], 
-    lastReadingTimestamp: Date.now() - 300000, // Start with 5 mins ago
+    lastReadingTimestamp: Date.now() - 600000, // 10 mins ago baseline
     isProcessing: false,
-    intervals: {}
+    intervals: {
+        clock: null,
+        timers: null
+    }
 };
 
+// 1. System Clock
 function updateClock() {
     const now = new Date();
     const datePart = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
@@ -134,19 +142,23 @@ function updateClock() {
     document.querySelector('.topbar-date').textContent = `${datePart} ${timePart}`;
 }
 
+// 2. Relative Timer Controller
 function updateRelativeTimers() {
-    // CRITICAL: Stop updating if a reading is being initiated
+    // Prevent logic execution if state is locked for reading
     if (AppState.isProcessing) return;
 
     const diffMins = Math.floor((Date.now() - AppState.lastReadingTimestamp) / 60000);
     const ts = diffMins < 1 ? "Just now" : `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+    
     document.getElementById('widget-time').textContent = ts;
     document.getElementById('hero-time').textContent = `Last Reading: ${ts}`;
 }
 
+// 3. Analytic Calculators (TIR, AVG, A1c)
 function updateClinicalStats() {
     const data = AppState.history;
     if (data.length === 0) return;
+
     const inRangeCount = data.filter(v => v >= 3.9 && v <= 10.0).length;
     const tir = Math.round((inRangeCount / data.length) * 100);
     const sum = data.reduce((a, b) => a + b, 0);
@@ -158,6 +170,7 @@ function updateClinicalStats() {
     document.getElementById('stat-a1c').textContent = a1c;
 }
 
+// 4. Data Visualization
 function drawChart() {
     const canvas = document.getElementById('glucoseChart');
     const ctx = canvas.getContext('2d');
@@ -177,6 +190,7 @@ function drawChart() {
     const getX = (i) => (i / (data.length - 1)) * width;
     const getY = (v) => height - ((v - min) / (max - min)) * height;
 
+    // Clinical Range Shading (Green Zone)
     ctx.fillStyle = 'rgba(56, 161, 105, 0.08)';
     ctx.fillRect(0, getY(10.0), width, getY(3.9) - getY(10.0));
 
@@ -199,37 +213,41 @@ function drawChart() {
 }
 
 /**
- * NEW: INITIATE READING (Stops Timers)
+ * 5. READING LIFECYCLE (Timer Stopping Logic)
  */
 function initiateReading() {
-    // 1. Enter Processing State
+    // STOP the background interval logic immediately
     AppState.isProcessing = true;
     
-    // 2. Visual Feedback
+    // UI Locking
     const btn = document.getElementById('log-btn');
     btn.disabled = true;
     btn.textContent = "Processing...";
+    
+    // Visual indicator that timer is suspended for calculation
     document.getElementById('widget-time').textContent = "CALIBRATING...";
-    document.getElementById('hero-time').textContent = "Calculating clinical value...";
+    document.getElementById('hero-time').textContent = "Establishing baseline...";
 
-    // 3. Simulated latency (e.g., waiting for sensor feedback)
+    // Simulated medical-grade sequencing delay
     setTimeout(() => {
-        completeReading();
-    }, 1500);
+        finalizeReading();
+    }, 1200);
 }
 
-function completeReading() {
-    const newVal = parseFloat((Math.random() * (13.0 - 3.0) + 3.0).toFixed(1));
+function finalizeReading() {
+    // Generate new mmol/L reading (3.5 to 12.5 range)
+    const newVal = parseFloat((Math.random() * (12.5 - 3.5) + 3.5).toFixed(1));
     const oldVal = AppState.history[AppState.history.length - 1];
     
+    // Commit to History
     AppState.history.push(newVal);
-    if(AppState.history.length > 20) AppState.history.shift();
+    if(AppState.history.length > 25) AppState.history.shift();
     
-    // Reset State & Timestamp
+    // RESET TIMESTAMPS & RESUME TIMER STATE
     AppState.lastReadingTimestamp = Date.now();
     AppState.isProcessing = false;
 
-    // UI Updates
+    // Global UI Sync
     document.getElementById('widget-val').textContent = newVal.toFixed(1);
     document.getElementById('hero-val').textContent = newVal.toFixed(1);
     
@@ -237,18 +255,20 @@ function completeReading() {
     btn.disabled = false;
     btn.textContent = "+ Log Reading";
 
+    // Trend Analysis
     const arrow = document.getElementById('trend-arrow');
     const diff = newVal - oldVal;
     arrow.textContent = diff > 0.4 ? "↑" : (diff < -0.4 ? "↓" : (diff > 0.1 ? "↗" : (diff < -0.1 ? "↘" : "→")));
     
+    // Threshold Alerts
     const banner = document.getElementById('alert-banner');
     banner.className = ''; 
     if (newVal < 3.9) {
-        banner.textContent = "⚠ HYPOGLYCEMIA DETECTED";
+        banner.textContent = "⚠ HYPOGLYCEMIA ALERT";
         banner.className = 'alert-hypo';
         document.getElementById('hero-val').style.color = 'var(--low)';
     } else if (newVal > 10.0) {
-        banner.textContent = "⚠ HYPERGLYCEMIA DETECTED";
+        banner.textContent = "⚠ HYPERGLYCEMIA ALERT";
         banner.className = 'alert-hyper';
         document.getElementById('hero-val').style.color = 'var(--hi)';
     } else {
@@ -256,26 +276,39 @@ function completeReading() {
         document.getElementById('hero-val').style.color = 'var(--ok)';
     }
 
+    // Refresh All Modules
     drawChart();
-    updateRelativeTimers(); // Resumes and shows "Just now"
+    updateRelativeTimers(); // Now resumes and correctly shows "Just now"
     updateClinicalStats();
     
+    // Notification
     const toast = document.getElementById('toast');
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-function init() {
+// 6. Global Controller
+function boot() {
     updateClock();
     updateRelativeTimers();
     updateClinicalStats();
     drawChart();
+    
+    // Clean intervals
+    if(AppState.intervals.clock) clearInterval(AppState.intervals.clock);
+    if(AppState.intervals.timers) clearInterval(AppState.intervals.timers);
+    
     AppState.intervals.clock = setInterval(updateClock, 1000);
     AppState.intervals.timers = setInterval(updateRelativeTimers, 10000);
 }
 
-window.onload = init;
+window.onload = boot;
 window.onresize = drawChart;
+
+// Background handling for mobile persistence
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') boot();
+});
 </script>
 </body>
 </html>
