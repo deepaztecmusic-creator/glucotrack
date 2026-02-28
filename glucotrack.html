@@ -2,181 +2,387 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>GlucoTrack Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>GlucoTrack – With mySugr Import</title>
+  <meta name="theme-color" content="#0d1321"/>
   <style>
     :root {
-      --bg: #F4F6F9; --white: #fff; --acc: #1A56DB;
-      --low: #E53E3E; --ok: #38A169; --hi: #D97706;
-      --text: #0D1321; --t3: #9AA3B5; --border: #E2E6ED;
+      --bg: #f4f6f9;
+      --fg: #0d1321;
+      --card: white;
+      --border: #e2e6ed;
+      --accent: #1a56db;
+      --ok: #38a169;
+      --low: #e53e3e;
+      --hi: #d97706;
+      --muted: #6b7280;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
-
-    /* Layout */
-    .app-container { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
-    .header { background: var(--white); padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-    .logo { font-weight: 800; color: var(--acc); font-size: 1.2rem; }
-    
-    /* Glucose Hero Card */
-    .hero { margin: 16px; padding: 20px; background: var(--white); border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-    .val-large { font-family: 'JetBrains Mono', monospace; font-size: 3.5rem; font-weight: 800; color: var(--ok); }
-    .unit { font-size: 1rem; color: var(--t3); font-weight: 600; }
-    
-    /* Input Section */
-    .log-section { padding: 0 16px; }
-    .input-card { background: var(--white); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
-    label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--t3); text-transform: uppercase; margin-bottom: 8px; }
-    .row { display: flex; gap: 10px; }
-    input { width: 100%; padding: 12px; border: 2px solid var(--bg); border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; outline: none; transition: border-color 0.2s; }
-    input:focus { border-color: var(--acc); }
-
-    /* Action Buttons */
-    .btn { width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
-    .btn-primary { background: var(--acc); color: white; margin-top: 10px; }
-    .btn:active { transform: scale(0.98); }
-
-    /* History List */
-    .history { margin-top: 20px; }
-    .entry { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .entry-info { font-size: 0.9rem; font-weight: 600; }
-    .entry-time { font-size: 0.7rem; color: var(--t3); }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--card);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+    main { flex: 1; padding: 16px; }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .big-number {
+      font-size: 3.8rem;
+      font-weight: 800;
+      line-height: 1;
+      font-family: monospace;
+      margin: 8px 0;
+    }
+    .status {
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .low  { background: #fee2e2; color: var(--low); }
+    .ok   { background: #ecfdf5; color: var(--ok); }
+    .high { background: #fef3c7; color: var(--hi); }
+    input[type="number"], input[type="file"] {
+      font-size: 1.4rem;
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: monospace;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 12px 0;
+    }
+    .context-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .context-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 0.95rem;
+    }
+    .context-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .history {
+      margin-top: 24px;
+    }
+    .entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .entry:last-child { border-bottom: none; }
+    #importStatus {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.95rem;
+    }
   </style>
 </head>
 <body>
 
-<div class="app-container">
-  <header class="header">
-    <div class="logo">GLUCO<span>TRACK</span></div>
-    <div id="current-date" style="font-size: 0.7rem; color: var(--t3); font-family: 'JetBrains Mono';"></div>
-  </header>
+<header>
+  <h1>GlucoTrack</h1>
+  <div id="date"></div>
+</header>
 
-  <div class="hero">
-    <label>Current Blood Glucose</label>
-    <div id="latest-val" class="val-large">--</div>
-    <div class="unit">mg/dL</div>
+<main>
+  <div class="card">
+    <div style="font-size:0.95rem; color:var(--muted); margin-bottom:4px;">Current Glucose</div>
+    <div class="big-number" id="current">—</div>
+    <div class="status" id="statusBadge">—</div>
+    <div style="margin-top:12px; color:var(--muted); font-size:0.9rem;" id="lastTime">No readings yet</div>
   </div>
 
-  <div class="log-section">
-    <div class="input-card">
-      <label>Log Glucose & Carbs</label>
-      <div class="row" style="gap:10px;">
-        <input type="number" id="bg-input" placeholder="BG (mg/dL)" aria-label="Blood Glucose in mg/dL">
-        <input type="number" id="carb-input" placeholder="Carbs (g)" aria-label="Carbs in grams">
-      </div>
-      <button class="btn btn-primary" id="log-btn">Log Entry</button>
-      <button class="btn" id="export-btn" style="margin-top:8px; background:#111; color:#fff;">Export CSV</button>
+  <div class="card">
+    <input type="number" id="glucoseInput" placeholder="—" step="0.1" min="0" max="40" autofocus/>
+    <div style="text-align:center; margin:12px 0; color:var(--muted);">mmol/L</div>
+
+    <div class="context-buttons" id="contextButtons">
+      <button class="context-btn active" data-ctx="Before meal">Before meal</button>
+      <button class="context-btn" data-ctx="After meal">After meal</button>
+      <button class="context-btn" data-ctx="Before bed">Before bed</button>
+      <button class="context-btn" data-ctx="Random">Random</button>
     </div>
 
-    <div class="input-card history">
-      <label>Recent Activity</label>
-      <div id="history-list"></div>
-    </div>
+    <button onclick="saveReading()">Save Reading</button>
   </div>
-</div>
+
+  <!-- Import section -->
+  <div class="card">
+    <div style="font-weight:600; margin-bottom:12px;">Import from mySugr (CSV)</div>
+    <input type="file" id="csvFile" accept=".csv"/>
+    <button onclick="importMySugrCSV()">Import CSV</button>
+    <div id="importStatus"></div>
+  </div>
+
+  <div class="card history">
+    <div style="font-weight:600; margin-bottom:12px;">Recent Readings</div>
+    <div id="historyList"></div>
+  </div>
+</main>
 
 <script>
-  // Pharma-like logic constants
-  const TARGET_BG = 100;
-  const INSULIN_RATIO = 10;   // 1 unit per 10g carbs
-  const CORRECTION_FACTOR = 50; // 1 unit drops BG by 50 mg/dL
+// ────────────────────────────────────────────────
+let readings = JSON.parse(localStorage.getItem('glucotrack_readings') || '[]');
+let selectedContext = 'Before meal';
 
-  let entries = JSON.parse(localStorage.getItem('gluco_data')) || [];
+const dateEl       = document.getElementById('date');
+const currentEl    = document.getElementById('current');
+const statusEl     = document.getElementById('statusBadge');
+const lastTimeEl   = document.getElementById('lastTime');
+const input        = document.getElementById('glucoseInput');
+const historyEl    = document.getElementById('historyList');
+const importStatus = document.getElementById('importStatus');
 
-  function parseNum(value, fallback = 0) {
-    const v = parseFloat(value);
-    return Number.isFinite(v) ? v : fallback;
+const ctxButtons = document.querySelectorAll('#contextButtons button');
+ctxButtons.forEach(btn => {
+  btn.onclick = () => {
+    ctxButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedContext = btn.dataset.ctx;
+  };
+});
+
+// Format date
+function updateDate() {
+  dateEl.textContent = new Date().toLocaleDateString('en-ZA', {
+    weekday: 'short', day: 'numeric', month: 'short'
+  });
+}
+updateDate();
+setInterval(updateDate, 60000);
+
+// Status color & text
+function getStatus(v) {
+  if (v < 3.9) return {cls:'low',  txt:'LOW'};
+  if (v <= 10) return {cls:'ok',   txt:'OK'};
+  return             {cls:'high', txt:'HIGH'};
+}
+
+// Show latest reading
+function renderLatest() {
+  if (!readings.length) {
+    currentEl.textContent = '—';
+    statusEl.textContent = 'No data';
+    statusEl.className = 'status';
+    lastTimeEl.textContent = 'No readings yet';
+    return;
   }
+  const latest = readings[readings.length-1];
+  currentEl.textContent = latest.value.toFixed(1);
+  const st = getStatus(latest.value);
+  statusEl.textContent = st.txt;
+  statusEl.className = 'status ' + st.cls;
+  lastTimeEl.textContent = 'Last reading • ' + new Date(latest.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
 
-  function updateUI() {
-    const listEl = document.getElementById('history-list');
-    const latestDisplay = document.getElementById('latest-val');
-    
-    listEl.innerHTML = '';
-
-    if (entries.length > 0) {
-      const latest = entries<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[0]</a>;
-      latestDisplay.innerText = latest.bg;
-      latestDisplay.style.color = latest.bg > 180 ? 'var(--hi)' : (latest.bg < 70 ? 'var(--low)' : 'var(--ok)');
-    } else {
-      latestDisplay.innerText = '--';
-      latestDisplay.style.color = 'var(--text)';
-    }
-
-    entries.forEach((entry) => {
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
+// Render history (last 10)
+function renderHistory() {
+  if (!readings.length) {
+    historyEl.innerHTML = '<div style="color:var(--muted); text-align:center; padding:16px 0;">No readings yet</div>';
+    return;
+  }
+  const html = readings.slice(-10).reverse().map(r => {
+    const st = getStatus(r.value);
+    const time = new Date(r.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `
+      <div class="entry">
         <div>
-          <div class="entry-info">${entry.bg} mg/dL <span style="color:var(--t3)">•</span> ${entry.carbs}g Carbs</div>
-          <div class="entry-time">${new Date(entry.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+          <strong>${r.value.toFixed(1)}</strong> mmol/L
+          <span style="color:var(--muted); font-size:0.9rem;"> • ${r.context}</span>
         </div>
-        <div style="font-family:'JetBrains Mono'; font-weight:700; color:var(--acc)">
-          ${entry.insulin.toFixed(1)}U
-        </div>
-      `;
-      listEl.appendChild(div);
-    });
+        <div style="color:var(--muted); font-size:0.9rem;">${time}</div>
+      </div>
+    `;
+  }).join('');
+  historyEl.innerHTML = html;
+}
 
-    localStorage.setItem('gluco_data', JSON.stringify(entries));
+// Save new reading
+function saveReading() {
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val <= 0) {
+    alert('Please enter a valid glucose value');
+    return;
+  }
+  readings.push({
+    value: val,
+    context: selectedContext,
+    ts: Date.now()
+  });
+  localStorage.setItem('glucotrack_readings', JSON.stringify(readings));
+  input.value = '';
+  renderLatest();
+  renderHistory();
+  toast('Reading saved ✓');
+}
+
+// ── mySugr CSV Import with duplicate protection ────────────────────────
+function importMySugrCSV() {
+  const fileInput = document.getElementById('csvFile');
+  const file = fileInput.files[0];
+  if (!file) {
+    alert('Please select a CSV file first');
+    return;
   }
 
-  function addEntry() {
-    const bg = parseNum(document.getElementById('bg-input').value, NaN);
-    const carbs = parseNum(document.getElementById('carb-input').value, 0);
+  importStatus.textContent = 'Reading file...';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/);
+    let added = 0;
+    let skipped = 0;
 
-    if (!Number.isFinite(bg) || bg <= 0) {
-      alert("Please enter a valid Blood Glucose value (> 0).");
-      return;
+    // We'll store a Set of (timestamp rounded to minute, value) for quick lookup
+    const existing = new Set(
+      readings.map(r => {
+        const d = new Date(r.ts);
+        const minuteKey = d.getFullYear() + '-' +
+                          String(d.getMonth()+1).padStart(2,'0') + '-' +
+                          String(d.getDate()).padStart(2,'0') + ' ' +
+                          String(d.getHours()).padStart(2,'0') + ':' +
+                          String(d.getMinutes()).padStart(2,'0');
+        return minuteKey + '|' + r.value.toFixed(1);
+      })
+    );
+
+    // Skip header row(s) — mySugr usually has 1–2 header lines
+    let startRow = 0;
+    while (startRow < lines.length && !lines[startRow].includes('Date') && !lines[startRow].includes('Time')) {
+      startRow++;
+    }
+    startRow++; // skip the actual header
+
+    for (let i = startRow; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      // Typical mySugr columns: Date, Time, Blood Glucose (mmol/L), ...
+      if (cols.length < 3) continue;
+
+      const dateStr = cols[0]; // e.g. 15/02/2025
+      const timeStr = cols[1]; // e.g. 14:37
+      const bgStr   = cols[2]; // e.g. 6.4
+
+      if (!dateStr || !timeStr || !bgStr) continue;
+
+      // Parse date/time
+      const [day, month, year] = dateStr.split('/');
+      const [hour, minute]     = timeStr.split(':');
+      const dt = new Date(year, month-1, day, hour, minute);
+      if (isNaN(dt.getTime())) continue;
+
+      const bg = parseFloat(bgStr.replace(',', '.'));
+      if (isNaN(bg) || bg <= 0) continue;
+
+      // Create a key rounded to the minute
+      const minuteKey = dt.getFullYear() + '-' +
+                        String(dt.getMonth()+1).padStart(2,'0') + '-' +
+                        String(dt.getDate()).padStart(2,'0') + ' ' +
+                        String(dt.getHours()).padStart(2,'0') + ':' +
+                        String(dt.getMinutes()).padStart(2,'0');
+
+      const key = minuteKey + '|' + bg.toFixed(1);
+
+      if (existing.has(key)) {
+        skipped++;
+        continue;
+      }
+
+      // New entry → add
+      readings.push({
+        value: bg,
+        context: 'Imported', // you can change this
+        ts: dt.getTime()
+      });
+
+      // Add to existing set so we don't add it again in the same import
+      existing.add(key);
+      added++;
     }
 
-    // Pharma calculation
-    const carbDose = carbs / INSULIN_RATIO;
-    const correctionDose = bg > TARGET_BG ? (bg - TARGET_BG) / CORRECTION_FACTOR : 0;
-    const totalInsulin = Math.max(0, +(carbDose + correctionDose).toFixed(1));
+    // Save and refresh
+    localStorage.setItem('glucotrack_readings', JSON.stringify(readings));
+    renderLatest();
+    renderHistory();
 
-    const newEntry = {
-      bg,
-      carbs,
-      insulin: totalInsulin,
-      time: new Date().toISOString()
-    };
+    importStatus.innerHTML = `
+      Import finished:<br>
+      <strong>${added}</strong> new readings added<br>
+      <strong>${skipped}</strong> duplicates skipped
+    `;
+    if (added > 0) toast(`${added} readings imported successfully`);
+    else toast('No new readings found (all duplicates)');
+  };
 
-    entries.unshift(newEntry);
-    updateUI();
+  reader.onerror = () => {
+    importStatus.textContent = 'Error reading file';
+    alert('Could not read the CSV file');
+  };
 
-    // Reset inputs
-    document.getElementById('bg-input').value = '';
-    document.getElementById('carb-input').value = '';
-  }
+  reader.readAsText(file);
+}
 
-  function exportCSV() {
-    if (entries.length === 0) {
-      alert("No entries to export.");
-      return;
-    }
-    const header = 'Time,BG (mg/dL),Carbs (g),Insulin (U)\n';
-    const rows = entries.map(e =>
-      `${new Date(e.time).toISOString()},${e.bg},${e.carbs},${e.insulin}`
-    ).join('\n');
-    const blob = new Blob([header + rows], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'glucotrack.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
+// Simple toast
+function toast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:12px 24px; border-radius:999px; font-size:0.95rem; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
 
-  // Init
-  document.getElementById('log-btn').addEventListener('click', addEntry);
-  document.getElementById('export-btn').addEventListener('click', exportCSV);
+// Init
+renderLatest();
+renderHistory();
 
-  // Date header
-  document.getElementById('current-date').innerText = new Date().toDateString().toUpperCase();
-
-  updateUI();
+// Optional: clear data (uncomment to reset)
+// localStorage.removeItem('glucotrack_readings'); readings = []; renderLatest(); renderHistory();
 </script>
 
 </body>
