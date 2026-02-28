@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>GlucoTrack – With mySugr Import</title>
+  <title>GlucoTrack – Fixed Version</title>
   <meta name="theme-color" content="#0d1321"/>
+  <link rel="manifest" href="data:application/manifest+json,{
+    'name':'GlucoTrack','short_name':'Gluco','start_url':'./','display':'standalone',
+    'background_color':'#f4f6f9','theme_color':'#0d1321','icons':[]
+  }"/>
   <style>
     :root {
       --bg: #f4f6f9;
@@ -63,14 +67,14 @@
     .low  { background: #fee2e2; color: var(--low); }
     .ok   { background: #ecfdf5; color: var(--ok); }
     .high { background: #fef3c7; color: var(--hi); }
-    input[type="number"], input[type="file"] {
-      font-size: 1.4rem;
+    input[type="number"] {
+      font-size: 2.8rem;
       width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: none;
+      background: transparent;
+      text-align: center;
       font-family: monospace;
+      outline: none;
     }
     button {
       background: var(--accent);
@@ -111,14 +115,6 @@
       border-bottom: 1px solid var(--border);
     }
     .entry:last-child { border-bottom: none; }
-    #importStatus {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #ecfdf5;
-      color: #065f46;
-      font-size: 0.95rem;
-    }
   </style>
 </head>
 <body>
@@ -150,14 +146,6 @@
     <button onclick="saveReading()">Save Reading</button>
   </div>
 
-  <!-- Import section -->
-  <div class="card">
-    <div style="font-weight:600; margin-bottom:12px;">Import from mySugr (CSV)</div>
-    <input type="file" id="csvFile" accept=".csv"/>
-    <button onclick="importMySugrCSV()">Import CSV</button>
-    <div id="importStatus"></div>
-  </div>
-
   <div class="card history">
     <div style="font-weight:600; margin-bottom:12px;">Recent Readings</div>
     <div id="historyList"></div>
@@ -169,13 +157,12 @@
 let readings = JSON.parse(localStorage.getItem('glucotrack_readings') || '[]');
 let selectedContext = 'Before meal';
 
-const dateEl       = document.getElementById('date');
-const currentEl    = document.getElementById('current');
-const statusEl     = document.getElementById('statusBadge');
-const lastTimeEl   = document.getElementById('lastTime');
-const input        = document.getElementById('glucoseInput');
-const historyEl    = document.getElementById('historyList');
-const importStatus = document.getElementById('importStatus');
+const dateEl     = document.getElementById('date');
+const currentEl  = document.getElementById('current');
+const statusEl   = document.getElementById('statusBadge');
+const lastTimeEl = document.getElementById('lastTime');
+const input      = document.getElementById('glucoseInput');
+const historyEl  = document.getElementById('historyList');
 
 const ctxButtons = document.querySelectorAll('#contextButtons button');
 ctxButtons.forEach(btn => {
@@ -260,114 +247,6 @@ function saveReading() {
   toast('Reading saved ✓');
 }
 
-// ── mySugr CSV Import with duplicate protection ────────────────────────
-function importMySugrCSV() {
-  const fileInput = document.getElementById('csvFile');
-  const file = fileInput.files[0];
-  if (!file) {
-    alert('Please select a CSV file first');
-    return;
-  }
-
-  importStatus.textContent = 'Reading file...';
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result;
-    const lines = text.split(/\r?\n/);
-    let added = 0;
-    let skipped = 0;
-
-    // We'll store a Set of (timestamp rounded to minute, value) for quick lookup
-    const existing = new Set(
-      readings.map(r => {
-        const d = new Date(r.ts);
-        const minuteKey = d.getFullYear() + '-' +
-                          String(d.getMonth()+1).padStart(2,'0') + '-' +
-                          String(d.getDate()).padStart(2,'0') + ' ' +
-                          String(d.getHours()).padStart(2,'0') + ':' +
-                          String(d.getMinutes()).padStart(2,'0');
-        return minuteKey + '|' + r.value.toFixed(1);
-      })
-    );
-
-    // Skip header row(s) — mySugr usually has 1–2 header lines
-    let startRow = 0;
-    while (startRow < lines.length && !lines[startRow].includes('Date') && !lines[startRow].includes('Time')) {
-      startRow++;
-    }
-    startRow++; // skip the actual header
-
-    for (let i = startRow; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-
-      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
-      // Typical mySugr columns: Date, Time, Blood Glucose (mmol/L), ...
-      if (cols.length < 3) continue;
-
-      const dateStr = cols[0]; // e.g. 15/02/2025
-      const timeStr = cols[1]; // e.g. 14:37
-      const bgStr   = cols[2]; // e.g. 6.4
-
-      if (!dateStr || !timeStr || !bgStr) continue;
-
-      // Parse date/time
-      const [day, month, year] = dateStr.split('/');
-      const [hour, minute]     = timeStr.split(':');
-      const dt = new Date(year, month-1, day, hour, minute);
-      if (isNaN(dt.getTime())) continue;
-
-      const bg = parseFloat(bgStr.replace(',', '.'));
-      if (isNaN(bg) || bg <= 0) continue;
-
-      // Create a key rounded to the minute
-      const minuteKey = dt.getFullYear() + '-' +
-                        String(dt.getMonth()+1).padStart(2,'0') + '-' +
-                        String(dt.getDate()).padStart(2,'0') + ' ' +
-                        String(dt.getHours()).padStart(2,'0') + ':' +
-                        String(dt.getMinutes()).padStart(2,'0');
-
-      const key = minuteKey + '|' + bg.toFixed(1);
-
-      if (existing.has(key)) {
-        skipped++;
-        continue;
-      }
-
-      // New entry → add
-      readings.push({
-        value: bg,
-        context: 'Imported', // you can change this
-        ts: dt.getTime()
-      });
-
-      // Add to existing set so we don't add it again in the same import
-      existing.add(key);
-      added++;
-    }
-
-    // Save and refresh
-    localStorage.setItem('glucotrack_readings', JSON.stringify(readings));
-    renderLatest();
-    renderHistory();
-
-    importStatus.innerHTML = `
-      Import finished:<br>
-      <strong>${added}</strong> new readings added<br>
-      <strong>${skipped}</strong> duplicates skipped
-    `;
-    if (added > 0) toast(`${added} readings imported successfully`);
-    else toast('No new readings found (all duplicates)');
-  };
-
-  reader.onerror = () => {
-    importStatus.textContent = 'Error reading file';
-    alert('Could not read the CSV file');
-  };
-
-  reader.readAsText(file);
-}
-
 // Simple toast
 function toast(msg) {
   const t = document.createElement('div');
@@ -381,7 +260,7 @@ function toast(msg) {
 renderLatest();
 renderHistory();
 
-// Optional: clear data (uncomment to reset)
+// Optional: clear data (for testing)
 // localStorage.removeItem('glucotrack_readings'); readings = []; renderLatest(); renderHistory();
 </script>
 
