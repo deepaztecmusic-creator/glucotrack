@@ -22,7 +22,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* ─── UI COMPONENTS ─── */
 .topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);z-index:10;}
 .logo{font-size:16px;font-weight:800;color:var(--acc);}
-.logo span{color:var(--text);}
 .topbar-date{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
 
 .wbar{background:#0D1321;padding:12px 16px;color:#fff;}
@@ -152,7 +151,7 @@ function drawChart() {
     const getX = (i) => (i / (data.length - 1)) * w;
     const getY = (v) => h - ((v - 2.0) / (15.0 - 2.0)) * h;
 
-    // Green Range (Target Zone)
+    // Green Range (Target Zone: 3.9 - 10.0 mmol/L)
     ctx.fillStyle = 'rgba(56, 161, 105, 0.08)';
     ctx.fillRect(0, getY(10.0), w, getY(3.9) - getY(10.0));
 
@@ -169,19 +168,19 @@ function drawChart() {
  * ATOMIC READING INITIATION (Stops and Resets Timer)
  */
 function initiateReading() {
-    // 1. CLEAR existing timer immediately
+    // 1. KILL the background timer interval immediately to prevent race conditions
     clearInterval(AppState.timerRef);
 
-    // 2. Data Logic
+    // 2. Commit new data (Realistic mmol/L range)
     const newVal = parseFloat((Math.random() * (12.0 - 3.5) + 3.5).toFixed(1));
     const oldVal = AppState.history[AppState.history.length - 1];
     AppState.history.push(newVal);
     if(AppState.history.length > 25) AppState.history.shift();
     
-    // 3. Reset Timestamp
+    // 3. Reset the Global Timestamp to "now"
     AppState.lastReadingTimestamp = Date.now();
 
-    // 4. Update UI
+    // 4. Update UI Components
     document.getElementById('widget-val').textContent = newVal.toFixed(1);
     document.getElementById('hero-val').textContent = newVal.toFixed(1);
     
@@ -189,6 +188,7 @@ function initiateReading() {
     const diff = newVal - oldVal;
     arrow.textContent = diff > 0.4 ? "↑" : (diff < -0.4 ? "↓" : "→");
     
+    // Clinical Threshold Handling
     const banner = document.getElementById('alert-banner');
     if (newVal < 3.9) {
         banner.textContent = "⚠ HYPOGLYCEMIA ALERT";
@@ -203,12 +203,10 @@ function initiateReading() {
         document.getElementById('hero-val').style.color = 'var(--ok)';
     }
 
-    // 5. Finalize UI State
+    // 5. Finalize State and RESTART background logic
     drawChart();
     updateClinicalStats();
-    updateRelativeTimers(); // Instantly shows "Just now"
-    
-    // 6. RESTART the background timer
+    updateRelativeTimers(); // Immediate update to "Just now"
     AppState.timerRef = setInterval(updateRelativeTimers, 10000);
 }
 
