@@ -1,222 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GlucoTrack Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>GlucoTrack Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F6F9; --white: #fff; --acc: #1A56DB;
+            --low: #E53E3E; --ok: #38A169; --hi: #D97706;
+            --text: #0D1321; --t3: #9AA3B5; --border: #E2E6ED;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        
+        /* Layout */
+        .app-container { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+        .header { background: var(--white); padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; sticky; top: 0; z-index: 10; }
+        .logo { font-weight: 800; color: var(--acc); font-size: 1.2rem; }
+        
+        /* Glucose Hero Card */
+        .hero { margin: 16px; padding: 20px; background: var(--white); border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
+        .val-large { font-family: 'JetBrains Mono', monospace; font-size: 3.5rem; font-weight: 800; color: var(--ok); }
+        .unit { font-size: 1rem; color: var(--t3); font-weight: 600; }
+        
+        /* Input Section */
+        .log-section { padding: 0 16px; }
+        .input-card { background: var(--white); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+        label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--t3); text-transform: uppercase; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; border: 2px solid var(--bg); border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; outline: none; transition: border-color 0.2s; }
+        input:focus { border-color: var(--acc); }
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+        /* Action Buttons */
+        .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
+        .btn-primary { background: var(--acc); color: white; margin-top: 10px; }
+        .btn:active { transform: scale(0.98); }
 
-<style>
-:root {
-    --bg:#F4F6F9; --white:#fff; --acc:#1A56DB;
-    --low:#E53E3E; --ok:#38A169; --hi:#D97706;
-    --text:#0D1321; --t3:#9AA3B5; --border:#E2E6ED;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);}
-.app-container{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
-.header{
-    background:var(--white);
-    padding:16px;
-    border-bottom:1px solid var(--border);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    position:sticky;
-    top:0;
-    z-index:10;
-}
-.logo{font-weight:800;color:var(--acc);font-size:1.2rem;}
-.hero{
-    margin:16px;
-    padding:20px;
-    background:var(--white);
-    border-radius:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.05);
-    text-align:center;
-}
-.val-large{
-    font-family:'JetBrains Mono',monospace;
-    font-size:3.5rem;
-    font-weight:800;
-}
-.unit{font-size:1rem;color:var(--t3);font-weight:600;}
-.log-section{padding:0 16px;}
-.input-card{
-    background:var(--white);
-    padding:16px;
-    border-radius:16px;
-    margin-bottom:12px;
-    border:1px solid var(--border);
-}
-label{
-    display:block;
-    font-size:0.75rem;
-    font-weight:700;
-    color:var(--t3);
-    text-transform:uppercase;
-    margin-bottom:8px;
-}
-input{
-    width:100%;
-    padding:12px;
-    border:2px solid var(--bg);
-    border-radius:12px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:1.2rem;
-}
-input:focus{border-color:var(--acc);}
-.btn{
-    width:100%;
-    padding:16px;
-    border-radius:14px;
-    border:none;
-    font-weight:800;
-    cursor:pointer;
-}
-.btn-primary{background:var(--acc);color:white;margin-top:10px;}
-.history{margin-top:20px;}
-.entry{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:12px 0;
-    border-bottom:1px solid var(--border);
-}
-.entry-info{font-size:0.9rem;font-weight:600;}
-.entry-time{font-size:0.7rem;color:var(--t3);}
-.empty{text-align:center;color:var(--t3);font-size:0.85rem;padding:10px 0;}
-</style>
+        /* History List */
+        .history { margin-top: 20px; }
+        .entry { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .entry-info { font-size: 0.9rem; font-weight: 600; }
+        .entry-time { font-size: 0.7rem; color: var(--t3); }
+    </style>
 </head>
-
 <body>
 
 <div class="app-container">
-<header class="header">
-    <div class="logo">GLUCOTRACK</div>
-    <div id="current-date" style="font-size:0.7rem;color:var(--t3);font-family:'JetBrains Mono';"></div>
-</header>
+    <header class="header">
+        <div class="logo">GLUCO<span>TRACK</span></div>
+        <div id="current-date" style="font-size: 0.7rem; color: var(--t3); font-family: 'JetBrains Mono';"></div>
+    </header>
 
-<div class="hero">
-    <label>Current Blood Glucose</label>
-    <div id="latest-val" class="val-large">--</div>
-    <div class="unit">mg/dL</div>
-</div>
+    <div class="hero">
+        <label>Current Blood Glucose</label>
+        <div id="latest-val" class="val-large">--</div>
+        <div class="unit">mg/dL</div>
+    </div>
 
-<div class="log-section">
-    <div class="input-card">
-        <label>Log Glucose & Carbs</label>
-        <div style="display:flex;gap:10px;">
-            <input type="number" id="bg-input" placeholder="BG (mg/dL)">
-            <input type="number" id="carb-input" placeholder="Carbs (g)">
+    <div class="log-section">
+        <div class="input-card">
+            <label>Log Glucose & Carbs</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="bg-input" placeholder="BG (mg/dL)">
+                <input type="number" id="carb-input" placeholder="Carbs (g)">
+            </div>
+            <button class="btn btn-primary" onclick="addEntry()">Log Entry</button>
         </div>
-        <button class="btn btn-primary" id="log-btn">Log Entry</button>
-    </div>
 
-    <div class="input-card history">
-        <label>Recent Activity</label>
-        <div id="history-list"></div>
+        <div class="input-card history">
+            <label>Recent Activity</label>
+            <div id="history-list">
+                </div>
+        </div>
     </div>
-</div>
 </div>
 
 <script>
-const TARGET_BG = 100;
-const INSULIN_RATIO = 10;
-const CORRECTION_FACTOR = 50;
-const MAX_INSULIN = 25;
+    // Configuration for "Pharma" Logic
+    const TARGET_BG = 100;
+    const INSULIN_RATIO = 10; // 1 unit per 10g carbs
+    const CORRECTION_FACTOR = 50; // 1 unit drops BG by 50mg/dL
 
-let entries = [];
+    let entries = JSON.parse(localStorage.getItem('gluco_data')) || [];
 
-function loadData() {
-    try {
-        const stored = JSON.parse(localStorage.getItem('gluco_data'));
-        if (Array.isArray(stored)) entries = stored;
-    } catch {
-        entries = [];
-    }
-}
+    function updateUI() {
+        const list = document.getElementById('history-list');
+        const latestDisplay = document.getElementById('latest-val');
+        
+        list.innerHTML = '';
+        
+        if (entries.length > 0) {
+            const latest = entries[0];
+            latestDisplay.innerText = latest.bg;
+            latestDisplay.style.color = latest.bg > 180 ? 'var(--hi)' : (latest.bg < 70 ? 'var(--low)' : 'var(--ok)');
+        }
 
-function saveData() {
-    localStorage.setItem('gluco_data', JSON.stringify(entries));
-}
-
-function getColor(bg) {
-    if (bg < 70) return 'var(--low)';
-    if (bg > 180) return 'var(--hi)';
-    return 'var(--ok)';
-}
-
-function updateUI() {
-    const list = document.getElementById('history-list');
-    const latestDisplay = document.getElementById('latest-val');
-    list.innerHTML = '';
-
-    if (entries.length === 0) {
-        latestDisplay.textContent = '--';
-        list.innerHTML = '<div class="empty">No entries logged yet</div>';
-        return;
-    }
-
-    const latest = entries[0];
-    latestDisplay.textContent = latest.bg;
-    latestDisplay.style.color = getColor(latest.bg);
-
-    entries.forEach(entry => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `
-            <div>
-                <div class="entry-info">${entry.bg} mg/dL • ${entry.carbs}g Carbs</div>
-                <div class="entry-time">${new Date(entry.time).toLocaleString()}</div>
-            </div>
-            <div style="font-family:'JetBrains Mono';font-weight:700;color:var(--acc)">
-                ${entry.insulin}U
-            </div>
-        `;
-        list.appendChild(div);
-    });
-
-    saveData();
-}
-
-function addEntry() {
-    const bg = parseFloat(document.getElementById('bg-input').value);
-    const carbs = parseFloat(document.getElementById('carb-input').value) || 0;
-
-    if (isNaN(bg) || bg <= 0) {
-        alert("Please enter a valid Blood Glucose value.");
-        return;
+        entries.forEach((entry, index) => {
+            const div = document.createElement('div');
+            div.className = 'entry';
+            div.innerHTML = `
+                <div>
+                    <div class="entry-info">${entry.bg} mg/dL <span style="color:var(--t3)">•</span> ${entry.carbs}g Carbs</div>
+                    <div class="entry-time">${new Date(entry.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+                <div style="font-family:'JetBrains Mono'; font-weight:700; color:var(--acc)">
+                    ${entry.insulin}U
+                </div>
+            `;
+            list.appendChild(div);
+        });
+        
+        localStorage.setItem('gluco_data', JSON.stringify(entries));
     }
 
-    const carbDose = carbs / INSULIN_RATIO;
-    const correctionDose = bg > TARGET_BG ? (bg - TARGET_BG) / CORRECTION_FACTOR : 0;
-    let totalInsulin = carbDose + correctionDose;
+    function addEntry() {
+        const bg = parseFloat(document.getElementById('bg-input').value);
+        const carbs = parseFloat(document.getElementById('carb-input').value) || 0;
 
-    if (totalInsulin > MAX_INSULIN) totalInsulin = MAX_INSULIN;
+        if (!bg) { alert("Please enter a Blood Glucose value."); return; }
 
-    totalInsulin = Number(totalInsulin.toFixed(1));
+        // Pharma Calculation Logic: (Carb Dose) + (Correction Dose)
+        const carbDose = carbs / INSULIN_RATIO;
+        const correctionDose = bg > TARGET_BG ? (bg - TARGET_BG) / CORRECTION_FACTOR : 0;
+        const totalInsulin = (carbDose + correctionDose).toFixed(1);
 
-    const newEntry = {
-        bg: Math.round(bg),
-        carbs: Math.round(carbs),
-        insulin: totalInsulin,
-        time: new Date().toISOString()
-    };
+        const newEntry = {
+            bg,
+            carbs,
+            insulin: totalInsulin,
+            time: new Date().toISOString()
+        };
 
-    entries.unshift(newEntry);
+        entries.unshift(newEntry);
+        updateUI();
+        
+        // Reset inputs
+        document.getElementById('bg-input').value = '';
+        document.getElementById('carb-input').value = '';
+    }
+
+    document.getElementById('current-date').innerText = new Date().toDateString().toUpperCase();
     updateUI();
-
-    document.getElementById('bg-input').value = '';
-    document.getElementById('carb-input').value = '';
-}
-
-document.getElementById('log-btn').addEventListener('click', addEntry);
-document.getElementById('current-date').textContent = new Date().toDateString().toUpperCase();
-
-loadData();
-updateUI();
 </script>
 
 </body>
