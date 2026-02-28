@@ -1,983 +1,267 @@
-!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="apple-mobile-web-app-title" content="GlucoTrack">
-
-<meta name="mobile-web-app-capable" content="yes">
-
-<meta name="theme-color" content="#0D1321">
-
-<meta name="application-name" content="GlucoTrack">
-
-<meta name="description" content="Personal glucose tracker with AI meal analysis">
-
-<link id="pwa-icon-57" rel="apple-touch-icon" sizes="57x57">
-
-<link id="pwa-icon-60" rel="apple-touch-icon" sizes="60x60">
-
-<link id="pwa-icon-72" rel="apple-touch-icon" sizes="72x72">
-
-<link id="pwa-icon-76" rel="apple-touch-icon" sizes="76x76">
-
-<link id="pwa-icon-114" rel="apple-touch-icon" sizes="114x114">
-
-<link id="pwa-icon-120" rel="apple-touch-icon" sizes="120x120">
-
-<link id="pwa-icon-144" rel="apple-touch-icon" sizes="144x144">
-
-<link id="pwa-icon-152" rel="apple-touch-icon" sizes="152x152">
-
-<link id="pwa-icon-180" rel="apple-touch-icon" sizes="180x180">
-
-<link id="pwa-manifest" rel="manifest">
-
-<link id="pwa-splash-2048" rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
-
-<link id="pwa-splash-1668" rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
-
-<link id="pwa-splash-1536" rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
-
-<link id="pwa-splash-1125" rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
-
-<link id="pwa-splash-1242" rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
-
-<link id="pwa-splash-750" rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
-
-<link id="pwa-splash-640" rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
-
-<title>GlucoTrack</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
-<style>
-
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-
-:root{
-
-  --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
-
-  --text:#0D1321;--t2:#5A6478;--t3:#9AA3B5;
-
-  --low:#E53E3E;--low-bg:#FFF5F5;--low-b:#FEB2B2;
-
-  --ok:#38A169;--ok-bg:#F0FFF4;--ok-b:#9AE6B4;
-
-  --hi:#D97706;--hi-bg:#FFFBEB;--hi-b:#FCD34D;
-
-  --vhi:#E53E3E;--acc:#1A56DB;--acc-bg:#EBF5FF;--acc-b:#93C5FD;
-
-  --pur:#7C3AED;--pur-bg:#F5F3FF;
-
-  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-
-  --sh2:0 4px 16px rgba(0,0,0,.09);
-
-  --r:14px;--rs:8px;
-
-}
-
-body.dark{
-
-  --bg:#0D1321;--white:#1a2236;--border:#243049;--border2:#2d3d57;
-
-  --text:#e8edf5;--t2:#8899bb;--t3:#4a5a7a;
-
-  --low-bg:#2d1515;--low-b:#7f2020;
-
-  --ok-bg:#0d2a1a;--ok-b:#1a5c30;
-
-  --hi-bg:#2a1f08;--hi-b:#7a4f0a;
-
-  --acc-bg:#0d1e3d;--acc-b:#1a3a6b;
-
-  --pur-bg:#1a0d35;
-
-  --sh:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
-
-  --sh2:0 4px 16px rgba(0,0,0,.4);
-
-}
-
-body.dark .card{background:var(--white);}
-
-body.dark .topbar{background:#111827;border-color:var(--border);}
-
-body.dark .drawer{background:#111827;}
-
-body.dark .msheet{background:#111827;}
-
-body.dark .sgcard{background:var(--white);}
-
-body.dark input,body.dark textarea{background:#0d1321;color:var(--text);border-color:var(--border2);}
-
-body.dark .cc{background:#0d1321;}
-
-body.dark .iif{background:#0d1321;}
-
-body.dark .nf{background:#0d1321;color:var(--text);}
-
-body.dark .tp.active{background:var(--white);}
-
-body.dark .cdr-btn.active{background:var(--white);}
-
-html{height:100%;background:var(--bg);}body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
-
-
-
-/* ─── TOAST ─── */
-
-.toast-wrap{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 32px);max-width:390px;}
-
-.toast{background:var(--text);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.25);animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:all;}
-
-.toast.error{background:#C53030;}.toast.success{background:#276749;}.toast.warn{background:#B7791F;}
-
-.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 0 32px;animation:toastIn .2s ease;}
-
-.confirm-box{background:#fff;border-radius:16px;padding:20px;width:calc(100% - 32px);max-width:390px;box-shadow:0 8px 32px rgba(0,0,0,.25);}
-
-body.dark .confirm-box{background:#1a2236;}
-
-.confirm-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:16px;line-height:1.4;text-align:center;}
-
-.confirm-btns{display:flex;gap:10px;}
-
-.confirm-btn{flex:1;padding:12px;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
-
-.confirm-btn.cancel{background:var(--bg);color:var(--t2);}
-
-.confirm-btn.danger{background:#E53E3E;color:#fff;}
-
-.confirm-btn.primary{background:var(--acc);color:#fff;}
-
-.toast-icon{font-size:16px;flex-shrink:0;}
-
-@keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-
-@keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
-
-
-
-/* ─── AUTH SCREEN ─── */
-
-
-
-/* ─── TOPBAR ─── */
-
-.topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;z-index:210;}
-
-.logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}
-
-.logo span{color:var(--text);}
-
-.topbar-right{display:flex;align-items:center;gap:8px;}
-
-.topbar-date{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-.burger{width:40px;height:40px;border:none;background:none;cursor:pointer;position:relative;border-radius:8px;transition:background .15s;flex-shrink:0;}
-
-.burger:hover{background:var(--bg);}
-
-.bl{position:absolute;left:50%;width:20px;height:2px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:transform .3s ease,opacity .3s ease;}.bl:nth-child(1){top:11px;}.bl:nth-child(2){top:19px;}.bl:nth-child(3){top:27px;}
-
-.burger.open .bl:nth-child(1){transform:translateX(-50%) translateY(8px) rotate(45deg);}
-
-.burger.open .bl:nth-child(2){opacity:0;}
-
-.burger.open .bl:nth-child(3){transform:translateX(-50%) translateY(-8px) rotate(-45deg);}
-
-
-
-/* ─── WIDGET BAR ─── */
-
-.wbar{background:#0D1321;padding:10px 16px;flex-shrink:0;position:relative;overflow:hidden;}
-
-.wbar::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#1e293b,#0f172a);pointer-events:none;}
-
-.wbar-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-
-.wbar-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;overflow:hidden;}
-
-.wval-grp{display:flex;align-items:baseline;gap:4px;flex-shrink:0;}
-
-.wnum{font-size:26px;font-weight:700;color:#34d399;font-family:'JetBrains Mono',monospace;transition:color .4s;letter-spacing:-1px;}
-
-.wnum.low{color:#f87171;}.wnum.hi{color:#fbbf24;}.wnum.vhi{color:#f87171;}.wnum.none{color:#475569;font-size:20px;}
-
-.wunit{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;}
-
-.wtrend{font-size:13px;color:#94a3b8;margin-left:1px;}
-
-.wtime{font-size:10px;color:#475569;font-family:'JetBrains Mono',monospace;}
-
-.wspark{flex:1;min-width:40px;max-width:110px;height:30px;}
-
-.wspark canvas{width:100%;height:100%;}
-
-.wcam{flex-shrink:0;flex-grow:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:7px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s;white-space:nowrap;}
-
-.wcam:hover{background:rgba(255,255,255,.18);}
-
-
-
-/* ─── SCROLL AREA ─── */
-
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
-
-.scroll::-webkit-scrollbar{display:none;}
-
-
-
-/* ─── DRAWER ─── */
-
-.dov{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.45);z-index:190;opacity:0;pointer-events:none;transition:opacity .25s;}
-
-.dov.open{opacity:1;pointer-events:all;}
-
-.drawer{position:fixed;top:0;left:-300px;width:280px;height:100%;min-height:100vh;background:#fff;z-index:200;transition:left .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,.18);}
-
-.drawer.open{left:0;}
-
-.dh{padding:48px 20px 18px;border-bottom:1px solid var(--border);}
-
-.dh-user{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
-
-.dh-email{font-size:12px;color:var(--t3);}
-
-.dnav{flex:1;padding:8px 0;overflow-y:auto;}
-
-.di{display:flex;align-items:center;gap:11px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--t2);transition:all .15s;border:none;background:none;width:100%;text-align:left;}
-
-.di:hover{background:var(--bg);color:var(--text);}
-
-.di.active{color:var(--acc);background:var(--acc-bg);}
-
-.di-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--bg);flex-shrink:0;}
-
-.di.active .di-ic{background:var(--acc-bg);}
-
-.ddiv{height:1px;background:var(--border);margin:5px 20px;}
-
-.dfooter{padding:14px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--t3);}
-
-
-
-/* ─── FAB ─── */
-
-.fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100;background:var(--acc);color:#fff;border:none;border-radius:50px;padding:13px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(26,86,219,.35);transition:all .2s;white-space:nowrap;}
-
-.fab:hover{transform:translateX(-50%) translateY(-2px);}
-
-.fab-plus{width:18px;height:18px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;}
-
-
-
-/* ─── SCREENS ─── */
-
-.screen{display:none;padding-bottom:80px;}
-
-.screen.active{display:block;}
-
-
-
-/* ─── CARDS ─── */
-
-.card{margin:12px 14px 0;background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:16px;}
-
-.card-last{margin-bottom:12px;}
-
-.sc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-
-.sc-title{font-size:13px;font-weight:700;color:var(--text);}
-
-.tabs{display:flex;gap:3px;background:var(--bg);border-radius:7px;padding:3px;}
-
-.tp{padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border:none;background:transparent;transition:all .15s;}
-
-.tp.active{background:#fff;color:var(--acc);box-shadow:var(--sh);}
-
-
-
-/* GLUCOSE HERO */
-
-.gc-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
-
-.gc-top{display:flex;align-items:flex-start;justify-content:space-between;}
-
-.gc-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border:1px solid;}
-
-.bok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b);}
-
-.blow{background:var(--low-bg);color:var(--low);border-color:var(--low-b);}
-
-.bhi{background:var(--hi-bg);color:var(--hi);border-color:var(--hi-b);}
-
-.bvhi{background:var(--low-bg);color:var(--vhi);border-color:var(--low-b);}
-
-.bdot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 2s infinite;}
-
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-
-.gc-row{display:flex;align-items:flex-end;gap:7px;margin-top:2px;}
-
-.gc-num{font-size:60px;font-weight:800;line-height:1;letter-spacing:-2.5px;color:var(--ok);transition:color .4s;font-family:'JetBrains Mono',monospace;}
-
-.gc-num.low{color:var(--low);}.gc-num.hi{color:var(--hi);}.gc-num.vhi{color:var(--vhi);}.gc-num.none{color:var(--t3);font-size:42px;letter-spacing:-1px;}
-
-.gc-ucol{display:flex;flex-direction:column;padding-bottom:9px;gap:2px;}
-
-.gc-unit{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-.gc-trend{font-size:18px;}
-
-.gc-meta{display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
-
-.gc-time{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-.gc-rh{font-size:11px;color:var(--t3);}
-
-
-
-/* RANGE STRIP */
-
-.rstrip{margin-top:14px;}
-
-.rtrack{height:4px;border-radius:2px;background:linear-gradient(90deg,#E53E3E 0%,#E53E3E 18%,#38A169 23%,#38A169 65%,#D97706 70%,#D97706 88%,#E53E3E 93%,#E53E3E 100%);position:relative;}
-
-.rneedle{position:absolute;top:-5px;width:2px;height:14px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .5s cubic-bezier(.4,0,.2,1);}
-
-.raxis{display:flex;justify-content:space-between;margin-top:4px;}
-
-.raxis span{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-
-
-/* STAT TILES */
-
-.strow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 14px 0;}
-
-.st{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px 10px;box-shadow:var(--sh);}
-
-.stv{font-size:18px;font-weight:800;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace;}
-
-.stl{font-size:10px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
-
-
-
-/* ══════ ABBOTT-QUALITY CHART ══════ */
-
-.chart-container{position:relative;width:100%;user-select:none;}
-
-.chart-canvas-wrap{position:relative;width:100%;height:180px;}
-
-canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
-
-.chart-tooltip{position:absolute;background:rgba(13,19,33,.9);color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:20;transform:translateX(-50%);}
-
-.chart-tooltip strong{font-family:'JetBrains Mono',monospace;font-size:14px;}
-
-.chart-date-range{display:flex;align-items:center;gap:8px;margin-top:10px;}
-
-.cdr-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border:none;background:var(--bg);transition:all .15s;}
-
-.cdr-btn.active{background:#fff;color:var(--acc);box-shadow:var(--sh);}
-
-.cdr-custom{display:flex;align-items:center;gap:6px;margin-left:auto;}
-
-.cdr-date-in{padding:4px 8px;border:1px solid var(--border2);border-radius:6px;font-size:11px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;}
-
-.cdr-date-in:focus{border-color:var(--acc);}
-
-
-
-/* ENTRIES */
-
-.ei{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
-
-.ei:last-child{border-bottom:none;padding-bottom:0;}
-
-.ei-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-
-.ei-main{flex:1;min-width:0;}
-
-.ei-ctx{font-size:13px;font-weight:600;}
-
-.ei-sub{font-size:11px;color:var(--t3);margin-top:1px;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-.ei-r{text-align:right;flex-shrink:0;}
-
-.ei-val{font-size:18px;font-weight:800;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace;}
-
-.ei-u{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-.empty{text-align:center;padding:24px 16px;color:var(--t3);font-size:13px;}
-
-.empty-ic{font-size:28px;margin-bottom:8px;}
-
-
-
-/* ─── FORECAST ─── */
-
-.ptitle{font-size:20px;font-weight:800;padding:14px 14px 2px;letter-spacing:-.5px;}
-
-.psub{font-size:13px;color:var(--t3);padding:0 14px 12px;}
-
-.fc-hero{background:linear-gradient(135deg,#1e1b4b,#1D4ED8);border:none;}
-
-.fc-hd-txt{font-size:11px;opacity:.5;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
-
-.fc-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;}
-
-.fc-item{text-align:center;}
-
-.fc-lbl{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
-
-.fc-num{font-size:30px;font-weight:800;letter-spacing:-1.5px;color:#fff;font-family:'JetBrains Mono',monospace;}
-
-.fc-arr{font-size:18px;color:rgba(255,255,255,.4);}
-
-.fc-meta{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:10px;}
-
-.fc-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-
-.fpill{padding:3px 9px;background:rgba(255,255,255,.12);border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9);}
-
-.fc-note{font-size:11px;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.5;}
-
-.fc-chart-wrap{height:90px;position:relative;}
-
-
-
-/* ─── A1C ─── */
-
-.a1c-big{font-size:68px;font-weight:800;letter-spacing:-4px;line-height:1;font-family:'JetBrains Mono',monospace;}
-
-.a1c-pct{font-size:18px;letter-spacing:0;}
-
-.a1c-zone{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;}
-
-.gtrack{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--ok) 0%,#84CC16 30%,var(--hi) 60%,var(--low) 100%);position:relative;margin-top:16px;}
-
-.gneedle{position:absolute;top:-5px;width:3px;height:15px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .6s cubic-bezier(.4,0,.2,1);}
-
-.glabels{display:flex;justify-content:space-between;margin-top:4px;}
-
-.glabels span{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-.a1c-note{font-size:11px;color:var(--t3);margin-top:10px;line-height:1.5;}
-
-.tir-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-
-.tir-row:last-child{margin-bottom:0;}
-
-.tir-nm{font-size:11px;font-weight:600;width:54px;flex-shrink:0;}
-
-.tir-bw{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;}
-
-.tir-bf{height:100%;border-radius:3px;transition:width .6s ease;}
-
-.tir-pc{font-size:11px;font-weight:700;width:32px;text-align:right;font-family:'JetBrains Mono',monospace;}
-
-
-
-/* ─── HISTORY ─── */
-
-.hist-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0;}
-
-.dglabel{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:12px 14px 5px;}
-
-
-
-/* ─── SETTINGS ─── */
-
-.sg{margin:0 14px;}
-
-.sglbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:14px 0 7px;}
-
-.sgcard{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
-
-.sgi{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--border);}
-
-.sgi:last-child{border-bottom:none;}
-
-.sgi-l{display:flex;align-items:center;gap:10px;}
-
-.sgi-ic{font-size:16px;width:26px;text-align:center;}
-
-.sgi-t{font-size:13px;font-weight:500;}
-
-.sgi-s{font-size:11px;color:var(--t3);margin-top:1px;}
-
-.tsw{width:40px;height:24px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
-
-.tsw.on{background:var(--acc);}
-
-.tsw::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-
-.tsw.on::after{left:19px;}
-
-.ri-wrap{display:flex;gap:9px;padding:13px 15px;}
-
-.ri-f{flex:1;display:flex;flex-direction:column;gap:4px;}
-
-.ri-f label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
-
-.ri-f input{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;-moz-appearance:textfield;}
-
-.ri-f input:focus{border-color:var(--acc);}
-
-.ri-f input::-webkit-inner-spin-button{-webkit-appearance:none;}
-
-.dbtn{width:100%;padding:13px 15px;background:none;border:none;color:var(--low);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;transition:background .15s;border-bottom:1px solid var(--border);}
-
-.dbtn:hover{background:var(--low-bg);}
-
-.dbtn:last-child{border-bottom:none;}
-
-
-
-/* ─── LOG MODAL ─── */
-
-.mbd{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
-
-.mbd.open{opacity:1;pointer-events:all;}
-
-.msheet{width:100%;max-width:430px;background:#fff;border-radius:20px 20px 0 0;padding:0 0 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:88vh;overflow-y:auto;overflow-x:visible;}
-
-.mbd.open .msheet{transform:translateY(0);}
-
-.mhandle{width:30px;height:3px;background:var(--border2);border-radius:2px;margin:11px auto 0;}
-
-.mtop{padding:14px 20px 0;display:flex;align-items:center;justify-content:space-between;}
-
-.mtitle{font-size:18px;font-weight:800;}
-
-.mclose{width:28px;height:28px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;font-size:15px;color:var(--t2);display:flex;align-items:center;justify-content:center;}
-
-.biw{text-align:center;padding:12px 20px 2px;}
-
-.bi{font-size:60px;font-weight:800;width:200px;text-align:center;background:none;border:none;outline:none;color:var(--text);letter-spacing:-2.5px;font-family:'JetBrains Mono',monospace;-moz-appearance:textfield;}
-
-.bi::-webkit-inner-spin-button{-webkit-appearance:none;}
-
-.biu{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
-
-.rfb{min-height:18px;font-size:12px;font-weight:600;text-align:center;padding:2px 20px 4px;}
-
-.msec{padding:10px 20px 0;}
-
-.msec-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
-
-.ctxg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-
-.cc{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg);border:1.5px solid transparent;border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);transition:all .15s;user-select:none;}
-
-.cc.selected{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
-
-.cc-ic{font-size:15px;}
-
-
-
-/* CARB/INSULIN SECTION */
-
-.carb-ins-box{background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:10px;padding:12px 14px;margin:0 20px;}
-
-.cib-row{display:flex;align-items:center;gap:10px;}
-
-.cib-field{flex:1;display:flex;flex-direction:column;gap:3px;}
-
-.cib-label{font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;}
-
-.cib-input{background:#fff;border:1.5px solid var(--acc-b);border-radius:7px;padding:9px 10px;font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--text);outline:none;width:100%;-moz-appearance:textfield;transition:border-color .15s;}
-
-.cib-input:focus{border-color:var(--acc);}
-
-.cib-input::-webkit-inner-spin-button{-webkit-appearance:none;}
-
-.cib-arrow{font-size:18px;color:var(--acc);flex-shrink:0;margin-top:14px;}
-
-.cib-result{flex:1;display:flex;flex-direction:column;gap:3px;}
-
-.cib-result-label{font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;}
-
-.cib-result-val{font-size:30px;font-weight:800;color:var(--acc);font-family:'JetBrains Mono',monospace;letter-spacing:-1px;}
-
-.cib-result-unit{font-size:12px;color:var(--acc);opacity:.7;}
-
-.cib-note{font-size:11px;color:var(--acc);opacity:.7;margin-top:8px;line-height:1.5;}
-
-
-
-.iif{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 11px;display:flex;flex-direction:column;gap:3px;transition:border-color .15s;}
-
-.iif:focus-within{border-color:var(--acc);}
-
-.iif label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
-
-.iif input{background:none;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--text);width:100%;-moz-appearance:textfield;}
-
-.iif input::-webkit-inner-spin-button{-webkit-appearance:none;}
-
-.nf{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--text);resize:none;outline:none;transition:border-color .15s;}
-
-.nf:focus{border-color:var(--acc);}
-
-.nf::placeholder{color:var(--t3);}
-
-.svbtn{width:calc(100% - 40px);margin:14px 20px 0;padding:13px;background:var(--acc);border:none;border-radius:var(--rs);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;}
-
-.svbtn:hover{background:#1e40af;}
-
-.iins{display:flex;gap:8px;}
-
-
-
-
-
-/* ─── FOOD AUTOCOMPLETE ─── */
-
-.food-wrap{position:relative;flex:1;overflow:visible;}
-
-.food-suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--acc);border-radius:var(--rs);box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:500;margin-top:3px;overflow:hidden;display:none;max-height:220px;overflow-y:auto;}
-
-.food-suggestions.open{display:block;}
-
-.food-sugg-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .1s;}
-
-.food-sugg-item:last-child{border-bottom:none;}
-
-.food-sugg-item:hover{background:var(--acc-bg);}
-
-.food-sugg-name{font-size:13px;font-weight:600;color:var(--text);}
-
-.food-sugg-carbs{font-size:12px;font-weight:700;color:var(--acc);font-family:'JetBrains Mono',monospace;}
-
-.food-sugg-loading{padding:10px 12px;font-size:12px;color:var(--t3);text-align:center;}
-
-.food-sugg-per{font-size:10px;color:var(--t3);margin-left:4px;}
-
-
-
-/* ─── MEAL LOG MODAL ─── */
-
-.meal-tabs{display:flex;gap:3px;background:var(--bg);border-radius:8px;padding:3px;margin:12px 20px 0;}
-
-.meal-tab{flex:1;padding:8px;text-align:center;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:var(--t3);border:none;background:none;transition:all .15s;}
-
-.meal-tab.active{background:#fff;color:var(--acc);box-shadow:var(--sh);}
-
-.meal-content{padding:0 20px;}
-
-.meal-content.hidden{display:none;}
-
-
-
-/* MANUAL MEAL */
-
-.meal-item-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;overflow:visible;position:relative;}
-
-.meal-item-name{flex:1;padding:9px 11px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;}
-
-.meal-item-name:focus{border-color:var(--acc);}
-
-.meal-item-name::placeholder{color:var(--t3);}
-
-.meal-item-carbs{width:72px;padding:9px 9px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;color:var(--text);outline:none;font-family:'JetBrains Mono',monospace;text-align:center;-moz-appearance:textfield;}
-
-.meal-item-carbs:focus{border-color:var(--acc);}
-
-.meal-item-carbs::-webkit-inner-spin-button{-webkit-appearance:none;}
-
-.meal-del{width:30px;height:30px;border:none;background:var(--low-bg);border-radius:7px;color:var(--low);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-
-.add-item-btn{width:100%;padding:9px;border:1.5px dashed var(--border2);border-radius:var(--rs);background:none;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s;}
-
-.add-item-btn:hover{border-color:var(--acc);color:var(--acc);}
-
-.meal-total-box{background:var(--acc-bg);border-radius:10px;padding:12px 14px;margin:10px 0;}
-
-.meal-total-row{display:flex;align-items:center;justify-content:space-between;}
-
-.meal-total-lbl{font-size:12px;color:var(--acc);font-weight:600;}
-
-.meal-total-val{font-size:22px;font-weight:800;color:var(--acc);font-family:'JetBrains Mono',monospace;letter-spacing:-.5px;}
-
-.meal-insulin-rec{font-size:12px;color:var(--acc);opacity:.75;margin-top:4px;}
-
-
-
-/* CAMERA MEAL */
-
-.cam-area{border:2px dashed var(--border2);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin:10px 0;}
-
-.cam-area:hover{border-color:var(--acc);background:var(--acc-bg);}
-
-.cam-area img{width:100%;border-radius:8px;max-height:200px;object-fit:cover;display:none;}
-
-.cam-area-placeholder{pointer-events:none;}
-
-.cam-area-ic{font-size:36px;margin-bottom:8px;}
-
-.cam-area-txt{font-size:13px;color:var(--t2);font-weight:600;}
-
-.cam-area-sub{font-size:12px;color:var(--t3);margin-top:3px;}
-
-.cam-result-box{background:var(--bg);border-radius:10px;padding:12px;margin:8px 0;display:none;}
-
-.crb-name{font-size:15px;font-weight:700;margin-bottom:4px;}
-
-.crb-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
-
-.crb-stat{padding:4px 10px;background:#fff;border-radius:6px;border:1px solid var(--border);font-size:12px;}
-
-.crb-stat span{font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--acc);}
-
-.crb-items{font-size:12px;color:var(--t2);line-height:1.6;}
-
-.analyze-btn{width:100%;padding:11px;background:var(--acc);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin:6px 0;}
-
-.analyze-btn:disabled{opacity:.6;cursor:not-allowed;}
-
-
-
-
-
-/* ─── ENTRY ACTION BUTTONS ─── */
-
-.ei-actions{display:flex;gap:4px;flex-shrink:0;margin-left:6px;}
-
-.ei-act{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;flex-shrink:0;}
-
-.ei-act.edit{background:var(--acc-bg);color:var(--acc);}
-
-.ei-act.edit:hover{background:var(--acc);color:#fff;}
-
-.ei-act.del{background:var(--low-bg);color:var(--low);}
-
-.ei-act.del:hover{background:var(--low);color:#fff;}
-
-
-
-
-
-/* ─── DRAWER SUBMENUS ─── */
-
-.di-group{width:100%;}
-
-.di-parent{display:flex;align-items:center;gap:11px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--t2);transition:all .15s;border:none;background:none;width:100%;text-align:left;justify-content:space-between;}
-
-.di-parent:hover{background:var(--bg);color:var(--text);}
-
-.di-parent.active{color:var(--acc);background:var(--acc-bg);}
-
-.di-parent-left{display:flex;align-items:center;gap:11px;}
-
-.di-arrow{font-size:10px;color:var(--t3);transition:transform .22s;flex-shrink:0;}
-
-.di-sub{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(.4,0,.2,1);}
-
-.di-sub.open{max-height:400px;}
-
-.di-sub .di{padding:9px 20px 9px 51px;font-size:13px;}
-
-/* ─── SECTION SCREENS ─── */
-
-.rpt-sub-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none;}
-
-.rpt-sub-tabs::-webkit-scrollbar{display:none;}
-
-.rpt-tab{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--t3);background:var(--bg);border:none;cursor:pointer;white-space:nowrap;transition:all .15s;}
-
-.rpt-tab.active{background:var(--acc);color:#fff;}
-
-.rpt-panel{display:none;padding-bottom:80px;}
-
-.rpt-panel.active{display:block;}
-
-/* ─── ALARM CARDS ─── */
-
-.alarm-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;padding:14px 16px;box-shadow:var(--sh);}
-
-.alarm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
-
-.alarm-row:last-child{margin-bottom:0;}
-
-.alarm-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
-
-.alarm-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-
-.alarm-title{font-size:13px;font-weight:700;color:var(--text);}
-
-.alarm-sub{font-size:11px;color:var(--t3);margin-top:1px;}
-
-.alarm-val{display:flex;align-items:center;gap:6px;}
-
-.alarm-input{width:64px;padding:5px 7px;background:var(--bg);border:1.5px solid var(--border);border-r
-
-Gemini said
-As a Senior Engineer in the HealthTech division, I’ve reviewed your codebase. You have a solid foundation for a Progressive Web App (PWA), but for a "Big Pharma" grade application, we need to address data persistence, HIPAA-compliant safety guards, and UI responsiveness.
-
-The current code has an unclosed <style> tag and is missing the critical JavaScript logic to make the calculations (Insulin-to-Carb ratios) and the charts actually work.
-
-─── The "Pharma-Grade" Fix ───
-I have streamlined your CSS and implemented a robust Storage & Calculation Engine.
-
-HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>GlucoTrack Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #F4F6F9; --white: #fff; --acc: #1A56DB;
-            --low: #E53E3E; --ok: #38A169; --hi: #D97706;
-            --text: #0D1321; --t3: #9AA3B5; --border: #E2E6ED;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
-        
-        /* Layout */
-        .app-container { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
-        .header { background: var(--white); padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; sticky; top: 0; z-index: 10; }
-        .logo { font-weight: 800; color: var(--acc); font-size: 1.2rem; }
-        
-        /* Glucose Hero Card */
-        .hero { margin: 16px; padding: 20px; background: var(--white); border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-        .val-large { font-family: 'JetBrains Mono', monospace; font-size: 3.5rem; font-weight: 800; color: var(--ok); }
-        .unit { font-size: 1rem; color: var(--t3); font-weight: 600; }
-        
-        /* Input Section */
-        .log-section { padding: 0 16px; }
-        .input-card { background: var(--white); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
-        label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--t3); text-transform: uppercase; margin-bottom: 8px; }
-        input { width: 100%; padding: 12px; border: 2px solid var(--bg); border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; outline: none; transition: border-color 0.2s; }
-        input:focus { border-color: var(--acc); }
-
-        /* Action Buttons */
-        .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
-        .btn-primary { background: var(--acc); color: white; margin-top: 10px; }
-        .btn:active { transform: scale(0.98); }
-
-        /* History List */
-        .history { margin-top: 20px; }
-        .entry { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .entry-info { font-size: 0.9rem; font-weight: 600; }
-        .entry-time { font-size: 0.7rem; color: var(--t3); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>GlucoTrack – Fixed Version</title>
+  <meta name="theme-color" content="#0d1321"/>
+  <link rel="manifest" href="data:application/manifest+json,{
+    'name':'GlucoTrack','short_name':'Gluco','start_url':'./','display':'standalone',
+    'background_color':'#f4f6f9','theme_color':'#0d1321','icons':[]
+  }"/>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --fg: #0d1321;
+      --card: white;
+      --border: #e2e6ed;
+      --accent: #1a56db;
+      --ok: #38a169;
+      --low: #e53e3e;
+      --hi: #d97706;
+      --muted: #6b7280;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--card);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+    main { flex: 1; padding: 16px; }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .big-number {
+      font-size: 3.8rem;
+      font-weight: 800;
+      line-height: 1;
+      font-family: monospace;
+      margin: 8px 0;
+    }
+    .status {
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .low  { background: #fee2e2; color: var(--low); }
+    .ok   { background: #ecfdf5; color: var(--ok); }
+    .high { background: #fef3c7; color: var(--hi); }
+    input[type="number"] {
+      font-size: 2.8rem;
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-family: monospace;
+      outline: none;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 12px 0;
+    }
+    .context-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .context-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 0.95rem;
+    }
+    .context-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .history {
+      margin-top: 24px;
+    }
+    .entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .entry:last-child { border-bottom: none; }
+  </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header class="header">
-        <div class="logo">GLUCO<span>TRACK</span></div>
-        <div id="current-date" style="font-size: 0.7rem; color: var(--t3); font-family: 'JetBrains Mono';"></div>
-    </header>
+<header>
+  <h1>GlucoTrack</h1>
+  <div id="date"></div>
+</header>
 
-    <div class="hero">
-        <label>Current Blood Glucose</label>
-        <div id="latest-val" class="val-large">--</div>
-        <div class="unit">mg/dL</div>
+<main>
+  <div class="card">
+    <div style="font-size:0.95rem; color:var(--muted); margin-bottom:4px;">Current Glucose</div>
+    <div class="big-number" id="current">—</div>
+    <div class="status" id="statusBadge">—</div>
+    <div style="margin-top:12px; color:var(--muted); font-size:0.9rem;" id="lastTime">No readings yet</div>
+  </div>
+
+  <div class="card">
+    <input type="number" id="glucoseInput" placeholder="—" step="0.1" min="0" max="40" autofocus/>
+    <div style="text-align:center; margin:12px 0; color:var(--muted);">mmol/L</div>
+
+    <div class="context-buttons" id="contextButtons">
+      <button class="context-btn active" data-ctx="Before meal">Before meal</button>
+      <button class="context-btn" data-ctx="After meal">After meal</button>
+      <button class="context-btn" data-ctx="Before bed">Before bed</button>
+      <button class="context-btn" data-ctx="Random">Random</button>
     </div>
 
-    <div class="log-section">
-        <div class="input-card">
-            <label>Log Glucose & Carbs</label>
-            <div style="display: flex; gap: 10px;">
-                <input type="number" id="bg-input" placeholder="BG (mg/dL)">
-                <input type="number" id="carb-input" placeholder="Carbs (g)">
-            </div>
-            <button class="btn btn-primary" onclick="addEntry()">Log Entry</button>
-        </div>
+    <button onclick="saveReading()">Save Reading</button>
+  </div>
 
-        <div class="input-card history">
-            <label>Recent Activity</label>
-            <div id="history-list">
-                </div>
-        </div>
-    </div>
-</div>
+  <div class="card history">
+    <div style="font-weight:600; margin-bottom:12px;">Recent Readings</div>
+    <div id="historyList"></div>
+  </div>
+</main>
 
 <script>
-    // Configuration for "Pharma" Logic
-    const TARGET_BG = 100;
-    const INSULIN_RATIO = 10; // 1 unit per 10g carbs
-    const CORRECTION_FACTOR = 50; // 1 unit drops BG by 50mg/dL
+// ────────────────────────────────────────────────
+let readings = JSON.parse(localStorage.getItem('glucotrack_readings') || '[]');
+let selectedContext = 'Before meal';
 
-    let entries = JSON.parse(localStorage.getItem('gluco_data')) || [];
+const dateEl     = document.getElementById('date');
+const currentEl  = document.getElementById('current');
+const statusEl   = document.getElementById('statusBadge');
+const lastTimeEl = document.getElementById('lastTime');
+const input      = document.getElementById('glucoseInput');
+const historyEl  = document.getElementById('historyList');
 
-    function updateUI() {
-        const list = document.getElementById('history-list');
-        const latestDisplay = document.getElementById('latest-val');
-        
-        list.innerHTML = '';
-        
-        if (entries.length > 0) {
-            const latest = entries[0];
-            latestDisplay.innerText = latest.bg;
-            latestDisplay.style.color = latest.bg > 180 ? 'var(--hi)' : (latest.bg < 70 ? 'var(--low)' : 'var(--ok)');
-        }
+const ctxButtons = document.querySelectorAll('#contextButtons button');
+ctxButtons.forEach(btn => {
+  btn.onclick = () => {
+    ctxButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedContext = btn.dataset.ctx;
+  };
+});
 
-        entries.forEach((entry, index) => {
-            const div = document.createElement('div');
-            div.className = 'entry';
-            div.innerHTML = `
-                <div>
-                    <div class="entry-info">${entry.bg} mg/dL <span style="color:var(--t3)">•</span> ${entry.carbs}g Carbs</div>
-                    <div class="entry-time">${new Date(entry.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                </div>
-                <div style="font-family:'JetBrains Mono'; font-weight:700; color:var(--acc)">
-                    ${entry.insulin}U
-                </div>
-            `;
-            list.appendChild(div);
-        });
-        
-        localStorage.setItem('gluco_data', JSON.stringify(entries));
-    }
+// Format date
+function updateDate() {
+  dateEl.textContent = new Date().toLocaleDateString('en-ZA', {
+    weekday: 'short', day: 'numeric', month: 'short'
+  });
+}
+updateDate();
+setInterval(updateDate, 60000);
 
-    function addEntry() {
-        const bg = parseFloat(document.getElementById('bg-input').value);
-        const carbs = parseFloat(document.getElementById('carb-input').value) || 0;
+// Status color & text
+function getStatus(v) {
+  if (v < 3.9) return {cls:'low',  txt:'LOW'};
+  if (v <= 10) return {cls:'ok',   txt:'OK'};
+  return             {cls:'high', txt:'HIGH'};
+}
 
-        if (!bg) { alert("Please enter a Blood Glucose value."); return; }
+// Show latest reading
+function renderLatest() {
+  if (!readings.length) {
+    currentEl.textContent = '—';
+    statusEl.textContent = 'No data';
+    statusEl.className = 'status';
+    lastTimeEl.textContent = 'No readings yet';
+    return;
+  }
+  const latest = readings[readings.length-1];
+  currentEl.textContent = latest.value.toFixed(1);
+  const st = getStatus(latest.value);
+  statusEl.textContent = st.txt;
+  statusEl.className = 'status ' + st.cls;
+  lastTimeEl.textContent = 'Last reading • ' + new Date(latest.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
 
-        // Pharma Calculation Logic: (Carb Dose) + (Correction Dose)
-        const carbDose = carbs / INSULIN_RATIO;
-        const correctionDose = bg > TARGET_BG ? (bg - TARGET_BG) / CORRECTION_FACTOR : 0;
-        const totalInsulin = (carbDose + correctionDose).toFixed(1);
+// Render history (last 10)
+function renderHistory() {
+  if (!readings.length) {
+    historyEl.innerHTML = '<div style="color:var(--muted); text-align:center; padding:16px 0;">No readings yet</div>';
+    return;
+  }
+  const html = readings.slice(-10).reverse().map(r => {
+    const st = getStatus(r.value);
+    const time = new Date(r.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `
+      <div class="entry">
+        <div>
+          <strong>${r.value.toFixed(1)}</strong> mmol/L
+          <span style="color:var(--muted); font-size:0.9rem;"> • ${r.context}</span>
+        </div>
+        <div style="color:var(--muted); font-size:0.9rem;">${time}</div>
+      </div>
+    `;
+  }).join('');
+  historyEl.innerHTML = html;
+}
 
-        const newEntry = {
-            bg,
-            carbs,
-            insulin: totalInsulin,
-            time: new Date().toISOString()
-        };
+// Save new reading
+function saveReading() {
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val <= 0) {
+    alert('Please enter a valid glucose value');
+    return;
+  }
+  readings.push({
+    value: val,
+    context: selectedContext,
+    ts: Date.now()
+  });
+  localStorage.setItem('glucotrack_readings', JSON.stringify(readings));
+  input.value = '';
+  renderLatest();
+  renderHistory();
+  toast('Reading saved ✓');
+}
 
-        entries.unshift(newEntry);
-        updateUI();
-        
-        // Reset inputs
-        document.getElementById('bg-input').value = '';
-        document.getElementById('carb-input').value = '';
-    }
+// Simple toast
+function toast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:12px 24px; border-radius:999px; font-size:0.95rem; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
 
-    document.getElementById('current-date').innerText = new Date().toDateString().toUpperCase();
-    updateUI();
+// Init
+renderLatest();
+renderHistory();
+
+// Optional: clear data (for testing)
+// localStorage.removeItem('glucotrack_readings'); readings = []; renderLatest(); renderHistory();
 </script>
 
 </body>
