@@ -502,6 +502,10 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
 .camfs-upload{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 #fsFileInput{display:none;}
 
+/* ─── FIRST BITE PILLS ─── */
+.first-bite-btn{padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;}
+.first-bite-btn.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
+
 /* ─── EXERCISE SCREEN ─── */
 .ex-hero{background:linear-gradient(135deg,#064e3b,#065f46);border:none;color:#fff;}
 .ex-status{font-size:42px;font-weight:800;letter-spacing:-2px;font-family:'JetBrains Mono',monospace;line-height:1;}
@@ -1652,6 +1656,18 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         </div>
       </div>
     </div>
+    <!-- FIRST BITE TIME -->
+    <div class="msec" style="margin-top:10px;" id="firstBiteSection">
+      <div class="msec-lbl">When did you start eating?</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="firstBitePills">
+        <button class="first-bite-btn active" data-min="0" onclick="setFirstBite(0,this)">Just now</button>
+        <button class="first-bite-btn" data-min="10" onclick="setFirstBite(10,this)">10 min ago</button>
+        <button class="first-bite-btn" data-min="20" onclick="setFirstBite(20,this)">20 min ago</button>
+        <button class="first-bite-btn" data-min="30" onclick="setFirstBite(30,this)">30 min ago</button>
+        <button class="first-bite-btn" data-min="45" onclick="setFirstBite(45,this)">45 min ago</button>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-top:5px;" id="firstBiteHint">BG check reminder will fire at <strong id="firstBiteFireAt">—</strong></div>
+    </div>
     <button class="svbtn" onclick="saveMeal()">Log Meal</button>
   </div>
 </div>
@@ -1694,6 +1710,7 @@ let activeCamStream=null;
 let camImageData=null;
 let mealCamImageData=null;
 let mealTab='manual';
+let firstBiteOffsetMin=0; // minutes ago the user started eating
 
 // ══════════════ STORAGE ══════════════
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
@@ -3862,22 +3879,49 @@ function saveReading(){
   refreshAll();
   // Trigger alarm check on every new reading (not edits)
   if(editingIdx<0) setTimeout(()=>checkAlarms(Math.round(v*10)/10), 400);
-  // Start 20-min pre-meal timer if bolus insulin logged before a meal
-  if(editingIdx<0 && ins && ins>0 && (selCtx==='Before Meal'||selCtx==='Random Check')){
-    startPreMealTimer(ins);
-  }
-  // Start 2-hour post-meal BG check timer when logging after a meal
-  if(editingIdx<0 && selCtx==='After Meal'){
-    startPostMealTimer();
+  // Timer logic — only ONE timer at a time:
+  // Pre-meal (20 min wait): when bolus insulin logged BEFORE eating
+  // Post-meal (2 hr BG check): when logging AFTER meal, or auto-chains from pre-meal timer
+  if(editingIdx<0){
+    if(ins && ins>0 && (selCtx==='Before Meal'||selCtx==='Random Check')){
+      // Pre-meal timer only — post-meal will auto-chain when pre-meal completes
+      startPreMealTimer(ins, /*chainPostMeal=*/true);
+    } else if(selCtx==='After Meal'){
+      // Post-meal only — user has already eaten
+      if(preMealTimer){
+        // Pre-meal was running — cancel it, the meal has started
+        cancelPreMealTimer(/*silent=*/true);
+      }
+      startPostMealTimer(0); // No offset from Log Reading — starts from now
+    }
   }
 }
 
 // ══════════════ MEAL LOG MODAL ══════════════
+function setFirstBite(min, btn){
+  firstBiteOffsetMin=min;
+  document.querySelectorAll('.first-bite-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  // Show when BG check will fire
+  const fireAt=new Date(Date.now()+(2*60-min)*60000);
+  const timeStr=fireAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const hint=document.getElementById('firstBiteFireAt');
+  if(hint) hint.textContent=timeStr;
+}
+
 function openMealModal(){
   document.getElementById('mealMbd').classList.add('open');
   switchMealTab('manual');
   resetManualMeal();
   mealCamImageData=null;
+  // Reset first bite picker
+  firstBiteOffsetMin=0;
+  document.querySelectorAll('.first-bite-btn').forEach(b=>b.classList.remove('active'));
+  const firstJustNow=document.querySelector('.first-bite-btn[data-min="0"]');
+  if(firstJustNow) firstJustNow.classList.add('active');
+  // Set default fire time label
+  const hint=document.getElementById('firstBiteFireAt');
+  if(hint){const t=new Date(Date.now()+2*3600000);hint.textContent=t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
   // Reset camera tab
   const img=document.getElementById('camPreviewImg');
   img.style.display='none';img.src='';
@@ -4294,10 +4338,14 @@ function saveMeal(){
   } else {
     readings.push(mealEntry);
     toastSuccess(`Meal logged: ${Math.round(carbs)}g carbs · ${ins>0?ins+'u insulin':''}`);
-    // Start pre-meal timer if insulin logged with meal
-    if(ins>0) startPreMealTimer(ins);
-    // Start post-meal BG check timer (2 hours)
-    startPostMealTimer();
+    // Only pre-meal timer when logging a meal with insulin (about to eat)
+    // Post-meal timer will auto-chain once the 20-min pre-meal wait is done
+    if(ins>0){
+      startPreMealTimer(ins, /*chainPostMeal=*/true);
+    } else {
+      // No insulin — meal already being eaten, start post-meal BG check directly
+      startPostMealTimer(firstBiteOffsetMin);
+    }
   }
   saveReadings();
   closeMealModal();
@@ -5021,29 +5069,38 @@ function fireBasalOnTimeReminder(){
 let preMealTimer=null;
 let preMealCountdownInterval=null;
 
-function startPreMealTimer(insulinUnits){
-  // Clear any existing timer
+function startPreMealTimer(insulinUnits, chainPostMeal=false){
+  // Cancel any running pre-meal timer first
   if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
   if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
+  // Also cancel any running post-meal timer — only one at a time
+  if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
+  if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
+  hidePostMealBanner();
 
   const WAIT_MS=20*60*1000; // 20 minutes
   const fireAt=Date.now()+WAIT_MS;
 
-  // Show countdown toast immediately
-  toastSuccess(`💉 Insulin logged (${insulinUnits}u) — wait 20 min before eating. Timer started!`);
-
-  // Show a persistent countdown banner
+  toastSuccess(`💉 ${insulinUnits}u logged — wait 20 min before eating. Timer started!`);
   showPreMealBanner(fireAt);
 
-  // Fire the main reminder after 20 min — use SW scheduler for background delivery
-  preMealTimer=scheduleNotification(
+  // Notification at 20 min
+  scheduleNotification(
     WAIT_MS,
-    '🍽️ GlucoTrack — Start Eating Now',
-    '20 minutes have passed since your insulin injection. You can start eating now!',
+    '🍽️ Time to eat!',
+    '20 minutes since your insulin. You can start eating now!',
     'premeal'
   );
-  // Also attach a cleanup callback via a parallel setTimeout
-  setTimeout(()=>{ hidePreMealBanner(); preMealTimer=null; }, WAIT_MS);
+
+  // Cleanup + optional chain to post-meal timer
+  preMealTimer=setTimeout(()=>{
+    hidePreMealBanner();
+    preMealTimer=null;
+    if(chainPostMeal){
+      // Now the meal starts — begin the 2-hour post-meal BG check
+      startPostMealTimer();
+    }
+  }, WAIT_MS);
 }
 
 function showPreMealBanner(fireAt){
@@ -5078,26 +5135,36 @@ function hidePreMealBanner(){
   if(banner) banner.style.display='none';
 }
 
-function cancelPreMealTimer(){
+function cancelPreMealTimer(silent=false){
   if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
   if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
   hidePreMealBanner();
-  toast('Pre-meal timer cancelled','info','✕');
+  if(!silent) toast('Pre-meal timer cancelled','info','✕');
 }
 
 // ══════════════ POST-MEAL BG CHECK TIMER (2 hours) ══════════════
 let postMealTimer=null;
 let postMealCountdownInterval=null;
 
-function startPostMealTimer(){
+function startPostMealTimer(offsetMin=0){
+  // Ensure pre-meal timer is not running simultaneously
+  if(preMealTimer){clearTimeout(preMealTimer);preMealTimer=null;}
+  if(preMealCountdownInterval){clearInterval(preMealCountdownInterval);preMealCountdownInterval=null;}
+  hidePreMealBanner();
   // Clear any existing post-meal timer
   if(postMealTimer){clearTimeout(postMealTimer);postMealTimer=null;}
   if(postMealCountdownInterval){clearInterval(postMealCountdownInterval);postMealCountdownInterval=null;}
 
-  const WAIT_MS=2*60*60*1000; // 2 hours (ADA/AACE standard post-meal check)
+  // 2 hours from first bite — subtract time already elapsed since eating started
+  const alreadyElapsedMs=Math.min(offsetMin,110)*60*1000; // cap at 110 min so at least 10 min remain
+  const WAIT_MS=Math.max(10*60*1000, 2*60*60*1000 - alreadyElapsedMs);
   const fireAt=Date.now()+WAIT_MS;
+  const minsLeft=Math.round(WAIT_MS/60000);
 
-  toastSuccess('🍽️ After-meal reading logged — reminder set to check BG again in 2 hours.');
+  const msg=offsetMin>0
+    ? `🍽️ Started eating ${offsetMin} min ago — BG check in ${minsLeft} min!`
+    : '🍽️ Meal started — check your BG in 2 hours!';
+  toastSuccess(msg);
   showPostMealBanner(fireAt);
 
   postMealTimer=scheduleNotification(
