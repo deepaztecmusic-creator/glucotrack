@@ -1636,100 +1636,140 @@ body.dark .tag-pill.active{background:#1a0d35;border-color:#5b21b6;color:#a78bfa
 <!-- ── EXERCISE ── -->
 <div class="screen" id="screen-exercise">
   <div class="ptitle">Exercise Guide</div>
-  <div class="psub">EASD/ISPAD/ADA guidelines for Type 1 diabetes</div>
+  <div class="psub">Based on EASD / ADA / ISPAD guidelines · Type 1 Diabetes</div>
 
-  <!-- PROFILE SELECTOR -->
-  <div style="padding:0 14px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;margin-top:4px;">Your Exercise Profile</div>
-  <div class="ex-profile-row">
-    <div class="ex-profile-btn active" id="exProf0" onclick="setExProfile(0)">
-      <div class="epb-ic">🚶</div>
-      <div class="epb-lbl">Ex 0</div>
-      <div class="epb-sub">Minimal / High hypo risk</div>
-    </div>
-    <div class="ex-profile-btn" id="exProf1" onclick="setExProfile(1)">
-      <div class="epb-ic">🏃</div>
-      <div class="epb-lbl">Ex 1</div>
-      <div class="epb-sub">Moderate / Moderate risk</div>
-    </div>
-    <div class="ex-profile-btn" id="exProf2" onclick="setExProfile(2)">
-      <div class="epb-ic">🏋️</div>
-      <div class="epb-lbl">Ex 2</div>
-      <div class="epb-sub">Intensive / Low hypo risk</div>
+  <!-- ── WHAT IS MY PROFILE? ── -->
+  <div style="margin:0 14px 0;padding:12px 14px;background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:12px;">
+    <div style="font-size:12px;font-weight:700;color:var(--acc);margin-bottom:6px;">👆 Pick your exercise type:</div>
+    <div style="font-size:12px;color:var(--acc);line-height:1.7;">
+      <strong>🚶 Low intensity</strong> — walking, light yoga, stretching<br>
+      <strong>🏃 Moderate</strong> — jogging, cycling, swimming, gym cardio<br>
+      <strong>🏋️ High intensity</strong> — HIIT, heavy weights, sprints, competitive sport
     </div>
   </div>
 
-  <!-- CURRENT BG STATUS CARD -->
+  <!-- ── PROFILE SELECTOR ── -->
+  <div class="ex-profile-row" style="margin-top:8px;">
+    <div class="ex-profile-btn active" id="exProf0" onclick="setExProfile(0)">
+      <div class="epb-ic">🚶</div>
+      <div class="epb-lbl">Low</div>
+      <div class="epb-sub">Walking / Yoga</div>
+    </div>
+    <div class="ex-profile-btn" id="exProf1" onclick="setExProfile(1)">
+      <div class="epb-ic">🏃</div>
+      <div class="epb-lbl">Moderate</div>
+      <div class="epb-sub">Jogging / Cycling</div>
+    </div>
+    <div class="ex-profile-btn" id="exProf2" onclick="setExProfile(2)">
+      <div class="epb-ic">🏋️</div>
+      <div class="epb-lbl">High</div>
+      <div class="epb-sub">HIIT / Weights</div>
+    </div>
+  </div>
+
+  <!-- ── CURRENT BG STATUS CARD ── -->
   <div class="card ex-hero" style="margin-top:10px;">
-    <div class="ex-status-lbl">Current Glucose</div>
+    <div class="ex-status-lbl">Your Current Blood Sugar</div>
     <div style="display:flex;align-items:flex-end;gap:8px;">
       <div class="ex-status" id="exBgNum">—</div>
       <div style="padding-bottom:8px;opacity:.6;font-size:12px;">mmol/L <span id="exTrend"></span></div>
     </div>
     <div class="ex-pills" id="exPills"></div>
-    <div class="ex-action go" id="exAction">Log a reading to see your exercise recommendation</div>
+    <div class="ex-action warn" id="exAction">Log a blood sugar reading to get your personalised exercise recommendation</div>
   </div>
 
-  <!-- EXERCISE TIMER -->
+  <!-- ── EXERCISE TIMER ── -->
   <div class="ex-timer-bar" id="exTimerBar">
     <div class="ex-timer-ic">⏱️</div>
     <div class="ex-timer-txt">
       <div style="font-size:13px;font-weight:700;color:var(--text);">Exercise Timer</div>
       <div class="ex-elapsed" id="exElapsed">00:00</div>
-      <div style="font-size:11px;color:var(--t3);" id="exTimerSub">Start timer when you begin exercising</div>
+      <div style="font-size:11px;color:var(--t3);" id="exTimerSub">Check BG every 20–30 min during exercise</div>
     </div>
     <button class="ex-timer-btn ex-start-btn" id="exTimerBtn" onclick="toggleExTimer()">Start</button>
   </div>
 
-  <!-- PRE-EXERCISE TABLE -->
+  <!-- ── BEFORE YOU EXERCISE ── -->
   <div class="card" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">Pre-Exercise BG Guide</div><div style="font-size:10px;color:var(--t3);" id="exProfLabel">Ex 0 — Minimal</div></div>
-    <div style="overflow-x:auto;">
-      <table class="ex-table" id="preExTable">
-        <thead><tr><th>BG (mmol/L)</th><th>Trend</th><th>Recommendation</th></tr></thead>
-        <tbody id="preExBody"></tbody>
-      </table>
+    <div class="sc-hd">
+      <div class="sc-title">🟢 Before You Start</div>
+      <div style="font-size:10px;color:var(--t3);" id="exProfLabel">Low intensity</div>
     </div>
-    <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.6;">Source: EASD/ISPAD position statement (Moser et al. 2020). CHO = carbohydrates. AE = aerobic exercise. RT = resistance training. HIT = high-intensity training.</div>
-  </div>
-
-  <!-- DURING EXERCISE TABLE -->
-  <div class="card" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">During Exercise BG Guide</div></div>
-    <div style="overflow-x:auto;">
-      <table class="ex-table" id="duringExTable">
-        <thead><tr><th>BG (mmol/L)</th><th>Trend</th><th>Action</th></tr></thead>
-        <tbody id="duringExBody"></tbody>
-      </table>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.5;">
+      Check your blood sugar, look at the direction it's moving, then find your row below.
+    </div>
+    <div id="preExCards"></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;font-size:11px;color:var(--t3);line-height:1.7;">
+      <strong>💡 Quick snack guide:</strong> 15g carbs ≈ 3 glucose tabs · 150ml fruit juice · 1 small banana · 4 Jelly Babies<br>
+      <em>Source: EASD/ISPAD Exercise Position Statement (Moser et al. 2020)</em>
     </div>
   </div>
 
-  <!-- POST EXERCISE TABLE -->
+  <!-- ── DURING EXERCISE ── -->
   <div class="card" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">Post-Exercise BG Guide</div></div>
-    <div style="overflow-x:auto;">
-      <table class="ex-table" id="postExTable">
-        <thead><tr><th>BG (mmol/L)</th><th>Trend</th><th>CHO</th></tr></thead>
-        <tbody id="postExBody"></tbody>
-      </table>
+    <div class="sc-hd"><div class="sc-title">🔄 During Exercise</div></div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.5;">
+      Check every 20–30 min. If you feel shaky, dizzy or sweaty — stop and check immediately.
     </div>
-    <div style="font-size:11px;color:var(--hi);background:var(--hi-bg);border:1px solid var(--hi-b);border-radius:8px;padding:10px;margin-top:10px;line-height:1.6;">
-      ⚠️ <strong>Nocturnal hypo risk:</strong> After evening/intense exercise, hypoglycaemia can occur 6–15 hours later. Set a low alert at 4.4 mmol/L overnight and consider a snack before bed.
+    <div id="duringExCards"></div>
+  </div>
+
+  <!-- ── AFTER EXERCISE ── -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">🏁 After Exercise</div></div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.5;">
+      Check your blood sugar within 30 min of finishing. Exercise can lower BG for up to 24 hours after.
+    </div>
+    <div id="postExCards"></div>
+    <div style="margin-top:10px;padding:10px 12px;background:var(--hi-bg);border:1px solid var(--hi-b);border-radius:8px;font-size:12px;color:var(--hi);line-height:1.6;">
+      ⚠️ <strong>Night hypo risk:</strong> After evening or intense exercise your blood sugar can drop 6–15 hours later — even while you sleep. Have a small snack before bed and consider setting a 3 AM alarm to check.
     </div>
   </div>
 
-  <!-- POST EXERCISE NOCTURNAL REMINDER -->
-  <div class="card card-last" style="margin-top:10px;">
-    <div class="sc-hd"><div class="sc-title">Nocturnal Hypo Reminder</div></div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:12px;line-height:1.6;">After an evening or high-intensity session, set a reminder to check your BG during the night. Hypos can occur up to 15 hours post-exercise.</div>
+  <!-- ── GENERAL TIPS ── -->
+  <div class="card" style="margin-top:10px;">
+    <div class="sc-hd"><div class="sc-title">💡 General Tips for Exercising with T1D</div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:20px;flex-shrink:0;">🩺</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;"><strong>Reduce your pre-exercise insulin</strong> — If you eat a meal before training, ask your diabetes team about reducing your meal bolus by 25–75% depending on exercise type and intensity.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:20px;flex-shrink:0;">🍬</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;"><strong>Always carry fast-acting carbs</strong> — Glucose tabs, fruit juice, or jelly babies. Never exercise without them. Tell your gym partner or coach you have Type 1 diabetes.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:20px;flex-shrink:0;">📈</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;"><strong>HIIT can raise BG first</strong> — High-intensity exercise releases adrenaline which pushes BG up temporarily. This usually corrects itself within 1–2 hours. Don't over-correct with insulin immediately.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:20px;flex-shrink:0;">💧</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;"><strong>Stay hydrated</strong> — Dehydration affects blood sugar readings and insulin absorption. Drink water before, during and after exercise.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:20px;flex-shrink:0;">🚫</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;"><strong>Don't inject into working muscles</strong> — Injecting insulin into your thigh before a run speeds up absorption and increases hypo risk. Use your abdomen before leg-heavy exercise.</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:10px;color:var(--t3);line-height:1.6;">
+      ⚕️ This guide is for educational purposes only. It does not replace advice from your endocrinologist or diabetes care team. Not applicable to hybrid closed-loop (artificial pancreas) systems. Always discuss your exercise insulin plan with your diabetes team.
+    </div>
+  </div>
+
+  <!-- ── NOCTURNAL REMINDER ── -->
+  <div class="card card-last" style="margin-top:10px;margin-bottom:12px;">
+    <div class="sc-hd"><div class="sc-title">🌙 Set a Night Check Reminder</div></div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;">
+      After evening or intense exercise, set an alarm to check your blood sugar during the night. Hypos can happen up to 15 hours later.
+    </div>
     <div style="display:flex;gap:8px;">
-      <button onclick="setNocturnalReminder(6)" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t2);">+6h reminder</button>
-      <button onclick="setNocturnalReminder(9)" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t2);">+9h reminder</button>
-      <button onclick="setNocturnalReminder(12)" style="flex:1;padding:10px;background:var(--acc);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:#fff;">+12h reminder</button>
+      <button onclick="setNocturnalReminder(6)" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t2);">In 6 hours</button>
+      <button onclick="setNocturnalReminder(9)" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t2);">In 9 hours</button>
+      <button onclick="setNocturnalReminder(12)" style="flex:1;padding:10px;background:var(--acc);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:#fff;">In 12 hours</button>
     </div>
   </div>
 </div>
 
-</div><!-- /scroll -->
 
 <!-- ══ LOG READING MODAL ══ -->
 <div class="mbd" id="mbd" onclick="handleBd(event)">
@@ -6399,195 +6439,325 @@ let exTimerStart = null;
 let exTimerInterval = null;
 let exRunning = false;
 
-// ── Full pre-exercise table from EASD paper (per profile column) ──
-// Each row: { bgRange, trend, action, cls }
-// trend: 'rise2'=↑↑, 'rise1'=↗, 'flat'=→, 'fall1'=↘, 'fall2'=↓↓
-// cls: 'go-td','warn-td','stop-td'
-const PRE_EX_TABLE = [
-  // >15.0 AND >1.5 mmol/L ketones — ALL profiles same
-  { bg:'>15.0 + ketones >1.5', trend:'Any', action:['No Ex. Insulin correction','No Ex. Insulin correction','No Ex. Insulin correction'], cls:'stop-td' },
-  // >15.0 AND ≤1.5 mmol/L ketones
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↑↑ ↗', action:['Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE'], cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'→', action:['Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE','Consider insulin (50%), Can start AE'], cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↘ ↓↓', action:['Can start all Ex','Can start all Ex','Can start all Ex'], cls:'go-td' },
-  // 10.1–15.0 / 11.1–15.0 / 12.1–15.0 (per profile)
-  { bg:'10.1–15.0 / 11.1–15.0 / 12.1–15.0', trend:'↑↑ ↗', action:['Can start AE, consider insulin correction for RT/HIT','Can start AE, consider insulin correction for RT/HIT','Can start AE, consider insulin correction for RT/HIT'], cls:'warn-td' },
-  { bg:'10.1–15.0 / 11.1–15.0 / 12.1–15.0', trend:'→', action:['Can start all Ex, consider insulin correction','Can start all Ex, consider insulin correction','Can start all Ex'], cls:'go-td' },
-  { bg:'10.1–15.0 / 11.1–15.0 / 12.1–15.0', trend:'↘ ↓↓', action:['Can start all Ex','Can start all Ex','Can start all Ex'], cls:'go-td' },
-  // 7.0–10.0 / 8.0–11.0 / 9.0–12.0
-  { bg:'7.0–10.0 / 8.0–11.0 / 9.0–12.0', trend:'↑↑ ↗ →', action:['Can start all Ex','Can start all Ex','Can start all Ex'], cls:'go-td' },
-  { bg:'7.0–10.0 / 8.0–11.0 / 9.0–12.0', trend:'↘ ↓↓', action:['~15g CHO, Can start all Ex','~15g CHO, Can start all Ex','Can start all Ex'], cls:'warn-td' },
-  // 5.0–6.9 / 5.0–7.9 / 5.0–8.9
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'↑↑ ↗', action:['~15g CHO, Can start all Ex','Can start all Ex','Can start all Ex'], cls:'warn-td' },
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'→', action:['~20g CHO, Can start all Ex','~10g CHO, Can start all Ex','Can start all Ex'], cls:'warn-td' },
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'↘', action:['~25g CHO, Delay Ex','~15g CHO, Delay Ex','Can start all Ex'], cls:'warn-td' },
-  { bg:'5.0–6.9 / 5.0–7.9 / 5.0–8.9', trend:'↓↓', action:['~30g CHO, Delay Ex','~20g CHO, Delay Ex','Can start all Ex'], cls:'warn-td' },
-  // 3.9–4.9
-  { bg:'3.9–4.9', trend:'↑↑', action:['~10g CHO, Can start all Ex','~10g CHO, Can start all Ex','~10g CHO, Can start all Ex'], cls:'warn-td' },
-  { bg:'3.9–4.9', trend:'↗', action:['~15g CHO, Delay Ex','~15g CHO, Delay Ex','~15g CHO, Delay Ex'], cls:'warn-td' },
-  { bg:'3.9–4.9', trend:'→', action:['30g CHO, Delay Ex','20g CHO, Delay Ex','20g CHO, Delay Ex'], cls:'stop-td' },
-  { bg:'3.9–4.9', trend:'↘', action:['~35g CHO, Delay Ex','~25g CHO, Delay Ex','~25g CHO, Delay Ex'], cls:'stop-td' },
-  { bg:'3.9–4.9', trend:'↓↓', action:['Individual CHO, Delay Ex','Individual CHO, Delay Ex','Individual CHO, Delay Ex'], cls:'stop-td' },
-  // <3.9
-  { bg:'<3.9', trend:'Any', action:['Individual CHO ingestion, Delay all Ex','Individual CHO ingestion, Delay all Ex','Individual CHO ingestion, Delay all Ex'], cls:'stop-td' },
+
+// ── Plain-English exercise data (EASD/ISPAD/ADA based) ──
+// Profile 0 = Low intensity (walking, yoga)     — highest hypo risk
+// Profile 1 = Moderate (jogging, cycling)        — moderate hypo risk
+// Profile 2 = High intensity (HIIT, weights)     — lower hypo risk (adrenaline effect)
+
+// Pre-exercise cards: each entry renders as a card row
+// fields: bg (display range), trend (arrow symbol), icon, status ('go'|'warn'|'stop'),
+//         headline, detail[3] (per profile 0/1/2)
+const PRE_EX_DATA = [
+  {
+    bg: 'Below 3.9', icon: '🛑', status: 'stop',
+    headline: 'Too Low — Do NOT exercise yet',
+    detail: [
+      'Your blood sugar is dangerously low. Stop and eat fast-acting carbs (sugary drink, glucose tabs) until you feel better. Wait until your BG is above 5.0 before starting.',
+      'Your blood sugar is dangerously low. Stop and eat fast-acting carbs (sugary drink, glucose tabs) until you feel better. Wait until your BG is above 5.0 before starting.',
+      'Your blood sugar is dangerously low. Stop and eat fast-acting carbs (sugary drink, glucose tabs) until you feel better. Wait until your BG is above 5.0 before starting.',
+    ]
+  },
+  {
+    bg: '3.9 – 4.9', trend: '↑↑ ↗', icon: '⚠️', status: 'warn',
+    headline: 'Borderline Low — Rising',
+    detail: [
+      'Eat about 10g of fast carbs (2 glucose tabs, small juice). Once BG is rising and above 5.0, you can start walking or low-intensity exercise.',
+      'Eat about 10g of fast carbs. Once BG is stable and above 5.0, you can start your session.',
+      'Eat about 10g of fast carbs. Once stable above 5.0, you can start — but monitor closely.',
+    ]
+  },
+  {
+    bg: '3.9 – 4.9', trend: '→', icon: '🛑', status: 'stop',
+    headline: 'Borderline Low — Flat',
+    detail: [
+      'Eat 20–30g of carbs and wait 15 min. Do not exercise until your BG climbs above 5.0.',
+      'Eat 20g of carbs and wait. Do not start until BG is above 5.0.',
+      'Eat 20g of carbs and wait. Do not start until BG is above 5.0.',
+    ]
+  },
+  {
+    bg: '3.9 – 4.9', trend: '↘ ↓↓', icon: '🛑', status: 'stop',
+    headline: 'Borderline Low — Dropping',
+    detail: [
+      'Eat 30–35g of carbs immediately. Do not exercise. Wait until BG is safely above 5.0.',
+      'Eat 25g of carbs and wait. Do not start until BG is above 5.0.',
+      'Eat 25g of carbs and wait. Do not start until BG is above 5.0.',
+    ]
+  },
+  {
+    bg: '5.0 – 6.9 ¹', trend: '↑↑ ↗', icon: '✅', status: 'go',
+    headline: 'OK to Go — Rising',
+    detail: [
+      'Have 15g of carbs as a safety buffer, then you can start any exercise.',
+      'You are good to go — no snack needed.',
+      'You are good to go — no snack needed.',
+    ]
+  },
+  {
+    bg: '5.0 – 6.9 ¹', trend: '→', icon: '⚠️', status: 'warn',
+    headline: 'OK — but flat trend, take a small snack',
+    detail: [
+      'Eat 20g of carbs, then start any exercise. Monitor during.',
+      'Eat 10g of carbs, then start any exercise.',
+      'You are good to go — no snack needed.',
+    ]
+  },
+  {
+    bg: '5.0 – 6.9 ¹', trend: '↘ ↓↓', icon: '⚠️', status: 'warn',
+    headline: 'OK — but dropping, take a snack first',
+    detail: [
+      'Eat 25–30g of carbs. Wait 10 min, then start. Consider delaying intense exercise.',
+      'Eat 15–20g of carbs. Wait 10 min, then start.',
+      'You are good to go — but monitor closely.',
+    ]
+  },
+  {
+    bg: '7.0 – 10.0 ²', trend: 'Any', icon: '✅', status: 'go',
+    headline: 'Great Range — Ideal for Exercise',
+    detail: [
+      'Perfect starting point. Go ahead with any exercise.',
+      'Perfect starting point. Go ahead with any exercise.',
+      'Perfect starting point. Go ahead with any exercise.',
+    ]
+  },
+  {
+    bg: '10.1 – 15.0', trend: '↑↑ ↗', icon: '⚠️', status: 'warn',
+    headline: 'A bit High — Rising',
+    detail: [
+      'Consider a small insulin correction (50% of your usual correction dose). You can start cardio/walking. Delay heavy weights or sprints.',
+      'Consider a small correction. You can start cardio. Delay heavy lifting or sprints.',
+      'Consider a small correction. You can start any exercise but monitor closely.',
+    ]
+  },
+  {
+    bg: '10.1 – 15.0', trend: '→ ↘ ↓↓', icon: '✅', status: 'go',
+    headline: 'A bit High — Stable or Dropping',
+    detail: [
+      'OK to exercise. The activity will naturally help bring BG down.',
+      'OK to exercise. The activity will help bring BG down.',
+      'OK to exercise.',
+    ]
+  },
+  {
+    bg: 'Above 15.0', trend: 'Any', icon: '🛑', status: 'stop',
+    headline: 'Too High — Insulin Correction Needed',
+    detail: [
+      'Your blood sugar is very high. Take an insulin correction (ask your diabetes team for the right amount) and wait until BG comes down below 15 before exercising. Check for ketones if possible.',
+      'Too high to exercise safely. Take a correction dose and wait. Check for ketones.',
+      'Too high. Take a correction and wait. If you have ketones above 1.5, do not exercise.',
+    ]
+  },
 ];
 
-// During-exercise table (same for all profiles — simplified key rows)
-const DURING_EX_TABLE = [
-  { bg:'>15.0 + ketones >1.5', trend:'Any', action:'Stop Ex, Insulin correction, No restart', cls:'stop-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↑↑ ↗', action:'Consider insulin (50%), Proceed all Ex', cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'→', action:'Consider insulin (50%), Proceed all Ex', cls:'warn-td' },
-  { bg:'>15.0 (ketones ≤1.5)', trend:'↘ ↓↓', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'10.1–15.0', trend:'↑↑ ↗', action:'Proceed all Ex, Consider insulin correction', cls:'warn-td' },
-  { bg:'10.1–15.0', trend:'→ ↘ ↓↓', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'7.0–10.0', trend:'↑↑ ↗ →', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'7.0–10.0', trend:'↘ ↓↓', action:'Proceed all Ex', cls:'go-td' },
-  { bg:'<7.0 Ex2 / <8.0 Ex1 / <9.0 Ex0', trend:'→', action:'~10–15g CHO, Proceed all Ex', cls:'warn-td' },
-  { bg:'<7.0 Ex2 / <8.0 Ex1 / <9.0 Ex0', trend:'↘', action:'~15–25g CHO, Proceed all Ex', cls:'warn-td' },
-  { bg:'<7.0 Ex2 / <8.0 Ex1 / <9.0 Ex0', trend:'↓↓', action:'~20–35g CHO, Proceed all Ex', cls:'warn-td' },
-  { bg:'<3.9', trend:'Any', action:'Stop all Ex, Confirmatory SMBG, Individual CHO, Restart possible', cls:'stop-td' },
-  { bg:'<3.0', trend:'Any', action:'Stop all Ex, Confirmatory SMBG, Individual CHO, No restart', cls:'stop-td' },
+// During exercise cards (profile-independent — same guidance for all)
+const DURING_EX_DATA = [
+  {
+    bg: 'Above 15.0 with ketones', icon: '🛑', status: 'stop',
+    headline: 'Stop — Ketones Detected',
+    detail: 'Stop all exercise immediately. Take insulin as directed by your diabetes team. Do not restart until BG is below 15 and ketones are below 0.5.'
+  },
+  {
+    bg: 'Above 15.0 no ketones', icon: '⚠️', status: 'warn',
+    headline: 'Very High — Check Trend',
+    detail: 'If your BG is rising, consider a small correction (50% dose) and continue light exercise only. If it\'s dropping, you can continue all exercise types.'
+  },
+  {
+    bg: '7.0 – 15.0', icon: '✅', status: 'go',
+    headline: 'Good Range — Keep Going',
+    detail: 'You\'re in a safe zone. Continue your session. Check again in 20–30 min.'
+  },
+  {
+    bg: 'Below 7.0 ³', icon: '⚠️', status: 'warn',
+    headline: 'Getting Low — Take Carbs and Continue',
+    detail: 'Eat 10–15g of fast carbs (glucose tabs, juice). You can usually continue exercising after — check again in 15 min. If still dropping, eat more and slow down.'
+  },
+  {
+    bg: 'Below 3.9', icon: '🛑', status: 'stop',
+    headline: 'Low — Stop and Treat',
+    detail: 'Stop exercising. Sit down. Eat 15–20g fast carbs immediately. Check BG every 15 min until you\'re back above 5.0. Only restart if you feel fully recovered.'
+  },
+  {
+    bg: 'Below 3.0', icon: '🛑', status: 'stop',
+    headline: 'Severe Low — Emergency',
+    detail: 'Stop immediately. Eat the largest amount of fast carbs you have. Sit or lie down. Ask someone for help. Do not restart exercise today.'
+  },
 ];
 
-// Post-exercise table (thresholds differ by profile)
-const POST_EX_TABLE = [
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↑↑', action:'No CHO needed', cls:'go-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↗', action:'No CHO needed', cls:'go-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'→', action:'~10g CHO', cls:'warn-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↘', action:'~15g CHO', cls:'warn-td' },
-  { bg:'Ex2:<4.4 / Ex1:<5.0 / Ex0:<5.6', trend:'↓↓', action:'Individual CHO ingestion', cls:'stop-td' },
+// Post-exercise cards
+const POST_EX_DATA = [
+  {
+    bg: 'Above 10.0', trend: '↑↑ ↗', icon: '⚠️', status: 'warn',
+    headline: 'High After Exercise',
+    detail: 'This can happen after intense/HIIT sessions (adrenaline effect). Wait 1–2 hours before correcting with insulin — it often comes down on its own. If above 15, a small correction is reasonable.'
+  },
+  {
+    bg: '5.6 – 10.0 ⁴', icon: '✅', status: 'go',
+    headline: 'Great Range — Well Done!',
+    detail: 'Your blood sugar is in a good place. Have a balanced meal or snack with protein and some carbs to help your muscles recover. Check again in 2 hours.'
+  },
+  {
+    bg: 'Below 5.6 ⁴', trend: '↑↑ ↗', icon: '✅', status: 'go',
+    headline: 'Slightly Low — Rising, You\'re OK',
+    detail: 'Your BG is low but heading up. No extra carbs needed right now. Check again in 1 hour.'
+  },
+  {
+    bg: 'Below 5.6 ⁴', trend: '→', icon: '⚠️', status: 'warn',
+    headline: 'Slightly Low — Have a Small Snack',
+    detail: 'Eat about 10g of carbs (crackers, small piece of fruit). This prevents a delayed hypo, especially if you\'re going to sleep soon.'
+  },
+  {
+    bg: 'Below 5.6 ⁴', trend: '↘ ↓↓', icon: '🛑', status: 'stop',
+    headline: 'Low After Exercise — Treat Now',
+    detail: 'Eat 15g fast carbs immediately. Follow up with a snack containing protein + carbs (e.g. peanut butter toast, cheese + crackers). If exercising in the evening, set a night-time alarm to check your BG.'
+  },
 ];
+
+// ── Profile labels ──
+const EX_PROFILE_LABELS = [
+  'Low intensity (Walking / Yoga)',
+  'Moderate (Jogging / Cycling)',
+  'High intensity (HIIT / Weights)'
+];
+
+// ── Footnotes ──
+const EX_FOOTNOTES = `<div style="margin-top:10px;font-size:10px;color:var(--t3);line-height:1.8;padding:8px 10px;background:var(--bg);border-radius:8px;">
+  ¹ Low profile upper threshold: 6.9 · Moderate: 7.9 · High: 8.9 mmol/L<br>
+  ² Low profile ideal zone top: 10.0 · Moderate: 11.0 · High: 12.0 mmol/L<br>
+  ³ Low profile "getting low" threshold: &lt;9.0 · Moderate: &lt;8.0 · High: &lt;7.0 mmol/L<br>
+  ⁴ Post-exercise low threshold varies: Low profile &lt;5.6 · Moderate &lt;5.0 · High &lt;4.4 mmol/L<br>
+  <em>Based on: EASD/ISPAD Exercise Statement (Moser et al. 2020), ADA Standards of Care 2024</em>
+</div>`;
 
 function setExProfile(p){
-  exProfile=p;
-  [0,1,2].forEach(i=>{
-    document.getElementById('exProf'+i).classList.toggle('active',i===p);
-  });
-  const labels=['Ex 0 — Minimal / High hypo risk','Ex 1 — Moderate','Ex 2 — Intensive / Low hypo risk'];
-  document.getElementById('exProfLabel').textContent=labels[p];
-  renderExTables();
+  exProfile = p;
+  [0,1,2].forEach(i => document.getElementById('exProf'+i).classList.toggle('active', i===p));
+  const lbl = document.getElementById('exProfLabel');
+  if(lbl) lbl.textContent = EX_PROFILE_LABELS[p];
+  renderExCards();
   updateExerciseScreen();
 }
 
-function renderExTables(){
-  // Pre-exercise
-  const preBody=document.getElementById('preExBody');
-  if(preBody){
-    preBody.innerHTML=PRE_EX_TABLE.map(r=>`
-      <tr>
-        <td style="font-size:10px;font-family:'JetBrains Mono',monospace;">${r.bg}</td>
-        <td style="font-size:14px;text-align:center;">${r.trend}</td>
-        <td class="${r.cls}">${r.action[Math.min(exProfile,r.action.length-1)]}</td>
-      </tr>`).join('');
+function exCardHTML(icon, status, headline, detail, bg, trend){
+  const colors = {go:'var(--ok)', warn:'var(--hi)', stop:'var(--low)'};
+  const bgs    = {go:'var(--ok-bg)', warn:'var(--hi-bg)', stop:'var(--low-bg)'};
+  const borders = {go:'var(--ok-b)', warn:'var(--hi-b)', stop:'var(--low-b)'};
+  const col = colors[status]||'var(--t2)';
+  const bg2 = bgs[status]||'var(--bg)';
+  const bdr = borders[status]||'var(--border)';
+  return `<div style="display:flex;gap:10px;padding:11px 12px;margin-bottom:8px;background:${bg2};border:1.5px solid ${bdr};border-radius:10px;align-items:flex-start;">
+    <div style="font-size:22px;flex-shrink:0;line-height:1;">${icon}</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:${col};font-weight:700;margin-bottom:2px;">${bg}${trend?' · '+trend:''}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3;">${headline}</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.6;">${detail}</div>
+    </div>
+  </div>`;
+}
+
+function renderExCards(){
+  const p = exProfile;
+  const lbl = document.getElementById('exProfLabel');
+  if(lbl) lbl.textContent = EX_PROFILE_LABELS[p];
+
+  const preEl = document.getElementById('preExCards');
+  if(preEl){
+    preEl.innerHTML = PRE_EX_DATA.map(d =>
+      exCardHTML(d.icon, d.status, d.headline, d.detail[Math.min(p, d.detail.length-1)], d.bg, d.trend||'')
+    ).join('') + EX_FOOTNOTES;
   }
-  // During exercise
-  const duringBody=document.getElementById('duringExBody');
-  if(duringBody){
-    duringBody.innerHTML=DURING_EX_TABLE.map(r=>`
-      <tr>
-        <td style="font-size:10px;font-family:'JetBrains Mono',monospace;">${r.bg}</td>
-        <td style="font-size:14px;text-align:center;">${r.trend}</td>
-        <td class="${r.cls}">${r.action}</td>
-      </tr>`).join('');
+
+  const durEl = document.getElementById('duringExCards');
+  if(durEl){
+    durEl.innerHTML = DURING_EX_DATA.map(d =>
+      exCardHTML(d.icon, d.status, d.headline, d.detail, d.bg, '')
+    ).join('');
   }
-  // Post exercise
-  const postBody=document.getElementById('postExBody');
-  if(postBody){
-    postBody.innerHTML=POST_EX_TABLE.map(r=>`
-      <tr>
-        <td style="font-size:10px;font-family:'JetBrains Mono',monospace;">${r.bg}</td>
-        <td style="font-size:14px;text-align:center;">${r.trend}</td>
-        <td class="${r.cls}">${r.action}</td>
-      </tr>`).join('');
+
+  const postEl = document.getElementById('postExCards');
+  if(postEl){
+    postEl.innerHTML = POST_EX_DATA.map(d =>
+      exCardHTML(d.icon, d.status, d.headline, d.detail, d.bg, d.trend||'')
+    ).join('') + EX_FOOTNOTES;
   }
 }
 
+// Keep renderExTables as an alias so the goTo handler still works
+function renderExTables(){ renderExCards(); }
+
 function getTrendArrow(){
-  const bgR=readings.filter(r=>!r.isMealOnly&&r.value>0);
-  if(bgR.length<2) return null;
-  const last=bgR[bgR.length-1];
-  const prev=bgR[bgR.length-2];
-  const dtMin=(last.ts-prev.ts)/60000;
-  if(dtMin<=0||dtMin>120) return null;
-  const rate=(last.value-prev.value)/dtMin*60; // mmol/L per hour
-  if(rate>2.0) return '↑↑';
-  if(rate>1.0) return '↗';
-  if(rate>-1.0) return '→';
-  if(rate>-2.0) return '↘';
+  const bgR = readings.filter(r => !r.isMealOnly && r.value > 0);
+  if(bgR.length < 2) return null;
+  const last = bgR[bgR.length-1], prev = bgR[bgR.length-2];
+  const dtMin = (last.ts - prev.ts) / 60000;
+  if(dtMin <= 0 || dtMin > 120) return null;
+  const rate = (last.value - prev.value) / dtMin * 60;
+  if(rate > 2.0)  return '↑↑';
+  if(rate > 1.0)  return '↗';
+  if(rate > -1.0) return '→';
+  if(rate > -2.0) return '↘';
   return '↓↓';
 }
 
 function getExRecommendation(bg, trend, profile){
-  const p=profile;
-  // <3.9 — universal stop
-  if(bg<3.9) return {cls:'stop', msg:'🛑 Do NOT exercise. BG too low. Take individual amount of fast-acting carbs immediately. Delay all exercise until BG recovers to at least 5.0 mmol/L.'};
-  // 3.9–4.9
-  if(bg<5.0){
-    if(trend==='↑↑') return {cls:'warn', msg:'⚠️ BG rising. Take ~10g CHO. Can start all exercise once BG stable.'};
-    if(trend==='↗')  return {cls:'warn', msg:`⚠️ Take ~${p>=1?15:15}g CHO. Delay exercise until BG reaches at least ${p===2?'3.9':'5.0'} mmol/L.`};
-    if(trend==='→')  return {cls:'stop', msg:`🛑 Take ${p===2?'20':'20–30'}g CHO. Delay exercise until BG ≥ 5.0 mmol/L.`};
-    if(trend==='↘')  return {cls:'stop', msg:`🛑 Take ~${p===2?'25':'25–35'}g CHO. Delay all exercise.`};
-    return {cls:'stop', msg:'🛑 Individual carb intake needed. Delay all exercise.'};
+  const p = profile;
+  if(bg < 3.9) return {cls:'stop', msg:'🛑 Blood sugar too low. Do NOT exercise. Eat fast-acting carbs now and wait until your BG is above 5.0 mmol/L.'};
+  if(bg < 5.0){
+    if(trend==='↑↑') return {cls:'warn', msg:'⚠️ Low but rising. Eat 10g carbs (2 glucose tabs). OK to start gentle exercise once above 5.0.'};
+    if(trend==='↗')  return {cls:'warn', msg:'⚠️ Borderline low. Eat 10–15g carbs and wait. Start only when BG is above 5.0.'};
+    return               {cls:'stop', msg:'🛑 Too low. Eat 20–30g carbs. Rest and wait until BG climbs above 5.0.'};
   }
-  // 5.0–6.9 (Ex0) / 5.0–7.9 (Ex1) / 5.0–8.9 (Ex2)
-  const hiLow=[6.9,7.9,8.9][p];
-  if(bg<=hiLow){
-    if(trend==='↑↑'||trend==='↗') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':p===1?'✅ Can start all exercise.':'⚠️ Take ~15g CHO then can start all exercise.'};
-    if(trend==='→') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':`⚠️ Take ~${p===1?'10':'20'}g CHO. Can start all exercise.`};
-    if(trend==='↘') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':`⚠️ Take ~${p===1?'15':'25'}g CHO. Delay exercise.`};
-    return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':`⚠️ Take ~${p===1?'20':'30'}g CHO. Delay exercise.`};
+  const lowCeil = [6.9, 7.9, 8.9][p];
+  if(bg <= lowCeil){
+    if(trend==='↑↑'||trend==='↗') return {cls:p===0?'warn':'go', msg:p===0?'⚠️ Eat 15g carbs as a buffer, then you can start.':'✅ Good to go! BG is rising — no snack needed.'};
+    if(trend==='→')  return {cls:p===2?'go':'warn', msg:p===2?'✅ Good to go!':p===1?'⚠️ Have 10g carbs first, then start.':'⚠️ Have 20g carbs first, then start.'};
+    return               {cls:p===2?'go':'warn', msg:p===2?'✅ OK to start — monitor closely.':p===1?'⚠️ Have 15–20g carbs. Wait 10 min, then start.':'⚠️ Have 25–30g carbs. Wait before starting.'};
   }
-  // 7.0–10.0 (Ex0) / 8.0–11.0 (Ex1) / 9.0–12.0 (Ex2) — green zone
-  const hiMid=[10.0,11.0,12.0][p];
-  if(bg<=hiMid){
-    if(trend==='↘'||trend==='↓↓') return {cls:p===2?'go':'warn', msg:p===2?'✅ Can start all exercise.':'⚠️ Take ~15g CHO then can start all exercise.'};
-    return {cls:'go', msg:'✅ Great range for exercise. Can start all exercise types.'};
+  const midCeil = [10.0, 11.0, 12.0][p];
+  if(bg <= midCeil){
+    if(trend==='↘'||trend==='↓↓') return {cls:'warn', msg:p===0?'⚠️ BG dropping — have 15g carbs then start.':'✅ OK to start. BG is coming down naturally.'};
+    return {cls:'go', msg:'✅ Ideal range for exercise. Go for it!'};
   }
-  // 10.1–15.0 / 11.1–15.0 / 12.1–15.0
-  const hiHigh=[15.0,15.0,15.0][p];
-  if(bg<=15.0){
-    if(trend==='↑↑'||trend==='↗') return {cls:'warn', msg:'⚠️ Consider 50% insulin correction. Can start aerobic exercise. Delay resistance/HIT training.'};
-    if(trend==='→') return {cls:'warn', msg:'⚠️ Consider 50% insulin correction. Can start all exercise.'};
-    return {cls:'go', msg:'✅ Can start all exercise.'};
+  if(bg <= 15.0){
+    if(trend==='↑↑'||trend==='↗') return {cls:'warn', msg:'⚠️ BG is high and rising. Consider a small correction (50% of your normal dose). Stick to walking or cardio — avoid heavy weights or sprints.'};
+    return {cls:'go', msg:'✅ BG is high but stable or dropping. OK to exercise — activity will help bring it down.'};
   }
-  // >15.0
-  return {cls:'stop', msg:'🛑 BG very high. Insulin correction required before exercise. Do NOT exercise until BG is below 15 mmol/L.'};
+  return {cls:'stop', msg:'🛑 Blood sugar very high. Take an insulin correction and wait until BG is below 15 mmol/L before exercising. Check for ketones.'};
 }
 
 function updateExerciseScreen(){
-  const bgR=readings.filter(r=>!r.isMealOnly&&r.value>0);
-  const exBgNum=document.getElementById('exBgNum');
-  const exAction=document.getElementById('exAction');
-  const exPills=document.getElementById('exPills');
-  const exTrend=document.getElementById('exTrend');
+  const bgR = readings.filter(r => !r.isMealOnly && r.value > 0);
+  const exBgNum  = document.getElementById('exBgNum');
+  const exAction = document.getElementById('exAction');
+  const exPills  = document.getElementById('exPills');
+  const exTrend  = document.getElementById('exTrend');
   if(!exBgNum) return;
 
   if(!bgR.length){
-    exBgNum.textContent='—';
-    exAction.className='ex-action warn';
-    exAction.textContent='Log a blood glucose reading to get your exercise recommendation.';
-    exPills.innerHTML='';
+    exBgNum.textContent = '—';
+    exAction.className = 'ex-action warn';
+    exAction.textContent = 'Log a blood sugar reading to get your personalised exercise recommendation.';
+    exPills.innerHTML = '';
     return;
   }
 
-  const last=bgR[bgR.length-1];
-  const trend=getTrendArrow()||'→';
-  const ageMin=(Date.now()-last.ts)/60000;
+  const last = bgR[bgR.length-1];
+  const trend = getTrendArrow() || '→';
+  const ageMin = (Date.now() - last.ts) / 60000;
 
-  exBgNum.textContent=fmt(last.value);
-  exTrend.textContent=trend;
+  exBgNum.textContent = fmt(last.value);
+  if(exTrend) exTrend.textContent = trend;
 
-  // Staleness warning
-  const pills=[];
-  if(ageMin>30) pills.push(`⚠️ Reading ${Math.round(ageMin)}m old`);
-  if(ageMin>60) pills.push('🔴 Log a fresh reading');
-  pills.push(['🚶 Ex 0','🏃 Ex 1','🏋️ Ex 2'][exProfile]);
-  exPills.innerHTML=pills.map(p=>`<div class="ex-pill">${p}</div>`).join('');
+  const pills = [];
+  if(ageMin > 30) pills.push(`⚠️ Reading ${Math.round(ageMin)}min old — log a fresh check`);
+  pills.push(['🚶 Low intensity', '🏃 Moderate', '🏋️ High intensity'][exProfile]);
+  exPills.innerHTML = pills.map(p => `<div class="ex-pill">${p}</div>`).join('');
 
-  const rec=getExRecommendation(last.value, trend, exProfile);
-  exAction.className='ex-action '+rec.cls;
-  exAction.textContent=rec.msg;
+  const rec = getExRecommendation(last.value, trend, exProfile);
+  exAction.className = 'ex-action ' + rec.cls;
+  exAction.textContent = rec.msg;
 }
+
 
 // ── Exercise Timer ──
 function toggleExTimer(){
