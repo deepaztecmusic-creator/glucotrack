@@ -3,225 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GlucoTrack">
-<meta name="theme-color" content="#0D1321">
 <title>GlucoTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* CSS styles remain identical to your original provided styles */
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{
-  --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
-  --text:#0D1321;--t2:#5A6478;--t3:#9AA3B5;
-  --low:#E53E3E;--low-bg:#FFF5F5;--low-b:#FEB2B2;
-  --ok:#38A169;--ok-bg:#F0FFF4;--ok-b:#9AE6B4;
-  --hi:#D97706;--hi-bg:#FFFBEB;--hi-b:#FCD34D;
-  --vhi:#E53E3E;--acc:#1A56DB;--acc-bg:#EBF5FF;--acc-b:#93C5FD;
-  --pur:#7C3AED;--pur-bg:#F5F3FF;
-  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --sh2:0 4px 16px rgba(0,0,0,.09);
-  --r:14px;--rs:8px;
+/* Using your specific variables and styles */
+:root {
+  --bg:#F4F6F9; --white:#fff; --border:#E2E6ED; --text:#0D1321; --t3:#9AA3B5;
+  --low:#E53E3E; --ok:#38A169; --hi:#D97706; --acc:#1A56DB; --r:14px;
 }
-body.dark{
-  --bg:#0D1321;--white:#1a2236;--border:#243049;--border2:#2d3d57;
-  --text:#e8edf5;--t2:#8899bb;--t3:#4a5a7a;
-  --low-bg:#2d1515;--low-b:#7f2020;
-  --ok-bg:#0d2a1a;--ok-b:#1a5c30;
-  --hi-bg:#2a1f08;--hi-b:#7a4f0a;
-  --acc-bg:#0d1e3d;--acc-b:#1a3a6b;
-  --pur-bg:#1a0d35;
-}
-html{height:100%;background:var(--bg);}
-body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
-.topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);z-index:210;}
-.logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}.logo span{color:var(--text);}
-.wbar{background:#0D1321;padding:10px 16px;position:relative;overflow:hidden;color:#fff;}
-.wbar-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.wnum{font-size:26px;font-weight:700;color:#34d399;font-family:'JetBrains Mono',monospace;}
-.wnum.low{color:#f87171;}.wnum.hi{color:#fbbf24;}.wnum.none{color:#475569;}
-.scroll{flex:1;overflow-y:auto;}
-.card{margin:12px 14px 0;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
-.gc-num{font-size:60px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--ok);}
-.rtrack{height:4px;border-radius:2px;background:linear-gradient(90deg,#E53E3E 0%,#38A169 30%,#38A169 70%,#D97706 85%,#E53E3E 100%);position:relative;margin-top:10px;}
-.rneedle{position:absolute;top:-5px;width:2px;height:14px;background:var(--text);border-radius:2px;left:50%;transition:left .5s ease;}
-.fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100;background:var(--acc);color:#fff;border:none;border-radius:50px;padding:13px 24px;font-weight:700;cursor:pointer;box-shadow:var(--sh2);}
-.mbd{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:none;align-items:flex-end;justify-content:center;}
-.mbd.open{display:flex;}
-.msheet{width:100%;max-width:430px;background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 40px;}
-.bi{font-size:60px;font-weight:800;width:100%;text-align:center;border:none;outline:none;font-family:'JetBrains Mono',monospace;}
-.cc{padding:8px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:12px;display:inline-block;margin:4px;}
-.cc.selected{background:var(--acc);color:#fff;}
-.svbtn{width:100%;padding:14px;background:var(--acc);color:#fff;border:none;border-radius:10px;font-weight:700;margin-top:20px;}
-canvas.main-chart{width:100%;height:180px;}
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.topbar { background: var(--white); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+.logo { font-weight: 800; color: var(--acc); } .logo span { color: var(--text); }
+.wbar { background: #0D1321; padding: 15px; color: #fff; display: flex; align-items: baseline; gap: 8px; }
+.wnum { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono'; color: #34d399; }
+.scroll { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+.card { margin: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.gc-num { font-size: 50px; font-weight: 800; font-family: 'JetBrains Mono'; text-align: center; display: block; }
+.rtrack { height: 6px; background: linear-gradient(90deg, #E53E3E, #38A169, #D97706, #E53E3E); border-radius: 3px; position: relative; margin: 15px 0; }
+.rneedle { position: absolute; top: -4px; width: 4px; height: 14px; background: #000; border-radius: 2px; transition: 0.5s; }
+.fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--acc); color: #fff; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 12px rgba(26,86,219,0.3); cursor: pointer; }
+.mbd { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; z-index: 1000; }
+.mbd.open { display: flex; }
+.msheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; }
+.bi { width: 100%; font-size: 45px; text-align: center; border: none; outline: none; font-family: 'JetBrains Mono'; }
+.cc-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+.cc { padding: 8px 15px; background: #eee; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.cc.selected { background: var(--acc); color: #fff; }
+.svbtn { width: 100%; padding: 15px; background: var(--acc); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; margin-top: 10px; }
+canvas { width: 100%; height: 150px; margin-top: 10px; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-    <div class="logo">GLUCO<span>TRACK</span></div>
-    <div class="topbar-date" id="currentDate">--:--</div>
-</div>
-
+<div class="topbar"><div class="logo">GLUCO<span>TRACK</span></div></div>
 <div class="wbar">
-    <div class="wbar-inner">
-        <div class="wnum none">--.-</div>
-        <div style="font-size:10px; opacity:0.6;">mmol/L</div>
-    </div>
+    <div class="wnum" id="widgetNum">--.-</div>
+    <div style="font-size: 12px; opacity: 0.6;">mmol/L</div>
 </div>
 
 <div class="scroll">
     <div class="card">
-        <div class="gc-lbl">Current Glucose</div>
-        <div class="gc-num none">--.-</div>
-        <div class="rtrack"><div class="rneedle"></div></div>
+        <span style="font-size: 12px; font-weight: 700; color: var(--t3);">LATEST READING</span>
+        <div class="gc-num" id="mainNum">--.-</div>
+        <div class="rtrack"><div class="rneedle" id="needle"></div></div>
     </div>
-
+    
     <div class="card">
-        <div class="sc-hd"><div class="sc-title">24h Trend (Abbott Style)</div></div>
-        <canvas class="main-chart"></canvas>
+        <span style="font-size: 12px; font-weight: 700; color: var(--t3);">24H TREND (mmol/L)</span>
+        <canvas id="glucoseChart"></canvas>
     </div>
 
-    <div id="historyList"></div>
+    <div id="history"></div>
 </div>
 
-<button class="fab">Log Reading</button>
+<button class="fab" onclick="toggleModal(true)">+ Log Glucose</button>
 
 <div class="mbd" id="logModal">
     <div class="msheet">
-        <div class="mtop"><span class="mtitle">New Reading</span><button class="mclose">✕</button></div>
-        <input type="number" class="bi" placeholder="0.0" step="0.1">
-        <div style="text-align:center; color:var(--t3); margin-bottom:20px;">mmol/L</div>
-        
-        <div class="msec-lbl">Context</div>
-        <div class="ctx-grid">
-            <div class="cc" onclick="selectContext(this)">Fasting</div>
-            <div class="cc" onclick="selectContext(this)">Pre-Meal</div>
-            <div class="cc" onclick="selectContext(this)">Post-Meal</div>
-            <div class="cc" onclick="selectContext(this)">Bedtime</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+            <b style="font-size: 18px;">New Entry</b>
+            <button onclick="toggleModal(false)" style="border:none; background:none; font-size: 20px;">✕</button>
         </div>
-
-        <button class="svbtn" onclick="saveReading()">Save Data</button>
+        <input type="number" class="bi" id="glucoseInput" placeholder="0.0" step="0.1">
+        <p style="text-align:center; color:var(--t3); margin-top: -10px;">mmol/L</p>
+        
+        <div class="cc-grid">
+            <div class="cc" onclick="selCtx(this)">Fasting</div>
+            <div class="cc" onclick="selCtx(this)">Pre-Meal</div>
+            <div class="cc" onclick="selCtx(this)">Post-Meal</div>
+            <div class="cc selected" onclick="selCtx(this)">General</div>
+        </div>
+        <button class="svbtn" onclick="addEntry()">Save Reading</button>
     </div>
 </div>
 
 <script>
-/** * GLUCOTRACK SCRIPT 
- * Units: mmol/L
- */
+let data = JSON.parse(localStorage.getItem('gt_readings')) || [];
 
-let readings = JSON.parse(localStorage.getItem('gt_readings')) || [];
-const TARGET_LOW = 3.9;
-const TARGET_HIGH = 10.0;
-
-function init() {
-    updateUI();
-    setupListeners();
-    renderChart();
+function toggleModal(show) {
+    document.getElementById('logModal').classList.toggle('open', show);
+    if(show) document.getElementById('glucoseInput').focus();
 }
 
-function setupListeners() {
-    document.querySelector('.fab').onclick = () => document.getElementById('logModal').classList.add('open');
-    document.querySelector('.mclose').onclick = () => document.getElementById('logModal').classList.remove('open');
-}
-
-function selectContext(el) {
+function selCtx(el) {
     document.querySelectorAll('.cc').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
 }
 
-function saveReading() {
-    const valInput = document.querySelector('.bi');
-    const val = parseFloat(valInput.value);
-    const context = document.querySelector('.cc.selected')?.innerText || 'General';
-
-    if(!val || val <= 0) return alert("Enter valid value");
+function addEntry() {
+    const val = parseFloat(document.getElementById('glucoseInput').value);
+    const ctx = document.querySelector('.cc.selected').innerText;
+    
+    if(!val || val <= 0) return alert("Please enter a valid mmol/L value");
 
     const entry = {
-        id: Date.now(),
         val: val,
-        context: context,
+        ctx: ctx,
+        ts: Date.now(),
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
     };
 
-    readings.unshift(entry);
-    localStorage.setItem('gt_readings', JSON.stringify(readings));
+    data.unshift(entry);
+    localStorage.setItem('gt_readings', JSON.stringify(data));
     
-    valInput.value = '';
-    document.getElementById('logModal').classList.remove('open');
-    updateUI();
-    renderChart();
+    document.getElementById('glucoseInput').value = '';
+    toggleModal(false);
+    refresh();
 }
 
-function updateUI() {
-    const latest = readings[0];
-    const wnum = document.querySelector('.wnum');
-    const gnum = document.querySelector('.gc-num');
-    const needle = document.querySelector('.rneedle');
+function refresh() {
+    const latest = data[0];
+    const wNum = document.getElementById('widgetNum');
+    const mNum = document.getElementById('mainNum');
+    const needle = document.getElementById('needle');
 
     if(latest) {
         const v = latest.val.toFixed(1);
-        wnum.innerText = v;
-        gnum.innerText = v;
-        
-        // Color coding
-        let color = 'var(--ok)';
-        if(latest.val < TARGET_LOW) color = 'var(--low)';
-        if(latest.val > TARGET_HIGH) color = 'var(--hi)';
-        
-        wnum.style.color = color;
-        gnum.style.color = color;
+        wNum.innerText = v;
+        mNum.innerText = v;
 
-        // Needle Position (2 to 18 mmol/L scale)
-        let pos = ((latest.val - 2) / (18 - 2)) * 100;
-        needle.style.left = `${Math.max(5, Math.min(95, pos))}%`;
+        // Color logic for mmol/L
+        let color = '#38A169'; // OK
+        if(latest.val < 3.9) color = '#E53E3E'; // Low
+        if(latest.val > 10.0) color = '#D97706'; // High
+        
+        wNum.style.color = color;
+        mNum.style.color = color;
+
+        // Needle move (Range 2.0 to 18.0)
+        let percent = ((latest.val - 2) / (18 - 2)) * 100;
+        needle.style.left = Math.max(0, Math.min(98, percent)) + '%';
     }
 
-    // Render History
-    const hist = document.getElementById('historyList');
-    hist.innerHTML = readings.slice(0,5).map(r => `
-        <div class="card" style="padding:10px; display:flex; justify-content:space-between; align-items:center;">
+    // History List
+    const histDiv = document.getElementById('history');
+    histDiv.innerHTML = data.slice(0, 10).map(item => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px;">
             <div>
-                <div style="font-weight:700;">${r.val} <small>mmol/L</small></div>
-                <div style="font-size:11px; color:var(--t3);">${r.context}</div>
+                <b style="font-size: 16px;">${item.val.toFixed(1)}</b> <small>mmol/L</small>
+                <div style="font-size: 11px; color: var(--t3);">${item.ctx}</div>
             </div>
-            <div style="font-size:11px; color:var(--t3);">${r.time}</div>
+            <div style="font-size: 11px; color: var(--t3);">${item.time}</div>
         </div>
     `).join('');
+
+    drawChart();
 }
 
-function renderChart() {
-    const canvas = document.querySelector('.main-chart');
+function drawChart() {
+    const canvas = document.getElementById('glucoseChart');
     const ctx = canvas.getContext('2d');
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
     canvas.width = w; canvas.height = h;
 
-    if(readings.length < 2) return;
+    if(data.length < 2) return;
 
-    // Draw target range background
-    const yHigh = h - (TARGET_HIGH / 15 * h);
-    const yLow = h - (TARGET_LOW / 15 * h);
+    // Draw Target Zone (3.9 - 10.0 mmol/L)
     ctx.fillStyle = 'rgba(56, 161, 105, 0.1)';
+    const yHigh = h - (10 / 18 * h);
+    const yLow = h - (3.9 / 18 * h);
     ctx.fillRect(0, yHigh, w, yLow - yHigh);
 
-    // Draw line
+    // Draw Data Line
     ctx.beginPath();
     ctx.strokeStyle = '#1A56DB';
     ctx.lineWidth = 3;
-    
-    const slice = readings.slice(0, 10).reverse();
-    slice.forEach((r, i) => {
-        const x = (i / (slice.length - 1)) * w;
-        const y = h - (r.val / 15 * h);
+    ctx.lineJoin = 'round';
+
+    const points = data.slice(0, 10).reverse();
+    points.forEach((p, i) => {
+        const x = (i / (points.length - 1)) * w;
+        const y = h - (p.val / 18 * h);
         if(i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
     });
     ctx.stroke();
 }
 
-init();
+// Start
+refresh();
+window.addEventListener('resize', drawChart);
 </script>
+
 </body>
 </html>
