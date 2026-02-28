@@ -1,122 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0D1321">
-    <title>GlucoTrack</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg:#F4F6F9; --white:#fff; --border:#E2E6ED; --text:#0D1321;
-            --t2:#5A6478; --t3:#9AA3B5; --acc:#1A56DB; --acc-bg:#EBF5FF;
-            --ok:#38A169; --low:#E53E3E; --hi:#D97706; --sh:0 4px 12px rgba(0,0,0,0.05);
-            --r:16px;
-        }
-        body.dark {
-            --bg:#0D1321; --white:#1a2236; --border:#243049; --text:#e8edf5;
-            --t2:#8899bb; --t3:#4a5a7a; --acc-bg:#0d1e3d;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--text); max-width:430px; margin:0 auto; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-        
-        .topbar { background:var(--white); padding:12px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); z-index:10; }
-        .logo { font-weight:800; font-size:18px; color:var(--acc); }
-        .logo span { color:var(--text); }
-        
-        .hero { background:#0D1321; padding:20px 16px; color:white; flex-shrink:0; }
-        .hero-label { font-size:11px; opacity:0.6; font-weight:700; letter-spacing:1px; }
-        .hero-val { font-size:48px; font-weight:700; font-family:'JetBrains Mono'; color:#34d399; }
-        .hero-unit { font-size:14px; opacity:0.8; margin-left:4px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GlucoTrack">
+<meta name="theme-color" content="#0D1321">
+<title>GlucoTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
+  --text:#0D1321;--t2:#5A6478;--t3:#9AA3B5;
+  --low:#E53E3E;--low-bg:#FFF5F5;--low-b:#FEB2B2;
+  --ok:#38A169;--ok-bg:#F0FFF4;--ok-b:#9AE6B4;
+  --hi:#D97706;--hi-bg:#FFFBEB;--hi-b:#FCD34D;
+  --vhi:#E53E3E;--acc:#1A56DB;--acc-bg:#EBF5FF;--acc-b:#93C5FD;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --r:14px;--rs:8px;
+}
+body.dark{
+  --bg:#0D1321;--white:#1a2236;--border:#243049;--border2:#2d3d57;
+  --text:#e8edf5;--t2:#8899bb;--t3:#4a5a7a;
+  --low-bg:#2d1515;--ok-bg:#0d2a1a;--hi-bg:#2a1f08;--acc-bg:#0d1e3d;
+}
+html{height:100%;background:var(--bg);}
+body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
 
-        .scroll { flex:1; overflow-y:auto; padding:12px; padding-bottom:100px; }
-        .card { background:var(--white); border-radius:var(--r); padding:16px; border:1px solid var(--border); box-shadow:var(--sh); margin-bottom:12px; }
-        .card-title { font-size:12px; font-weight:800; color:var(--t3); margin-bottom:12px; text-transform:uppercase; }
-        
-        .chart-container { height:200px; width:100%; position:relative; }
-        
-        /* History Items */
-        .ei { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
-        .ei:last-child { border-bottom:none; }
-        .ei-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-        .ei-main { flex:1; }
-        .ei-ctx { font-size:14px; font-weight:600; }
-        .ei-sub { font-size:11px; color:var(--t3); font-family:'JetBrains Mono'; }
-        .ei-r { text-align:right; display:flex; align-items:center; gap:12px; }
-        .ei-val { font-size:18px; font-weight:700; font-family:'JetBrains Mono'; }
-        .btn-del { background:none; border:none; color:var(--low); font-size:18px; cursor:pointer; padding:4px; opacity:0.6; }
+/* --- TOPBAR --- */
+.topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;z-index:210;}
+.logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}
+.logo span{color:var(--text);}
 
-        /* Modal & FAB */
-        .fab { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--acc); color:white; padding:14px 28px; border-radius:50px; font-weight:700; border:none; box-shadow:0 8px 24px rgba(26,86,219,0.4); z-index:100; }
-        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:flex-end; z-index:1000; }
-        .modal.open { display:flex; }
-        .sheet { width:100%; background:var(--white); border-radius:24px 24px 0 0; padding:24px; animation:up 0.3s ease; }
-        @keyframes up { from{transform:translateY(100%)} to{transform:translateY(0)} }
-        
-        .input-val { width:100%; border:none; background:none; text-align:center; font-size:64px; font-family:'JetBrains Mono'; font-weight:700; color:var(--text); outline:none; }
-        
-        /* Context Selector in Modal */
-        .ctx-selector { display:flex; gap:8px; margin:15px 0; justify-content:center; }
-        .ctx-btn { flex:1; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--t2); font-weight:600; font-size:12px; cursor:pointer; }
-        .ctx-btn.active { background:var(--acc-bg); color:var(--acc); border-color:var(--acc); }
+/* --- HERO --- */
+.hero{background:#0D1321;padding:24px 20px;color:white;flex-shrink:0;}
+.hero-label{font-size:11px;opacity:0.6;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.hero-val{font-size:52px;font-weight:800;font-family:'JetBrains Mono';color:#34d399;line-height:1;margin-top:4px;}
+.hero-unit{font-size:14px;opacity:0.8;margin-left:4px;font-weight:400;}
 
-        .btn-save { width:100%; background:var(--acc); color:white; padding:16px; border-radius:12px; border:none; font-weight:700; margin-top:10px; font-size:16px; }
-    </style>
+/* --- SCROLL AREA --- */
+.scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
+.card{margin:12px 14px 0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:16px;}
+.sc-title{font-size:12px;font-weight:800;color:var(--t3);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.05em;}
+
+/* --- CHART --- */
+.chart-container{height:200px;width:100%;position:relative;}
+
+/* --- ENTRIES --- */
+.ei{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.ei:last-child{border-bottom:none;}
+.ei-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ei-main{flex:1;}
+.ei-ctx{font-size:14px;font-weight:700;}
+.ei-sub{font-size:11px;color:var(--t3);font-family:'JetBrains Mono';}
+.ei-r{text-align:right;}
+.ei-val{font-size:18px;font-weight:800;font-family:'JetBrains Mono';}
+.btn-del{background:none;border:none;color:var(--low);font-size:18px;cursor:pointer;opacity:0.4;margin-left:10px;}
+
+/* --- FAB & MODAL --- */
+.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;background:var(--acc);color:#fff;border:none;border-radius:50px;padding:14px 28px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(26,86,219,.4);cursor:pointer;}
+.mbd{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:flex-end;}
+.mbd.open{display:flex;}
+.msheet{width:100%;background:var(--white);border-radius:20px 20px 0 0;padding:24px 20px 40px;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+.bi{width:100%;border:none;background:none;text-align:center;font-size:64px;font-family:'JetBrains Mono';font-weight:800;color:var(--text);outline:none;}
+.ctxg{display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin:20px 0;}
+.cc{padding:12px;background:var(--bg);border:1.5px solid transparent;border-radius:12px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;color:var(--t2);}
+.cc.selected{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);}
+.svbtn{width:100%;padding:16px;background:var(--acc);color:#fff;border:none;border-radius:14px;font-weight:800;font-size:16px;cursor:pointer;}
+</style>
 </head>
-<body>
+<body class="dark">
 
     <nav class="topbar">
         <div class="logo">Gluco<span>Track</span></div>
-        <button onclick="toggleTheme()" style="background:none;border:none;cursor:pointer">🌓</button>
+        <button onclick="toggleTheme()" style="background:none;border:none;font-size:18px;cursor:pointer;">🌓</button>
     </nav>
 
     <div class="hero">
-        <div class="hero-label">LAST READING</div>
+        <div class="hero-label">Latest Reading</div>
         <div class="hero-val" id="displayVal">--.-<span class="hero-unit">mmol/L</span></div>
     </div>
 
     <main class="scroll">
         <div class="card">
-            <div class="card-title">Today's Pattern (24h)</div>
+            <div class="sc-title">Today's Pattern (24h View)</div>
             <div class="chart-container">
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-title">Reading History</div>
+            <div class="sc-title">History</div>
             <div id="historyList"></div>
         </div>
     </main>
 
     <button class="fab" onclick="openModal()">+ LOG GLUCOSE</button>
 
-    <div class="modal" id="logModal" onclick="closeModal()">
-        <div class="sheet" onclick="event.stopPropagation()">
-            <div class="card-title" style="text-align:center">Enter mmol/L</div>
-            <input type="number" id="glucoInput" class="input-val" step="0.1" placeholder="5.5" autofocus>
+    <div class="mbd" id="logModal" onclick="closeModal()">
+        <div class="msheet" onclick="event.stopPropagation()">
+            <input type="number" id="glucoInput" class="bi" step="0.1" placeholder="5.5" autofocus>
+            <div style="text-align:center;color:var(--t3);font-family:'JetBrains Mono';font-size:12px;">mmol/L</div>
             
-            <div class="ctx-selector">
-                <button class="ctx-btn active" onclick="setCtx(this, 'General', '📍')">📍 General</button>
-                <button class="ctx-btn" onclick="setCtx(this, 'Meal', '🍎')">🍎 Meal</button>
-                <button class="ctx-btn" onclick="setCtx(this, 'Insulin', '💉')">💉 Dose</button>
+            <div class="ctxg">
+                <div class="cc selected" onclick="setCtx(this, 'General', '📍')">📍 General</div>
+                <div class="cc" onclick="setCtx(this, 'Meal', '🍎')">🍎 Meal</div>
+                <div class="cc" onclick="setCtx(this, 'Dose', '💉')">💉 Dose</div>
             </div>
 
-            <button class="btn-save" onclick="saveEntry()">SAVE READING</button>
+            <button class="svbtn" onclick="saveEntry()">SAVE READING</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const RANGE_MIN = 3.9;
+        const RANGE_MAX = 7.8;
         let historyData = JSON.parse(localStorage.getItem('gluco_history')) || [];
         let activeCtx = { name: 'General', icon: '📍' };
         let chart;
 
-        // Constants for mmol/L target range
-        const RANGE_MIN = 3.9;
-        const RANGE_MAX = 7.8;
+        const hours24 = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "23:59"];
 
         function toggleTheme() {
             document.body.classList.toggle('dark');
@@ -124,92 +132,85 @@
             updateChart();
         }
 
-        function setCtx(btn, name, icon) {
-            document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        function setCtx(el, name, icon) {
+            document.querySelectorAll('.cc').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
             activeCtx = { name, icon };
         }
 
         function openModal() { document.getElementById('logModal').classList.add('open'); }
         function closeModal() { document.getElementById('logModal').classList.remove('open'); }
 
-        function renderHistory() {
-            const list = document.getElementById('historyList');
-            if (historyData.length > 0) {
-                document.getElementById('displayVal').innerHTML = `${historyData[0].val.toFixed(1)}<span class="hero-unit">mmol/L</span>`;
-            }
-            
-            list.innerHTML = historyData.map((entry, index) => {
-                const color = entry.val < RANGE_MIN ? 'var(--low)' : entry.val > RANGE_MAX ? 'var(--hi)' : 'var(--ok)';
-                return `
-                    <div class="ei">
-                        <div class="ei-dot" style="background:${color}"></div>
-                        <div class="ei-main">
-                            <div class="ei-ctx">${entry.icon || '📍'} ${entry.ctx || 'Manual'}</div>
-                            <div class="ei-sub">${entry.date} • ${entry.time}</div>
-                        </div>
-                        <div class="ei-r">
-                            <div class="ei-val">${entry.val.toFixed(1)}</div>
-                            <button class="btn-del" onclick="deleteEntry(${index})">×</button>
-                        </div>
-                    </div>
-                `;
-            }).join('') || '<div style="text-align:center;color:var(--t3);padding:20px;">No history</div>';
-        }
-
         function saveEntry() {
             const val = parseFloat(document.getElementById('glucoInput').value);
             if (!val) return;
-
             const now = new Date();
-            const newEntry = {
-                val: val,
-                time: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12: false}),
+            const entry = {
+                val,
+                time: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false}),
                 date: now.toLocaleDateString([], {month:'short', day:'numeric'}),
+                ts: now.getTime(),
                 ctx: activeCtx.name,
-                icon: activeCtx.icon,
-                ts: now.getTime()
+                icon: activeCtx.icon
             };
-
-            historyData.unshift(newEntry);
+            historyData.unshift(entry);
             localStorage.setItem('gluco_history', JSON.stringify(historyData));
-            
             renderHistory();
             updateChart();
             closeModal();
             document.getElementById('glucoInput').value = '';
         }
 
-        function deleteEntry(index) {
-            historyData.splice(index, 1);
+        function deleteEntry(idx) {
+            historyData.splice(idx, 1);
             localStorage.setItem('gluco_history', JSON.stringify(historyData));
             renderHistory();
             updateChart();
         }
 
-        function updateChart() {
-            if (chart) chart.destroy();
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            const isDark = document.body.classList.contains('dark');
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (historyData.length > 0) {
+                const latest = historyData[0];
+                const color = latest.val < RANGE_MIN ? 'var(--low)' : latest.val > RANGE_MAX ? 'var(--hi)' : '#34d399';
+                document.getElementById('displayVal').innerHTML = `<span style="color:${color}">${latest.val.toFixed(1)}</span><span class="hero-unit">mmol/L</span>`;
+            }
+            list.innerHTML = historyData.map((e, i) => {
+                const c = e.val < RANGE_MIN ? 'low' : e.val > RANGE_MAX ? 'hi' : 'ok';
+                return `
+                    <div class="ei">
+                        <div class="ei-ic" style="background:var(--${c}-bg);color:var(--${c})">${e.icon}</div>
+                        <div class="ei-main">
+                            <div class="ei-ctx">${e.ctx}</div>
+                            <div class="ei-sub">${e.date} • ${e.time}</div>
+                        </div>
+                        <div class="ei-r">
+                            <div class="ei-val" style="color:var(--${c})">${e.val.toFixed(1)}</div>
+                        </div>
+                        <button class="btn-del" onclick="deleteEntry(${i})">×</button>
+                    </div>`;
+            }).join('') || '<div style="padding:20px;text-align:center;color:var(--t3);">No data</div>';
+        }
 
-            // 1. Get Today's Data only
+        function updateChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (chart) chart.destroy();
+            const isDark = document.body.classList.contains('dark');
             const todayStr = new Date().toLocaleDateString([], {month:'short', day:'numeric'});
-            const todayPoints = historyData
-                .filter(d => d.date === todayStr)
-                .sort((a,b) => a.ts - b.ts);
+            const todayData = historyData.filter(d => d.date === todayStr).sort((a,b) => a.ts - b.ts);
 
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     datasets: [{
-                        data: todayPoints.map(p => ({ x: p.time, y: p.val, icon: p.icon })),
+                        data: todayData.map(p => ({ x: p.time, y: p.val, icon: p.icon })),
                         borderColor: '#1A56DB',
                         backgroundColor: isDark ? 'rgba(26, 86, 219, 0.2)' : 'rgba(26, 86, 219, 0.05)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 6,
                         pointBackgroundColor: '#1A56DB',
-                        pointBorderColor: '#fff',
+                        pointBorderColor: isDark ? '#1a2236' : '#fff',
                         pointBorderWidth: 2
                     }]
                 },
@@ -217,36 +218,32 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { display: false },
+                        legend: false,
                         tooltip: {
-                            callbacks: {
-                                label: (item) => `${item.raw.icon} ${item.raw.y} mmol/L`
-                            }
+                            callbacks: { label: (i) => ` ${i.raw.icon} ${i.raw.y} mmol/L` }
                         }
                     },
                     scales: {
                         y: { 
                             min: 2, max: 16,
-                            ticks: { stepSize: 2, color: isDark ? '#8899bb' : '#9AA3B5' },
-                            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+                            ticks: { color: isDark ? '#4a5a7a' : '#9AA3B5', font: {family:'JetBrains Mono', size:10} },
+                            grid: { color: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }
                         },
                         x: {
                             type: 'category',
-                            labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "23:59"],
-                            ticks: { color: isDark ? '#8899bb' : '#9AA3B5' },
+                            labels: hours24,
+                            ticks: { color: isDark ? '#4a5a7a' : '#9AA3B5', font: {family:'JetBrains Mono', size:10} },
                             grid: { display: false }
                         }
                     }
                 },
                 plugins: [{
-                    id: 'targetRange',
-                    beforeDraw: (chart) => {
-                        const { ctx, chartArea: { left, right, width }, scales: { y } } = chart;
-                        const t = y.getPixelForValue(RANGE_MAX);
-                        const b = y.getPixelForValue(RANGE_MIN);
+                    id: 'zone',
+                    beforeDraw: (c) => {
+                        const {ctx, chartArea:{left, width}, scales:{y}} = c;
                         ctx.save();
-                        ctx.fillStyle = isDark ? 'rgba(56,161,105,0.08)' : 'rgba(56,161,105,0.1)';
-                        ctx.fillRect(left, t, width, b - t);
+                        ctx.fillStyle = isDark ? 'rgba(56, 161, 105, 0.08)' : 'rgba(56, 161, 105, 0.1)';
+                        ctx.fillRect(left, y.getPixelForValue(RANGE_MAX), width, y.getPixelForValue(RANGE_MIN) - y.getPixelForValue(RANGE_MAX));
                         ctx.restore();
                     }
                 }]
