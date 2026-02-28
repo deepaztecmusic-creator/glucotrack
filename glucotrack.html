@@ -2,242 +2,232 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlucoTrack Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Base styles from your template with functional fixes */
         :root {
-            --bg: #F4F6F9; --white: #fff; --text: #0D1321; --acc: #1A56DB;
-            --low: #E53E3E; --ok: #38A169; --hi: #D97706; --border: #E2E6ED;
+            --bg: #F4F6F9; --card: #ffffff; --text: #0D1321; --sub: #677088;
+            --acc: #1A56DB; --border: #E2E6ED; --low: #E53E3E; --ok: #38A169; --hi: #D97706;
         }
         body.dark {
-            --bg: #0D1321; --white: #1a2236; --text: #e8edf5; --border: #243049;
+            --bg: #0D1321; --card: #1a2236; --text: #e8edf5; --sub: #a0b0cc; --border: #243049;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); max-width: 430px; margin: 0 auto; overflow-x: hidden; padding-bottom: 100px; }
         
-        .topbar { background: var(--white); padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; color: var(--acc); }
+        /* UI Components */
+        .topbar { background: var(--card); padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-weight: 800; color: var(--acc); font-size: 18px; }
+        .card { background: var(--card); margin: 12px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
-        .card { background: var(--white); margin: 12px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        
-        .gc-num { font-size: 54px; font-weight: 800; font-family: 'JetBrains Mono'; letter-spacing: -2px; }
-        .gc-num.low { color: var(--low); }
-        .gc-num.ok { color: var(--ok); }
-        .gc-num.hi { color: var(--hi); }
+        /* Glucose Display */
+        .gc-num { font-size: 64px; font-weight: 800; font-family: 'JetBrains Mono'; letter-spacing: -3px; line-height: 1; margin: 5px 0; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .low { color: var(--low); } .ok { color: var(--ok); } .hi { color: var(--hi); }
+        .bg-low { background: #fee2e2; color: var(--low); } .bg-ok { background: #dcfce7; color: var(--ok); } .bg-hi { background: #fef3c7; color: var(--hi); }
 
-        .fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--acc); color: #fff; padding: 12px 24px; border-radius: 30px; border: none; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(26,86,219,0.3); }
+        /* Buttons */
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-size: 14px; margin-top: 8px; }
+        .btn-primary { background: var(--acc); color: white; }
+        .btn-secondary { background: #6366f1; color: white; }
+        .fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 160px; z-index: 999; box-shadow: 0 10px 15px -3px rgba(26,86,219,0.4); }
 
-        /* Modal Styles */
-        .mbd { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; z-index: 1000; }
-        .mbd.open { display: flex; }
-        .msheet { width: 100%; background: var(--white); border-radius: 20px 20px 0 0; padding: 20px; }
-        
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 16px; }
-        
-        .btn-block { width: 100%; padding: 14px; background: var(--acc); color: white; border: none; border-radius: 10px; font-weight: 700; margin-top: 10px; }
-        .toast-wrap { position: fixed; top: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 2000; }
-        .toast { background: #333; color: #fff; padding: 10px 20px; border-radius: 8px; margin-bottom: 5px; font-size: 14px; }
+        /* Modal */
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; z-index: 2000; }
+        .sheet { background: var(--card); width: 100%; padding: 25px; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.3s ease; }
+        #modal.open { display: flex; } #modal.open .sheet { transform: translateY(0); }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); font-size: 16px; outline: none; }
+        input:focus { border-color: var(--acc); }
+
+        /* History List */
+        .entry-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .entry-info b { display: block; font-size: 16px; }
+        .entry-info span { font-size: 12px; color: var(--sub); }
     </style>
 </head>
 <body>
 
     <div class="topbar">
         <div class="logo">GLUCO<span>TRACK</span></div>
-        <button onclick="toggleTheme()" id="theme-toggle">🌙</button>
+        <button onclick="document.body.classList.toggle('dark')" style="background:none; border:none; font-size:20px; cursor:pointer;">🌓</button>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <span id="status-pill" class="status-badge bg-ok">Standby</span>
+        <div id="main-val" class="gc-num">--</div>
+        <div id="last-time" style="color: var(--sub); font-size: 12px;">No data available</div>
     </div>
 
     <div class="card">
-        <div style="font-size: 12px; font-weight: 700; color: #677088;">LATEST READING</div>
-        <div class="gc-num ok" id="main-val">--</div>
-        <div id="last-time" style="font-size: 11px; color: #677088;">No data yet</div>
+        <canvas id="glucoChart" style="max-height: 200px;"></canvas>
     </div>
 
     <div class="card">
-        <canvas id="glucoseChart" height="180"></canvas>
-    </div>
-
-    <div class="card" id="history-list">
-        <div style="font-weight: 700; margin-bottom: 10px;">Recent Activity</div>
-        <div id="entries-container"></div>
+        <div style="font-weight: 800; margin-bottom: 10px; font-size: 14px;">DATA MANAGEMENT</div>
+        <input type="file" id="csvFile" accept=".csv" style="display: none;">
+        <button class="btn btn-secondary" onclick="document.getElementById('csvFile').click()">📥 Import mySugr CSV</button>
+        <button class="btn" style="background: #94a3b8; color: white;" onclick="addMockData()">🧪 Generate Test Data</button>
     </div>
 
     <div class="card">
-        <div style="font-weight: 700; margin-bottom: 10px;">Import mySugr Data</div>
-        <input type="file" id="csv-input" accept=".csv" style="display: none;">
-        <button class="btn-block" style="background: #6366f1;" onclick="document.getElementById('csv-input').click()">Upload CSV</button>
+        <div style="font-weight: 800; margin-bottom: 10px; font-size: 14px;">RECENT LOGS</div>
+        <div id="history-list"></div>
     </div>
 
-    <button class="fab" onclick="openModal()">+ Add Reading</button>
+    <button class="btn btn-primary fab" onclick="toggleModal(true)">+ Add Reading</button>
 
-    <div class="mbd" id="log-modal" onclick="if(event.target === this) closeModal()">
-        <div class="msheet">
-            <h2 style="margin-bottom: 15px;">Log Entry</h2>
-            <input type="number" id="in-glucose" placeholder="Glucose (mg/dL)">
-            <input type="text" id="in-meal" placeholder="What did you eat? (e.g. 2 slices of pizza)">
-            <div id="ai-calc" style="font-size: 13px; color: var(--acc); margin-top: 5px; font-weight: 600;"></div>
-            <button class="btn-block" onclick="saveEntry()">Save Entry</button>
+    <div id="modal" onclick="if(event.target === this) toggleModal(false)">
+        <div class="sheet">
+            <h3 style="margin-bottom: 10px;">New Entry</h3>
+            <input type="number" id="in-bg" placeholder="Blood Glucose (mg/dL)" inputmode="numeric">
+            <input type="text" id="in-food" placeholder="Food (e.g. 1 Apple)">
+            <p id="ai-hint" style="font-size: 12px; color: var(--acc); min-height: 18px; font-weight: 600;"></p>
+            <button class="btn btn-primary" onclick="manualSave()">Save Record</button>
         </div>
     </div>
 
-    <div class="toast-wrap" id="toast-wrap"></div>
-
     <script>
-        // State Management
-        let data = JSON.parse(localStorage.getItem('gluco_data')) || [];
-        let chart = null;
+        // 1. DATA ENGINE
+        let logs = JSON.parse(localStorage.getItem('gluco_logs')) || [];
+        let myChart = null;
 
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', () => {
-            renderUI();
+        window.onload = () => {
             initChart();
-            setupImport();
-            setupMealAI();
-        });
+            refreshUI();
+            setupAIListener();
+            setupCSVListener();
+        };
 
-        function renderUI() {
-            const container = document.getElementById('entries-container');
-            const mainVal = document.getElementById('main-val');
-            const lastTime = document.getElementById('last-time');
-            
-            container.innerHTML = data.length ? '' : '<div style="color:#888; text-align:center; padding:20px;">No entries yet</div>';
-            
-            if (data.length > 0) {
-                const latest = data[0];
-                mainVal.innerText = latest.glucose || '--';
-                mainVal.className = 'gc-num ' + getStatus(latest.glucose);
-                lastTime.innerText = new Date(latest.ts).toLocaleString();
+        function refreshUI() {
+            const history = document.getElementById('history-list');
+            const mainDisplay = document.getElementById('main-val');
+            const timeDisplay = document.getElementById('last-time');
+            const pill = document.getElementById('status-pill');
 
-                data.slice(0, 5).forEach(entry => {
-                    const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border)";
-                    div.innerHTML = `
-                        <div>
-                            <div style="font-weight:600">${entry.glucose} mg/dL</div>
-                            <div style="font-size:11px; color:#666">${entry.meal || 'No meal notes'}</div>
-                        </div>
-                        <div style="font-size:11px; color:#999">${new Date(entry.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    `;
-                    container.appendChild(div);
-                });
+            if (logs.length === 0) {
+                history.innerHTML = `<p style="text-align:center; padding:20px; color:gray;">Empty history</p>`;
+                return;
             }
-            updateChart();
+
+            // Update Hero
+            const latest = logs[0];
+            mainDisplay.innerText = latest.val;
+            timeDisplay.innerText = `Last checked: ${new Date(latest.ts).toLocaleTimeString()}`;
+            
+            // Set Color Coding
+            mainDisplay.className = 'gc-num ' + getLevel(latest.val);
+            pill.innerText = getLevel(latest.val).toUpperCase();
+            pill.className = 'status-badge bg-' + getLevel(latest.val);
+
+            // Update List
+            history.innerHTML = logs.slice(0, 5).map(log => `
+                <div class="entry-item">
+                    <div class="entry-info">
+                        <b>${log.val} mg/dL</b>
+                        <span>${log.note || 'Manual Entry'}</span>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-size:12px; font-weight:700;">${new Date(log.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                        <div style="font-size:10px; color:gray">${new Date(log.ts).toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateChartData();
         }
 
-        // CSV IMPORT FUNCTIONALITY (Fixed for mySugr)
-        function setupImport() {
-            document.getElementById('csv-input').addEventListener('change', (e) => {
+        // 2. MYSUGR IMPORT LOGIC
+        function setupCSVListener() {
+            document.getElementById('csvFile').onchange = (e) => {
                 const file = e.target.files[0];
                 Papa.parse(file, {
                     header: true,
                     skipEmptyLines: true,
-                    complete: (results) => {
-                        const imported = results.data.map(row => {
-                            // handles mySugr headers "Date", "Time", "Blood Glucose"
-                            const bg = row['Blood Glucose'] || row['Value'] || row['Blutzucker'];
+                    complete: (res) => {
+                        const imported = res.data.map(row => {
+                            const val = row['Blood Glucose'] || row['Value'] || row['Blutzucker'];
                             const date = row['Date'] || row['Datum'];
                             const time = row['Time'] || row['Zeit'];
-                            if(!bg || !date) return null;
-                            return {
-                                glucose: parseInt(bg),
-                                ts: new Date(`${date} ${time || '00:00'}`).getTime(),
-                                meal: row['Carbs'] ? `${row['Carbs']}g Carbs` : 'Imported'
-                            };
-                        }).filter(x => x && !isNaN(x.glucose));
+                            if (!val || !date) return null;
+                            return { val: parseInt(val), ts: new Date(`${date} ${time || '00:00'}`).getTime(), note: 'mySugr Import' };
+                        }).filter(x => x && !isNaN(x.val));
 
-                        data = [...imported, ...data].sort((a,b) => b.ts - a.ts);
+                        logs = [...imported, ...logs].sort((a,b) => b.ts - a.ts);
                         save();
-                        showToast(`Imported ${imported.length} entries`);
+                        alert(`Successfully imported ${imported.length} records!`);
                     }
                 });
-            });
+            };
         }
 
-        // AI MEAL ANALYSIS (Simulated Logic)
-        function setupMealAI() {
-            const mealIn = document.getElementById('in-meal');
-            const aiLabel = document.getElementById('ai-calc');
-            
-            mealIn.addEventListener('input', (e) => {
-                const val = e.target.value.toLowerCase();
-                if(val.length < 3) { aiLabel.innerText = ''; return; }
-                
-                // Logic to simulate AI carb estimation
-                let estCarbs = 0;
-                if(val.includes('pizza')) estCarbs += 30;
-                if(val.includes('apple')) estCarbs += 15;
-                if(val.includes('bread')) estCarbs += 15;
-                if(val.includes('soda')) estCarbs += 40;
+        // 3. AI MEAL LOGIC
+        function setupAIListener() {
+            const foodIn = document.getElementById('in-food');
+            const hint = document.getElementById('ai-hint');
+            const foodDatabase = { 'apple': 15, 'pizza': 35, 'soda': 40, 'bread': 15, 'rice': 45 };
 
-                if(estCarbs > 0) {
-                    aiLabel.innerText = `Estimate: ~${estCarbs}g carbs. Suggested Insulin: ${(estCarbs/15).toFixed(1)}u`;
+            foodIn.oninput = () => {
+                const text = foodIn.value.toLowerCase();
+                let carbs = 0;
+                Object.keys(foodDatabase).forEach(key => {
+                    if (text.includes(key)) carbs += foodDatabase[key];
+                });
+                hint.innerText = carbs > 0 ? `AI Estimate: ~${carbs}g Carbs (${(carbs/15).toFixed(1)} units)` : "";
+            };
+        }
+
+        // 4. CHART ENGINE
+        
+        function initChart() {
+            const ctx = document.getElementById('glucoChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ 
+                    label: 'Glucose', data: [], borderColor: '#1A56DB', 
+                    backgroundColor: 'rgba(26, 86, 219, 0.1)', fill: true, tension: 0.3, pointRadius: 4 
+                }] },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { min: 40, max: 250 } }
                 }
             });
         }
 
-        function saveEntry() {
-            const g = document.getElementById('in-glucose').value;
-            const m = document.getElementById('in-meal').value;
-            if(!g) return showToast("Enter glucose value", "error");
+        function updateChartData() {
+            if (!myChart) return;
+            const chartData = [...logs].reverse().slice(-12);
+            myChart.data.labels = chartData.map(l => new Date(l.ts).getHours() + ":" + new Date(l.ts).getMinutes());
+            myChart.data.datasets[0].data = chartData.map(l => l.val);
+            myChart.update();
+        }
 
-            data.unshift({
-                glucose: parseInt(g),
-                meal: m,
-                ts: Date.now()
-            });
+        // 5. UTILS
+        function getLevel(v) { return v < 70 ? 'low' : v > 180 ? 'hi' : 'ok'; }
+        function save() { localStorage.setItem('gluco_logs', JSON.stringify(logs)); refreshUI(); }
+        function toggleModal(show) { document.getElementById('modal').classList.toggle('open', show); }
+        
+        function manualSave() {
+            const val = document.getElementById('in-bg').value;
+            const note = document.getElementById('in-food').value;
+            if (!val) return;
+            logs.unshift({ val: parseInt(val), note: note || "Manual Log", ts: Date.now() });
             save();
-            closeModal();
-            showToast("Saved successfully");
-            document.getElementById('in-glucose').value = '';
-            document.getElementById('in-meal').value = '';
+            toggleModal(false);
+            document.getElementById('in-bg').value = ""; document.getElementById('in-food').value = "";
         }
 
-        function getStatus(v) {
-            if(v < 70) return 'low';
-            if(v > 180) return 'hi';
-            return 'ok';
-        }
-
-        function save() {
-            localStorage.setItem('gluco_data', JSON.stringify(data));
-            renderUI();
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('glucoseChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: [], datasets: [{ label: 'Glucose', data: [], borderColor: '#1A56DB', tension: 0.4, fill: true, backgroundColor: 'rgba(26, 86, 219, 0.1)' }] },
-                options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 40, max: 300 } } }
-            });
-        }
-
-        function updateChart() {
-            if(!chart) return;
-            const history = [...data].reverse().slice(-10);
-            chart.data.labels = history.map(d => new Date(d.ts).toLocaleTimeString());
-            chart.data.datasets[0].data = history.map(d => d.glucose);
-            chart.update();
-        }
-
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.innerText = msg;
-            document.getElementById('toast-wrap').appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
-
-        function openModal() { document.getElementById('log-modal').classList.add('open'); }
-        function closeModal() { document.getElementById('log-modal').classList.remove('open'); }
-        function toggleTheme() { 
-            document.body.classList.toggle('dark');
-            const isDark = document.body.classList.contains('dark');
-            document.getElementById('theme-toggle').innerText = isDark ? '☀️' : '🌙';
+        function addMockData() {
+            logs = [
+                {val: 110, ts: Date.now() - 1000*60*60*3, note: "Pre-lunch"},
+                {val: 145, ts: Date.now() - 1000*60*60*2, note: "Post-lunch"},
+                {val: 95, ts: Date.now() - 1000*60*60*1, note: "Exercise"}
+            ];
+            save();
         }
     </script>
 </body>
