@@ -4,249 +4,456 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>GlucoTrack View</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#080D1A;--bg2:#0C1220;--card:#101828;--card2:#141F30;
-  --border:#1C2A40;--border2:#243550;
-  --text:#E8EFFE;--t2:#7A8FAD;--t3:#3D526B;
-  --acc:#3B82F6;--acc2:#60A5FA;
-  --ok:#10B981;--ok2:#34D399;
-  --low:#EF4444;--low2:#F87171;
-  --hi:#F59E0B;--hi2:#FCD34D;
-  --r:16px;--rs:10px;
+  --bg:#07080F;--bg2:#0B0D17;--bg3:#0F1221;
+  --card:#111520;--card2:#161B2E;--card3:#1C2340;
+  --border:#1E2540;--border2:#263060;--border3:#2E3B70;
+  --text:#EDF0FF;--t2:#8896BB;--t3:#404D6E;--t4:#2A3352;
+  --acc:#4F7FFF;--acc2:#7BA3FF;--acc3:#A8C4FF;
+  --ok:#0FBA81;--ok2:#2DD4A4;--ok3:#7EECD4;
+  --low:#F24545;--low2:#FF7070;--low3:#FFB3B3;
+  --hi:#F5A623;--hi2:#FFCA6A;--hi3:#FFE4A3;
+  --purple:#8B5CF6;--purple2:#A78BFA;
+  --r:18px;--rs:12px;--rxs:8px;
+  --shadow:0 8px 32px rgba(0,0,0,.6);
 }
-html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
-body{max-width:430px;margin:0 auto;}
+html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);}
+body{max-width:430px;margin:0 auto;position:relative;}
+
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(79,127,255,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(139,92,246,.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(15,186,129,.03) 0%, transparent 60%);
+  pointer-events:none;}
 
 /* TOAST */
 .tw{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:calc(100% - 32px);max-width:390px;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
-.t{background:#1E293B;color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.5);animation:tIn .3s ease;border:1px solid var(--border2);}
-.t.err{background:#7F1D1D;border-color:#991B1B;}
-.t.suc{background:#064E3B;border-color:#065F46;}
-@keyframes tIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.t{background:#1A2035;color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.6);animation:tIn .3s cubic-bezier(.34,1.56,.64,1);border:1px solid var(--border2);}
+.t.err{background:#2D1515;border-color:#7F1D1D;}
+.t.suc{background:#0D2620;border-color:#065F46;}
+@keyframes tIn{from{opacity:0;transform:translateY(-12px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-/* ── CONNECT SCREEN ── */
-#con{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;transition:opacity .4s,transform .4s;}
-#con.gone{opacity:0;pointer-events:none;transform:scale(.97);}
+/* AUTH WRAP */
+#authWrap{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:var(--bg);transition:opacity .5s,transform .5s;}
+#authWrap.gone{opacity:0;pointer-events:none;transform:scale(.96);}
 
-.clogo{text-align:center;margin-bottom:36px;}
-.clogo-icon{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,#1B2D54,#0E1A30);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:34px;box-shadow:0 0 40px rgba(59,130,246,0.15),inset 0 1px 0 rgba(255,255,255,.05);}
-.clogo-title{font-size:24px;font-weight:700;letter-spacing:-.5px;}
-.clogo-title span{color:var(--acc2);}
-.clogo-sub{font-size:13px;color:var(--t2);margin-top:4px;}
-.clogo-badge{display:inline-block;margin-top:8px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--acc2);font-weight:600;letter-spacing:.04em;}
+.auth-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.ab{position:absolute;border-radius:50%;filter:blur(60px);}
+.ab1{width:300px;height:300px;top:-80px;right:-60px;background:radial-gradient(circle,rgba(79,127,255,.18),transparent 70%);}
+.ab2{width:250px;height:250px;bottom:-60px;left:-80px;background:radial-gradient(circle,rgba(139,92,246,.14),transparent 70%);}
+.ab3{width:200px;height:200px;top:40%;left:30%;background:radial-gradient(circle,rgba(15,186,129,.08),transparent 70%);}
 
-.ccard{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:0 8px 32px rgba(0,0,0,.4);}
-.ccard-lbl{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
+.auth-scroll{position:relative;z-index:1;height:100%;overflow-y:auto;display:flex;flex-direction:column;padding:0 24px 40px;}
+.auth-scroll::-webkit-scrollbar{display:none;}
 
-.tkwrap{position:relative;margin-bottom:14px;}
-.tk{width:100%;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--rs);padding:14px 16px;font-size:20px;font-family:'DM Mono',monospace;color:var(--text);letter-spacing:.2em;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s;}
-.tk:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,130,246,.15);}
-.tk::placeholder{font-size:12px;letter-spacing:.04em;color:var(--t3);font-family:'DM Sans',sans-serif;}
+/* Logo */
+.auth-logo{text-align:center;padding:44px 0 28px;}
+.logo-mark{width:72px;height:72px;border-radius:20px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0F1835,#1A2550);
+  border:1px solid rgba(79,127,255,.3);
+  box-shadow:0 0 0 4px rgba(79,127,255,.06),0 16px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);}
+.logo-svg{width:40px;height:40px;}
+.logo-name{font-size:26px;font-weight:800;letter-spacing:-.6px;}
+.logo-name .grad{background:linear-gradient(135deg,#7BA3FF,#A8C4FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-tag{font-size:12px;color:var(--t2);margin-top:4px;font-weight:500;}
+.logo-pill{display:inline-flex;align-items:center;gap:5px;margin-top:8px;background:rgba(79,127,255,.1);border:1px solid rgba(79,127,255,.2);border-radius:20px;padding:3px 10px 3px 7px;font-size:11px;color:var(--acc2);font-weight:700;letter-spacing:.04em;}
+.logo-dot{width:5px;height:5px;border-radius:50%;background:var(--acc2);animation:pulse 2s infinite;}
 
-.cbtn{width:100%;padding:14px;background:linear-gradient(135deg,#2563EB,#3B82F6);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s,transform .1s;position:relative;overflow:hidden;}
-.cbtn:active{transform:scale(.98);}
-.cbtn:disabled{opacity:.5;cursor:not-allowed;}
-.cbtn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);}
+/* Tabs */
+.auth-tabs{display:flex;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:20px;}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;color:var(--t2);border-radius:var(--rs);cursor:pointer;transition:all .2s;}
+.auth-tab.on{background:var(--acc);color:#fff;box-shadow:0 4px 16px rgba(79,127,255,.35);}
 
-.cdiv{display:flex;align-items:center;gap:10px;margin:14px 0;}
-.cdiv-l{flex:1;height:1px;background:var(--border);}
-.cdiv span{font-size:11px;color:var(--t3);}
+/* Panel */
+.auth-panel{display:none;}
+.auth-panel.on{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-.dbtn{width:100%;padding:12px;background:transparent;border:1.5px solid var(--border2);border-radius:var(--rs);color:var(--t2);font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:border-color .2s,color .2s;}
-.dbtn:hover{border-color:var(--acc);color:var(--acc2);}
+/* Fields */
+.fgrp{margin-bottom:13px;}
+.flbl{font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px;display:block;}
+.finp{width:100%;background:var(--card);border:1.5px solid var(--border2);border-radius:var(--rs);padding:13px 15px;font-size:15px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;}
+.finp::placeholder{color:var(--t3);}
+.finp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,127,255,.12);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.finp-w{position:relative;}
+.finp-w .finp{padding-right:44px;}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:4px;}
+.fdiv{display:flex;align-items:center;gap:10px;margin:14px 0;}
+.fdiv-l{flex:1;height:1px;background:var(--border);}
+.fdiv span{font-size:11px;color:var(--t3);font-weight:600;}
 
-.cnote{margin-top:18px;font-size:11px;color:var(--t3);text-align:center;line-height:1.7;}
-.cnote strong{color:var(--t2);}
+/* Buttons */
+.btn-p{width:100%;padding:15px;background:linear-gradient(135deg,#3A6FE8,#5B8FFF);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:opacity .15s,transform .1s,box-shadow .2s;box-shadow:0 4px 20px rgba(79,127,255,.35);position:relative;overflow:hidden;}
+.btn-p::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
+.btn-p:hover{box-shadow:0 6px 28px rgba(79,127,255,.5);}
+.btn-p:active{transform:scale(.98);}
+.btn-p:disabled{opacity:.5;cursor:not-allowed;}
+.btn-g{width:100%;padding:13px;background:transparent;border:1.5px solid var(--border2);border-radius:var(--rs);color:var(--t2);font-size:14px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
+.btn-g:hover{border-color:var(--acc);color:var(--acc2);background:rgba(79,127,255,.05);}
+
+/* Role selector */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.role-card{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--rs);padding:14px;cursor:pointer;transition:all .2s;text-align:center;}
+.role-card.sel{border-color:var(--acc);background:rgba(79,127,255,.07);box-shadow:0 0 0 1px rgba(79,127,255,.2);}
+.role-ic{font-size:24px;margin-bottom:6px;}
+.role-name{font-size:12px;font-weight:700;}
+.role-desc{font-size:10px;color:var(--t3);margin-top:2px;}
+
+.auth-terms{font-size:11px;color:var(--t3);text-align:center;line-height:1.7;margin-top:14px;}
+.auth-terms a{color:var(--acc2);text-decoration:none;}
+
+.test-banner{background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.2);border-radius:var(--rs);padding:10px 13px;font-size:11px;color:var(--hi2);line-height:1.6;margin-bottom:16px;}
+.test-banner strong{color:var(--hi);}
+.test-banner code{font-family:'JetBrains Mono',monospace;background:rgba(245,166,35,.1);padding:1px 5px;border-radius:4px;font-size:10px;}
+
+/* CONNECT SCREEN */
+#conWrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;transition:opacity .4s,transform .4s;}
+#conWrap.gone{opacity:0;pointer-events:none;transform:scale(.97);}
+.con-inner{position:relative;z-index:1;width:100%;}
+.con-logo{text-align:center;margin-bottom:28px;}
+.ccard{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);}
+.ccard-lbl{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.tk{width:100%;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--rs);padding:15px 16px;font-size:22px;font-family:'JetBrains Mono',monospace;color:var(--text);letter-spacing:.22em;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:12px;display:block;}
+.tk:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,127,255,.15);}
+.tk::placeholder{font-size:12px;letter-spacing:.05em;color:var(--t4);font-family:'Plus Jakarta Sans',sans-serif;}
+.con-note{margin-top:16px;font-size:11px;color:var(--t3);text-align:center;line-height:1.7;}
+.con-note strong{color:var(--t2);}
+.con-back{display:block;text-align:center;margin-top:14px;font-size:11px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:inherit;}
+.con-back:hover{color:var(--low2);}
 
 /* spinner */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes sp{to{transform:rotate(360deg)}}
-
-/* ── TOPBAR ── */
-.tb{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:10;}
-.tb-logo{font-size:15px;font-weight:700;letter-spacing:-.3px;}
-.tb-logo span{color:var(--acc2);}
-.tb-logo em{font-style:normal;font-size:10px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);border-radius:20px;padding:2px 8px;color:var(--acc2);font-weight:600;vertical-align:middle;margin-left:6px;}
-.tb-r{display:flex;align-items:center;gap:8px;}
-.tb-live{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ok2);font-weight:600;}
-.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--ok2);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.tb-disc{padding:5px 11px;background:var(--card);border:1px solid var(--border2);border-radius:20px;font-size:11px;color:var(--t2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:border-color .2s,color .2s;}
+
+/* TOPBAR */
+.tb{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);background:rgba(7,8,15,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:50;}
+.tb-left{display:flex;align-items:center;gap:10px;}
+.tb-lm{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0F1835,#1A2550);border:1px solid rgba(79,127,255,.25);display:flex;align-items:center;justify-content:center;}
+.tb-lsvg{width:18px;height:18px;}
+.tb-title{font-size:14px;font-weight:800;letter-spacing:-.3px;}
+.tb-title .grad{background:linear-gradient(135deg,var(--acc2),var(--acc3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tb-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(79,127,255,.1);border:1px solid rgba(79,127,255,.2);border-radius:20px;padding:2px 8px;font-size:10px;color:var(--acc2);font-weight:700;margin-left:6px;}
+.tb-pdot{width:5px;height:5px;border-radius:50%;background:var(--ok2);animation:pulse 2s infinite;}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-disc{padding:5px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;font-size:11px;color:var(--t2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all .2s;}
 .tb-disc:hover{border-color:var(--low);color:var(--low2);}
 
-/* ── SCROLL ── */
+/* MAIN SCROLL */
 .scroll{height:calc(100dvh - 57px);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
 .scroll::-webkit-scrollbar{display:none;}
 
-/* ── PATIENT HEADER ── */
-.ph{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 18px 14px;display:flex;align-items:center;gap:14px;}
-.ph-av{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#1E3A6E,#2563EB);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.ph-name{font-size:16px;font-weight:700;}
-.ph-meta{font-size:11px;color:var(--t2);margin-top:2px;}
-.ph-tok{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);margin-top:4px;letter-spacing:.05em;}
+/* CAREGIVER INFO */
+.cg-info{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.cg-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2D1A60,#5B2EAF);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.cg-name{font-size:13px;font-weight:700;}
+.cg-role{font-size:11px;color:var(--t2);margin-top:1px;}
+.cg-btn{margin-left:auto;padding:5px 12px;background:transparent;border:1px solid var(--border2);border-radius:20px;font-size:11px;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;white-space:nowrap;}
+.cg-btn:hover{border-color:var(--low);color:var(--low2);}
 
-/* ── GLUCOSE CARD ── */
-.gc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
-.gc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.gc-lbl{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;}
-.gc-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:20px;}
-.b-ok{background:rgba(16,185,129,.12);color:var(--ok2);border:1px solid rgba(16,185,129,.2);}
-.b-low{background:rgba(239,68,68,.12);color:var(--low2);border:1px solid rgba(239,68,68,.2);}
-.b-hi{background:rgba(245,158,11,.12);color:var(--hi2);border:1px solid rgba(245,158,11,.2);}
+/* ALERT */
+.alert-card{background:rgba(242,69,69,.08);border:1px solid rgba(242,69,69,.25);border-radius:var(--rs);padding:13px 15px;display:flex;align-items:center;gap:11px;font-size:13px;font-weight:600;color:var(--low2);animation:alertPulse 2s ease infinite;}
+.alert-card.warn{background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.25);color:var(--hi2);animation:none;}
+@keyframes alertPulse{0%,100%{box-shadow:0 0 0 0 rgba(242,69,69,.2)}50%{box-shadow:0 0 0 6px rgba(242,69,69,0)}}
+.alert-ic{font-size:20px;}
+
+/* PATIENT HEADER */
+.ph{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
+.ph::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--ok));}
+.ph-av{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1A2D60,#2B4EBA);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;color:#fff;border:1px solid rgba(79,127,255,.3);}
+.ph-name{font-size:16px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ph-meta{font-size:11px;color:var(--t2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ph-tok{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);margin-top:4px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ph-badge{margin-left:auto;flex-shrink:0;background:rgba(15,186,129,.1);border:1px solid rgba(15,186,129,.2);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--ok2);font-weight:700;letter-spacing:.04em;}
+
+/* GLUCOSE CARD */
+.gc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
+.gc-glow{position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;opacity:.07;filter:blur(40px);transition:background .5s;}
+.gc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.gc-lbl{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;}
+.gc-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;padding:5px 11px;border-radius:20px;}
+.b-ok{background:rgba(15,186,129,.12);color:var(--ok2);border:1px solid rgba(15,186,129,.25);}
+.b-low{background:rgba(242,69,69,.12);color:var(--low2);border:1px solid rgba(242,69,69,.25);}
+.b-hi{background:rgba(245,166,35,.12);color:var(--hi2);border:1px solid rgba(245,166,35,.25);}
 .b-none{background:var(--card2);color:var(--t2);border:1px solid var(--border2);}
 .bdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-.gc-num{font-size:60px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;}
+.gc-main{display:flex;align-items:flex-end;gap:12px;margin-bottom:4px;}
+.gc-num{font-size:72px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-2px;transition:color .4s;}
 .gc-num.n-ok{color:var(--ok2);}
 .gc-num.n-low{color:var(--low2);}
 .gc-num.n-hi{color:var(--hi2);}
 .gc-num.n-none{color:var(--t3);}
-.gc-row{display:flex;align-items:flex-end;gap:10px;}
-.gc-unit{font-size:14px;color:var(--t2);font-weight:500;margin-bottom:8px;}
-.gc-trend{font-size:22px;margin-bottom:6px;}
-.gc-meta{display:flex;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--t3);}
-.gc-time{color:var(--t2);}
+.gc-side{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.gc-unit{font-size:13px;color:var(--t2);font-weight:600;}
+.gc-trend{font-size:28px;line-height:1;}
+.gc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-top:6px;}
+.gc-time{color:var(--t2);font-weight:500;}
+.rbar{margin-top:16px;}
+.rtrack{height:7px;background:var(--border);border-radius:4px;position:relative;overflow:visible;}
+.rf{position:absolute;top:0;bottom:0;border-radius:4px;}
+.rlow{left:0;width:22%;background:linear-gradient(90deg,#C0392B,#E74C3C);}
+.rok{left:22%;width:46%;background:linear-gradient(90deg,#0FBA81,#2DD4A4);}
+.rhi{left:68%;width:32%;background:linear-gradient(90deg,#F5A623,#E74C3C);}
+.rneedle{position:absolute;top:-5px;width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--acc);transform:translateX(-50%);transition:left .6s cubic-bezier(.34,1.2,.64,1);box-shadow:0 2px 12px rgba(0,0,0,.5),0 0 0 3px rgba(79,127,255,.15);}
+.raxis{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
 
-/* range bar */
-.rbar{margin-top:14px;}
-.rtrack{height:6px;background:var(--border);border-radius:3px;position:relative;overflow:visible;}
-.rtrack-fill{position:absolute;top:0;bottom:0;border-radius:3px;}
-.rlow{left:0;width:22%;background:linear-gradient(90deg,#EF4444,#F97316);}
-.rok{left:22%;width:46%;background:linear-gradient(90deg,#10B981,#34D399);}
-.rhi{left:68%;width:32%;background:linear-gradient(90deg,#F59E0B,#EF4444);}
-.rneedle{position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--acc);transform:translateX(-50%);transition:left .5s ease;box-shadow:0 2px 8px rgba(0,0,0,.4);}
-.raxis{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;}
-
-/* ── STATS ROW ── */
+/* STATS */
 .strow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.st{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:center;}
-.stv{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;}
-.stl{font-size:10px;color:var(--t3);margin-top:3px;font-weight:500;}
+.st{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:center;position:relative;overflow:hidden;}
+.st::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.7;}
+.st:nth-child(1)::before{background:var(--acc);}
+.st:nth-child(2)::before{background:var(--ok);}
+.st:nth-child(3)::before{background:var(--purple);}
+.stv{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
+.stl{font-size:10px;color:var(--t3);margin-top:3px;font-weight:600;}
 
-/* ── ALERT CARD ── */
-.alert-card{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--low2);}
-.alert-card.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:var(--hi2);}
-.alert-ic{font-size:18px;}
-
-/* ── CHART ── */
+/* CHART */
 .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
 .chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.chart-title{font-size:13px;font-weight:600;}
-.chart-sub{font-size:11px;color:var(--t3);}
+.chart-title{font-size:13px;font-weight:700;}
+.chart-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+.chart-tabs{display:flex;gap:4px;}
+.chart-tab{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;color:var(--t2);border:1px solid transparent;transition:all .15s;}
+.chart-tab.on{background:rgba(79,127,255,.12);border-color:rgba(79,127,255,.25);color:var(--acc2);}
 .chart-wrap{position:relative;height:160px;}
-canvas{display:block;}
 .chart-empty{height:160px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--t3);}
 
-/* ── HISTORY LIST ── */
+/* HISTORY */
 .hist-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:0 18px;}
-.hist-hd{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:16px 0 10px;}
-.hi-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border);}
-.hi-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.hi-main{flex:1;}
-.hi-ctx{font-size:13px;font-weight:600;}
+.hist-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 0 10px;}
+.hist-hl{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;}
+.hist-cnt{font-size:11px;color:var(--t3);}
+.hi-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--border);}
+.hi-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.hi-main{flex:1;min-width:0;}
+.hi-ctx{font-size:13px;font-weight:700;}
 .hi-time{font-size:11px;color:var(--t3);margin-top:2px;}
-.hi-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;}
+.hi-right{text-align:right;flex-shrink:0;}
+.hi-val{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
 .hi-u{font-size:10px;color:var(--t3);}
 .empty{text-align:center;padding:28px;color:var(--t3);font-size:13px;}
 
-/* ── REFRESH BTN ── */
-.ref-btn{width:100%;padding:12px;background:var(--card);border:1px solid var(--border2);border-radius:var(--rs);color:var(--t2);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:border-color .2s,color .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.ref-btn:hover{border-color:var(--acc);color:var(--acc2);}
-.ref-ic{font-size:15px;}
+/* REFRESH */
+.ref-btn{width:100%;padding:13px;background:var(--card);border:1px solid var(--border2);border-radius:var(--rs);color:var(--t2);font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ref-btn:hover{border-color:var(--acc);color:var(--acc2);background:rgba(79,127,255,.05);}
 
-/* ── API NOTICE ── */
-.api-notice{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.15);border-radius:var(--rs);padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6;}
+/* API NOTICE */
+.api-notice{background:rgba(79,127,255,.05);border:1px solid rgba(79,127,255,.12);border-radius:var(--rs);padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.7;}
 .api-notice strong{color:var(--acc2);}
-.api-notice code{font-family:'DM Mono',monospace;background:var(--card2);padding:1px 5px;border-radius:4px;color:var(--text);font-size:10px;}
+.api-notice code{font-family:'JetBrains Mono',monospace;background:var(--card2);padding:1px 5px;border-radius:4px;color:var(--text);font-size:10px;}
 </style>
 </head>
 <body>
-
 <div class="tw" id="tw"></div>
 
-<!-- ══ CONNECT SCREEN ══ -->
-<div id="con">
-  <div class="clogo">
-    <div class="clogo-icon">👁️</div>
-    <div class="clogo-title">GlucoTrack <span>View</span></div>
-    <div class="clogo-sub">Caregiver & clinician companion</div>
-    <div class="clogo-badge">READ-ONLY MONITORING</div>
-  </div>
+<!-- SVG defs for logos -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="lg1" x1="3" y1="21" x2="39" y2="21" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F7FFF"/>
+      <stop offset="100%" stop-color="#7BA3FF"/>
+    </linearGradient>
+    <radialGradient id="lg2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5B8FFF"/>
+      <stop offset="100%" stop-color="#2B5ACC"/>
+    </radialGradient>
+    <linearGradient id="lg3" x1="0" y1="0" x2="42" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0FBA81"/>
+      <stop offset="100%" stop-color="#4F7FFF"/>
+    </linearGradient>
+  </defs>
+</svg>
 
-  <div class="ccard">
-    <div class="ccard-lbl">Enter Patient Share Token</div>
-    <div class="tkwrap">
-      <input class="tk" id="tokenInput" placeholder="e.g.  GT-A3F9-K2M7" maxlength="14" autocomplete="off" spellcheck="false">
+<!-- ═══════════ AUTH SCREEN ═══════════ -->
+<div id="authWrap">
+  <div class="auth-bg">
+    <div class="ab ab1"></div>
+    <div class="ab ab2"></div>
+    <div class="ab ab3"></div>
+  </div>
+  <div class="auth-scroll">
+
+    <div class="auth-logo">
+      <div class="logo-mark">
+        <svg class="logo-svg" viewBox="0 0 42 42" fill="none">
+          <ellipse cx="21" cy="21" rx="18" ry="11" stroke="url(#lg1)" stroke-width="2" fill="none"/>
+          <circle cx="21" cy="21" r="6" fill="url(#lg2)"/>
+          <circle cx="21" cy="21" r="3" fill="#07080F"/>
+          <path d="M3 21 Q8 16 12 21 Q16 26 19 21" stroke="url(#lg3)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M23 21 Q26 16 30 21 Q34 26 39 21" stroke="url(#lg3)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <circle cx="23" cy="18" r="1.5" fill="rgba(255,255,255,0.8)"/>
+        </svg>
+      </div>
+      <div class="logo-name">GlucoTrack <span class="grad">View</span></div>
+      <div class="logo-tag">Caregiver & Clinician Companion</div>
+      <div class="logo-pill"><span class="logo-dot"></span>READ-ONLY MONITORING</div>
     </div>
-    <button class="cbtn" id="connectBtn" onclick="doConnect()">Connect to Patient</button>
 
-    <div class="cdiv"><div class="cdiv-l"></div><span>or</span><div class="cdiv-l"></div></div>
-    <button class="dbtn" onclick="loadDemo()">🔮 Load Demo Patient</button>
-  </div>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tab-login" onclick="switchTab('login')">Sign In</div>
+      <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+    </div>
 
-  <div class="cnote">
-    The patient generates a token in <strong>GlucoTrack → Settings → Share Access</strong>.<br>
-    This app reads their data in real-time via your API.<br>
-    <br>
-    Currently using <strong>localStorage bridge</strong> for local testing.<br>
-    async function fetchPatientData(token) {
-  // Look up token
-  const tokens = JSON.parse(localStorage.getItem('gt_shareTokens') || '{}');
-  const userId = tokens[token];
-  if (!userId) throw new Error('Invalid token — make sure you copied it correctly.');
+    <div class="test-banner">
+      <strong>🧪 Test Mode</strong> — Auth uses <code>localStorage</code>. Sign up with any email + 6+ char password. Swap <code>doLogin()</code> / <code>doSignup()</code> with real API calls for production.
+    </div>
 
-  // Get user profile
-  const users = JSON.parse(localStorage.getItem('gt_users') || '{}');
-  const user = users[userId];
-  if (!user) throw new Error('Patient profile not found.');
+    <!-- LOGIN -->
+    <div class="auth-panel on" id="panel-login">
+      <div class="fgrp">
+        <label class="flbl">Email Address</label>
+        <input class="finp" id="li-email" type="email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Password</label>
+        <div class="finp-w">
+          <input class="finp" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+          <button class="eye" onclick="togglePw('li-pass',this)">👁</button>
+        </div>
+      </div>
+      <button class="btn-p" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="fdiv"><div class="fdiv-l"></div><span>or</span><div class="fdiv-l"></div></div>
+      <button class="btn-g" onclick="demoLogin()">🔮 Continue as Demo User</button>
+      <div class="auth-terms">Don't have an account? <a href="#" onclick="switchTab('signup');return false;">Create one →</a></div>
+    </div>
 
-  // Get readings — check both key formats
-  let readings = JSON.parse(localStorage.getItem('gt_readings_' + userId) || 'null');
-  if (!readings) readings = JSON.parse(localStorage.getItem('gt_' + userId + '_r') || '[]');
+    <!-- SIGNUP -->
+    <div class="auth-panel" id="panel-signup">
+      <div class="frow">
+        <div class="fgrp">
+          <label class="flbl">First Name</label>
+          <input class="finp" id="su-first" type="text" placeholder="Jane" autocomplete="given-name">
+        </div>
+        <div class="fgrp">
+          <label class="flbl">Last Name</label>
+          <input class="finp" id="su-last" type="text" placeholder="Smith" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Email Address</label>
+        <input class="finp" id="su-email" type="email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Password</label>
+        <div class="finp-w">
+          <input class="finp" id="su-pass" type="password" placeholder="Min. 6 characters" autocomplete="new-password">
+          <button class="eye" onclick="togglePw('su-pass',this)">👁</button>
+        </div>
+      </div>
+      <div class="fgrp" style="margin-bottom:4px;">
+        <label class="flbl">Your Role</label>
+        <div class="role-grid">
+          <div class="role-card sel" id="role-caregiver" onclick="selectRole('caregiver')">
+            <div class="role-ic">👨‍👩‍👧</div>
+            <div class="role-name">Caregiver</div>
+            <div class="role-desc">Family / guardian</div>
+          </div>
+          <div class="role-card" id="role-clinician" onclick="selectRole('clinician')">
+            <div class="role-ic">🩺</div>
+            <div class="role-name">Clinician</div>
+            <div class="role-desc">Doctor / nurse</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-p" id="signupBtn" onclick="doSignup()">Create Account</button>
+      <div class="auth-terms">By signing up you agree to our <a href="#">Terms</a> & <a href="#">Privacy Policy</a>.<br>
+      Already have an account? <a href="#" onclick="switchTab('login');return false;">Sign in →</a></div>
+    </div>
 
-  return { user, readings };
-}
   </div>
 </div>
 
-<!-- ══ MAIN VIEW ══ -->
+<!-- ═══════════ CONNECT SCREEN ═══════════ -->
+<div id="conWrap" class="gone">
+  <div class="auth-bg">
+    <div class="ab ab1"></div>
+    <div class="ab ab2"></div>
+  </div>
+  <div class="con-inner">
+    <div class="con-logo">
+      <div class="logo-mark" style="margin:0 auto 14px;">
+        <svg class="logo-svg" viewBox="0 0 42 42" fill="none">
+          <ellipse cx="21" cy="21" rx="18" ry="11" stroke="url(#lg1)" stroke-width="2" fill="none"/>
+          <circle cx="21" cy="21" r="6" fill="url(#lg2)"/>
+          <circle cx="21" cy="21" r="3" fill="#07080F"/>
+          <path d="M3 21 Q8 16 12 21 Q16 26 19 21" stroke="url(#lg3)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M23 21 Q26 16 30 21 Q34 26 39 21" stroke="url(#lg3)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <circle cx="23" cy="18" r="1.5" fill="rgba(255,255,255,0.8)"/>
+        </svg>
+      </div>
+      <div class="logo-name" style="font-size:22px;">GlucoTrack <span class="grad">View</span></div>
+      <div class="logo-tag" style="font-size:12px;color:var(--t2);margin-top:4px;">Connect to your patient</div>
+    </div>
+    <div class="ccard">
+      <div class="ccard-lbl">Patient Share Token</div>
+      <input class="tk" id="tokenInput" placeholder="e.g.  GT-A3F9-K2M7" maxlength="14" autocomplete="off" spellcheck="false">
+      <button class="btn-p" id="connectBtn" onclick="doConnect()">Connect to Patient</button>
+      <div class="fdiv" style="margin:12px 0;"><div class="fdiv-l"></div><span>or</span><div class="fdiv-l"></div></div>
+      <button class="btn-g" onclick="loadDemo()">🔮 Load Demo Patient</button>
+    </div>
+    <div class="con-note">Token generated in <strong>GlucoTrack → Settings → Share Access</strong>.<br>Using <strong>localStorage bridge</strong> for same-browser testing.</div>
+    <button class="con-back" onclick="signOut()">← Sign out of GlucoTrack View</button>
+  </div>
+</div>
+
+<!-- ═══════════ TOPBAR ═══════════ -->
 <div class="tb" id="topbar" style="display:none;">
-  <div class="tb-logo">GlucoTrack <span>View</span> <em>LIVE</em></div>
-  <div class="tb-r">
-    <div class="tb-live"><div class="tb-dot"></div>Live</div>
-    <button class="tb-disc" onclick="disconnect()">Disconnect</button>
+  <div class="tb-left">
+    <div class="tb-lm">
+      <svg class="tb-lsvg" viewBox="0 0 42 42" fill="none">
+        <ellipse cx="21" cy="21" rx="18" ry="11" stroke="#4F7FFF" stroke-width="2.5" fill="none"/>
+        <circle cx="21" cy="21" r="6" fill="#4F7FFF"/>
+        <circle cx="21" cy="21" r="3" fill="#07080F"/>
+      </svg>
+    </div>
+    <div class="tb-title">GlucoTrack <span class="grad">View</span> <span class="tb-pill"><span class="tb-pdot"></span>LIVE</span></div>
+  </div>
+  <div class="tb-right">
+    <button class="tb-disc" onclick="disconnectPatient()">Disconnect</button>
   </div>
 </div>
 
+<!-- ═══════════ MAIN SCROLL ═══════════ -->
 <div class="scroll" id="mainScroll" style="display:none;">
 
-  <!-- patient header -->
-  <div class="ph" id="patientHeader">
-    <div class="ph-av" id="patAv">👤</div>
+  <div class="cg-info">
+    <div class="cg-av" id="cgAv">?</div>
     <div>
-      <div class="ph-name" id="patName">—</div>
-      <div class="ph-meta" id="patMeta">—</div>
-      <div class="ph-tok" id="patTok">—</div>
+      <div class="cg-name" id="cgName">—</div>
+      <div class="cg-role" id="cgRole">—</div>
     </div>
+    <button class="cg-btn" onclick="disconnectPatient()">↩ New token</button>
   </div>
 
-  <!-- alert (shown if out of range) -->
   <div class="alert-card" id="alertCard" style="display:none;">
     <div class="alert-ic" id="alertIc">⚠️</div>
     <div id="alertMsg">—</div>
   </div>
 
-  <!-- glucose card -->
+  <div class="ph">
+    <div class="ph-av" id="patAv">?</div>
+    <div style="flex:1;min-width:0;">
+      <div class="ph-name" id="patName">—</div>
+      <div class="ph-meta" id="patMeta">—</div>
+      <div class="ph-tok" id="patTok">—</div>
+    </div>
+
+  </div>
+
   <div class="gc">
+    <div class="gc-glow" id="gcGlow"></div>
     <div class="gc-top">
       <div class="gc-lbl">Current Glucose</div>
       <div class="gc-badge b-none" id="statusBadge"><div class="bdot"></div><span id="statusTxt">—</span></div>
     </div>
-    <div class="gc-row">
+    <div class="gc-main">
       <div class="gc-num n-none" id="mainNum">—</div>
-      <div>
+      <div class="gc-side">
         <div class="gc-unit">mmol/L</div>
         <div class="gc-trend" id="trendArrow">—</div>
       </div>
@@ -257,28 +464,31 @@ canvas{display:block;}
     </div>
     <div class="rbar">
       <div class="rtrack">
-        <div class="rtrack-fill rlow"></div>
-        <div class="rtrack-fill rok"></div>
-        <div class="rtrack-fill rhi"></div>
+        <div class="rf rlow"></div>
+        <div class="rf rok"></div>
+        <div class="rf rhi"></div>
         <div class="rneedle" id="needle" style="left:50%"></div>
       </div>
       <div class="raxis"><span>3.0</span><span>3.9</span><span>7.8</span><span>10.0</span><span>16+</span></div>
     </div>
   </div>
 
-  <!-- stats -->
   <div class="strow">
     <div class="st"><div class="stv" id="sAvg">—</div><div class="stl">Avg Today</div></div>
     <div class="st"><div class="stv" id="sTIR">—%</div><div class="stl">Time In Range</div></div>
     <div class="st"><div class="stv" id="sCnt">0</div><div class="stl">Readings</div></div>
   </div>
 
-  <!-- chart -->
   <div class="chart-card">
     <div class="chart-hd">
       <div>
         <div class="chart-title">Glucose History</div>
         <div class="chart-sub" id="chartSub">Last 6 hours</div>
+      </div>
+      <div class="chart-tabs">
+        <div class="chart-tab on" onclick="setChartRange(6,this)">6h</div>
+        <div class="chart-tab" onclick="setChartRange(12,this)">12h</div>
+        <div class="chart-tab" onclick="setChartRange(24,this)">24h</div>
       </div>
     </div>
     <div class="chart-wrap" id="chartWrap">
@@ -287,414 +497,401 @@ canvas{display:block;}
     </div>
   </div>
 
-  <!-- recent readings -->
   <div class="hist-card">
-    <div class="hist-hd">Recent Readings</div>
+    <div class="hist-hd">
+      <div class="hist-hl">Recent Readings</div>
+      <div class="hist-cnt" id="histCnt"></div>
+    </div>
     <div id="histList"><div class="empty">No readings yet</div></div>
   </div>
 
-  <!-- refresh -->
   <button class="ref-btn" onclick="refresh()">
-    <span class="ref-ic">🔄</span> <span id="refTxt">Refresh</span>
+    <span>🔄</span><span id="refTxt">Refresh Data</span>
   </button>
 
-  <!-- api notice -->
   <div class="api-notice">
-    <strong>Developer note:</strong> This app currently reads from <code>localStorage</code> (same-browser bridge with the GlucoTrack patient app). To connect over the internet, replace <code>fetchPatientData(token)</code> in the JS with a call to your backend API, e.g. <code>GET /api/share/{token}</code>.
+    <strong>Dev note:</strong> Reading from <code>localStorage</code> bridge. Replace <code>fetchPatientData()</code> with <code>GET /api/share/{token}</code> for production cross-device use.
   </div>
 
-</div><!-- /scroll -->
+</div>
 
 <script>
-// ════════════════════════════════════════════
-//  DATA LAYER — swap this function for real API
-// ════════════════════════════════════════════
+// ════ AUTH ════
 
-async function fetchPatientData(token) {
-  // ── OPTION A: localStorage bridge (same browser, for testing) ──
-  // The main GlucoTrack app stores data under keys like gt_readings_<userId>
-  // We expose a share token → userId mapping here for demo.
+const AUTH_KEY = 'gtv_users';
+const SESS_KEY = 'gtv_session';
+let currentUser = null;
+let selectedRole = 'caregiver';
 
-  if (token === 'DEMO') return getDemoData();
+function getUsers() { try{return JSON.parse(localStorage.getItem(AUTH_KEY)||'{}')}catch{return{}} }
+function saveUsers(u){ localStorage.setItem(AUTH_KEY,JSON.stringify(u)); }
+function getSession(){ try{return JSON.parse(localStorage.getItem(SESS_KEY))}catch{return null} }
+function saveSession(u){ localStorage.setItem(SESS_KEY,JSON.stringify({...u,ts:Date.now()})); }
+function clearSession(){ localStorage.removeItem(SESS_KEY); }
 
-  // Try to find matching share token in localStorage
-  // (In production: do a fetch to your API instead)
-  const users = JSON.parse(localStorage.getItem('gt_users') || '[]');
-  const shareMap = JSON.parse(localStorage.getItem('gt_shareTokens') || '{}');
-  const userId = shareMap[token];
+async function hashPw(pw){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw+'gtv_s4lt'));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
-  if (!userId) {
-    // ── OPTION B (production): uncomment and fill your API URL ──
-    // const res = await fetch(`https://your-api.com/share/${token}`);
-    // if (!res.ok) throw new Error('Invalid token');
-    // return await res.json();
-    throw new Error('Token not found. Use DEMO to test.');
+async function doSignup(){
+  const first=id('su-first').value.trim();
+  const last=id('su-last').value.trim();
+  const email=id('su-email').value.trim().toLowerCase();
+  const pass=id('su-pass').value;
+  if(!first){toast('Enter your first name','err');return;}
+  if(!email||!email.includes('@')){toast('Enter a valid email','err');return;}
+  if(pass.length<6){toast('Password must be 6+ characters','err');return;}
+  const btn=id('signupBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Creating…';
+  try{
+    const users=getUsers();
+    if(users[email]){toast('Account exists — sign in instead','err');return;}
+    const hash=await hashPw(pass);
+    users[email]={email,first,last,role:selectedRole,hash,created:Date.now()};
+    saveUsers(users);
+    const u={email,first,last,role:selectedRole};
+    saveSession(u);currentUser=u;
+    toast('Welcome, '+first+'! 👋','suc');
+    showConnect();
+  }finally{btn.disabled=false;btn.innerHTML='Create Account';}
+}
+
+async function doLogin(){
+  const email=id('li-email').value.trim().toLowerCase();
+  const pass=id('li-pass').value;
+  if(!email){toast('Enter your email','err');return;}
+  if(!pass){toast('Enter your password','err');return;}
+  if(email==='demo'||email==='demo@glucotrack.com'){demoLogin();return;}
+  const btn=id('loginBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Signing in…';
+  try{
+    const users=getUsers();
+    const user=users[email];
+    if(!user){toast('No account found — create one first','err');return;}
+    const hash=await hashPw(pass);
+    if(hash!==user.hash){toast('Incorrect password','err');return;}
+    const u={email:user.email,first:user.first,last:user.last,role:user.role};
+    saveSession(u);currentUser=u;
+    toast('Welcome back, '+user.first+'!','suc');
+    showConnect();
+  }finally{btn.disabled=false;btn.innerHTML='Sign In';}
+}
+
+function demoLogin(){
+  const u={email:'demo@glucotrack.com',first:'Demo',last:'User',role:'caregiver',isDemo:true};
+  saveSession(u);currentUser=u;
+  showConnect();
+  setTimeout(()=>loadDemo(),400);
+}
+
+function signOut(){
+  clearSession();currentUser=null;
+  id('conWrap').classList.add('gone');
+  id('topbar').style.display='none';
+  id('mainScroll').style.display='none';
+  id('authWrap').classList.remove('gone');
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('on'));
+  id('tab-'+tab).classList.add('on');
+  id('panel-'+tab).classList.add('on');
+}
+
+function selectRole(role){
+  selectedRole=role;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('sel'));
+  id('role-'+role).classList.add('sel');
+}
+
+function togglePw(fid,btn){
+  const inp=id(fid);
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'👁':'🙈';
+}
+
+function showConnect(){
+  id('authWrap').classList.add('gone');
+  id('conWrap').classList.remove('gone');
+  if(currentUser){
+    id('cgAv').textContent=currentUser.first[0]+(currentUser.last?.[0]||'');
+    id('cgName').textContent=currentUser.first+' '+(currentUser.last||'');
+    id('cgRole').textContent=currentUser.role==='clinician'?'🩺 Clinician':'👨‍👩‍👧 Caregiver';
   }
-
-  const user = users.find(u => u.id === userId);
-  const readings = JSON.parse(localStorage.getItem(`gt_readings_${userId}`) || '[]');
-  const cfg = JSON.parse(localStorage.getItem(`gt_cfg_${userId}`) || '{"low":3.9,"high":10.0}');
-
-  return { user, readings, cfg };
 }
 
-// ════════════════════════════════════════════
-//  DEMO DATA
-// ════════════════════════════════════════════
+// ════ DATA LAYER ════
 
-function getDemoData() {
-  const now = Date.now();
-  const hr = 3600000;
-  const readings = [];
-  // Simulate 12h of readings with realistic glucose curve
-  const base = [5.2,5.0,4.8,5.1,5.3,7.8,9.2,8.5,7.1,6.3,5.8,5.5,
-                 5.2,5.0,3.6,4.2,5.1,5.4,8.9,10.2,9.8,8.3,7.2,6.5];
-  base.forEach((v,i) => {
-    readings.push({
-      ts: now - (23-i)*30*60*1000 + Math.random()*5*60*1000,
-      value: v + (Math.random()-.5)*.3,
-      context: ['Before Meal','After Meal','Random Check','Before Meal','After Meal'][i%5],
-      isMealOnly: false
-    });
-  });
-  readings.sort((a,b) => a.ts - b.ts);
-  return {
-    user: { firstName:'Sipho', lastName:'Dlamini', email:'sipho@demo.com', dob:'1988-04-12' },
-    readings,
-    cfg: { low:3.9, high:10.0 }
-  };
+async function fetchPatientData(token){
+  if(token==='DEMO') return getDemoData();
+  const shareMap=JSON.parse(localStorage.getItem('gt_shareTokens')||'{}');
+  const userId=shareMap[token];
+  if(!userId) throw new Error('Token not found. Use DEMO to test, or check the token is correct.');
+  const users=JSON.parse(localStorage.getItem('gt_users')||'{}');
+  const user=users[userId];
+  if(!user) throw new Error('Patient profile not found.');
+  let readings=JSON.parse(localStorage.getItem('gt_readings_'+userId)||'null');
+  if(!readings) readings=JSON.parse(localStorage.getItem('gt_'+userId+'_r')||'null');
+  if(!readings) readings=JSON.parse(localStorage.getItem('gt_guest_r')||'[]');
+  const cfg=JSON.parse(localStorage.getItem('gt_cfg_'+userId)||'{"low":3.9,"high":10.0}');
+  return{user,readings,cfg};
 }
 
-// ════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════
+function getDemoData(){
+  const now=Date.now();
+  const base=[5.2,5.0,4.8,5.1,5.3,7.8,9.2,8.5,7.1,6.3,5.8,5.5,5.2,5.0,3.6,4.2,5.1,5.4,8.9,10.2,9.8,8.3,7.2,6.5];
+  const ctxs=['Before Meal','After Meal','Random Check','Before Bed','Waking Up'];
+  const readings=base.map((v,i)=>({
+    ts:now-(23-i)*30*60*1000+Math.random()*5*60*1000,
+    value:v+(Math.random()-.5)*.3,
+    context:ctxs[i%5],
+    isMealOnly:false
+  })).sort((a,b)=>a.ts-b.ts);
+  return{user:{firstName:'Sipho',lastName:'Dlamini',email:'sipho@demo.com',dob:'1988-04-12'},readings,cfg:{low:3.9,high:10.0}};
+}
 
-let patient = null;
-let readings = [];
-let cfg = { low:3.9, high:10.0 };
-let currentToken = '';
-let refreshTimer = null;
+// ════ STATE ════
 
-// ════════════════════════════════════════════
-//  CONNECT / DISCONNECT
-// ════════════════════════════════════════════
+let patient=null,readings=[],cfg={low:3.9,high:10.0},currentToken='',refreshTimer=null,chartHours=6;
 
-async function doConnect() {
-  const raw = document.getElementById('tokenInput').value.trim().toUpperCase().replace(/\s/g,'');
-  if (!raw) { toast('Enter a share token', 'err'); return; }
-  const btn = document.getElementById('connectBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span>Connecting…';
-  try {
-    const data = await fetchPatientData(raw);
-    currentToken = raw;
+// ════ CONNECT ════
+
+async function doConnect(){
+  const raw=id('tokenInput').value.trim().toUpperCase().replace(/\s/g,'');
+  if(!raw){toast('Enter a share token','err');return;}
+  const btn=id('connectBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Connecting…';
+  try{
+    const data=await fetchPatientData(raw);
+    currentToken=raw;
     applyData(data);
     showMain();
-    toast('Connected to patient ✓', 'suc');
+    toast('Connected to patient ✓','suc');
     startAutoRefresh();
-  } catch(e) {
-    toast(e.message || 'Connection failed', 'err');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Connect to Patient';
+  }catch(e){
+    toast(e.message||'Connection failed','err');
+  }finally{
+    btn.disabled=false;btn.innerHTML='Connect to Patient';
   }
 }
 
-function loadDemo() {
-  document.getElementById('tokenInput').value = 'DEMO';
-  doConnect();
-}
+function loadDemo(){id('tokenInput').value='DEMO';doConnect();}
 
-function disconnect() {
+function disconnectPatient(){
   clearInterval(refreshTimer);
-  patient = null; readings = [];
-  document.getElementById('topbar').style.display = 'none';
-  document.getElementById('mainScroll').style.display = 'none';
-  document.getElementById('con').classList.remove('gone');
-  document.getElementById('tokenInput').value = '';
+  patient=null;readings=[];
+  id('topbar').style.display='none';
+  id('mainScroll').style.display='none';
+  id('conWrap').classList.remove('gone');
+  id('tokenInput').value='';
 }
 
-// ════════════════════════════════════════════
-//  APPLY DATA → UI
-// ════════════════════════════════════════════
+// ════ RENDER ════
 
-function applyData(data) {
-  patient = data.user;
-  readings = (data.readings || []).filter(r => !r.isMealOnly && r.value > 0);
-  cfg = data.cfg || { low:3.9, high:10.0 };
+function applyData(data){
+  patient=data.user;
+  readings=(data.readings||[]).filter(r=>!r.isMealOnly&&r.value>0);
+  cfg=data.cfg||{low:3.9,high:10.0};
   renderAll();
 }
 
-function renderAll() {
-  renderPatient();
-  renderGlucose();
-  renderStats();
+function renderAll(){renderCg();renderPatient();renderGlucose();renderStats();renderChart();renderHistory();}
+
+function renderCg(){
+  if(!currentUser)return;
+  id('cgAv').textContent=currentUser.first[0]+(currentUser.last?.[0]||'');
+  id('cgName').textContent=currentUser.first+' '+(currentUser.last||'');
+  id('cgRole').textContent=currentUser.role==='clinician'?'🩺 Clinician':'👨‍👩‍👧 Caregiver';
+}
+
+function renderPatient(){
+  if(!patient)return;
+  const nm=patient.firstName||patient.first||'?';
+  const ln=patient.lastName||patient.last||'';
+  const age=patient.dob?Math.floor((Date.now()-new Date(patient.dob))/31557600000):'—';
+  id('patName').textContent=nm+' '+ln;
+  id('patMeta').textContent=age+' years · '+(patient.email||'');
+  id('patTok').textContent='Token: '+currentToken;
+  id('patAv').textContent=nm[0]+(ln[0]||'');
+}
+
+function renderGlucose(){
+  const bgR=readings.slice().sort((a,b)=>a.ts-b.ts);
+  const alertCard=id('alertCard');
+  if(!bgR.length){
+    id('mainNum').textContent='—';id('mainNum').className='gc-num n-none';
+    id('statusBadge').className='gc-badge b-none';id('statusTxt').textContent='—';
+    id('trendArrow').textContent='—';id('lastTime').textContent='No readings';
+    id('needle').style.left='50%';id('gcGlow').style.background='var(--t3)';
+    alertCard.style.display='none';return;
+  }
+  const lat=bgR[bgR.length-1];const v=lat.value;const st=getStatus(v);
+  id('mainNum').textContent=fmt(v);id('mainNum').className='gc-num '+st.nc;
+  id('statusBadge').className='gc-badge '+st.bc;id('statusTxt').textContent=st.txt;
+  id('lastTime').textContent=tSince(lat.ts);
+  id('targetRange').textContent=fmt(cfg.low)+' – '+fmt(cfg.high);
+  id('gcGlow').style.background=st.col;
+  let trend='→';
+  if(bgR.length>=2){const d=v-bgR[bgR.length-2].value;trend=d>1.5?'↑↑':d>0.5?'↑':d<-1.5?'↓↓':d<-0.5?'↓':'→';}
+  id('trendArrow').textContent=trend;
+  const pct=Math.min(Math.max((v-3.0)/(16.7-3.0),0),1)*100;
+  id('needle').style.left=pct+'%';
+  if(st.cls==='low'){
+    alertCard.className='alert-card';alertCard.style.display='flex';
+    id('alertIc').textContent='🔴';
+    id('alertMsg').textContent='Low glucose: '+fmt(v)+' mmol/L — below '+fmt(cfg.low)+' target';
+  }else if(st.cls==='vhi'||st.cls==='hi'){
+    alertCard.className='alert-card warn';alertCard.style.display='flex';
+    id('alertIc').textContent='🟡';
+    id('alertMsg').textContent='High glucose: '+fmt(v)+' mmol/L — above '+fmt(cfg.high)+' target';
+  }else{alertCard.style.display='none';}
+}
+
+function renderStats(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const tr=readings.filter(r=>r.ts>=today.getTime()&&r.value>0);
+  if(!tr.length){id('sAvg').textContent='—';id('sTIR').textContent='—%';id('sCnt').textContent='0';return;}
+  const avg=tr.reduce((s,r)=>s+r.value,0)/tr.length;
+  const inR=tr.filter(r=>r.value>=cfg.low&&r.value<=cfg.high).length;
+  const tir=Math.round((inR/tr.length)*100);
+  const sAvg=id('sAvg');sAvg.textContent=fmt(avg);sAvg.style.color=getStatus(avg).col;
+  const sTIR=id('sTIR');sTIR.textContent=tir+'%';sTIR.style.color=tir>=70?'var(--ok2)':tir>=50?'var(--hi2)':'var(--low2)';
+  id('sCnt').textContent=tr.length;
+}
+
+function setChartRange(h,el){
+  chartHours=h;
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  id('chartSub').textContent='Last '+h+' hours';
   renderChart();
-  renderHistory();
 }
 
-function renderPatient() {
-  if (!patient) return;
-  const age = patient.dob ? Math.floor((Date.now() - new Date(patient.dob)) / 31557600000) : '—';
-  document.getElementById('patName').textContent = patient.firstName + ' ' + patient.lastName;
-  document.getElementById('patMeta').textContent = `${age} years · ${patient.email}`;
-  document.getElementById('patTok').textContent = 'Token: ' + currentToken;
-  document.getElementById('patAv').textContent = patient.firstName?.[0] + (patient.lastName?.[0] || '');
-}
-
-function renderGlucose() {
-  const bgR = readings.slice().sort((a,b) => a.ts - b.ts);
-  const alertCard = document.getElementById('alertCard');
-
-  if (!bgR.length) {
-    document.getElementById('mainNum').textContent = '—';
-    document.getElementById('mainNum').className = 'gc-num n-none';
-    document.getElementById('statusBadge').className = 'gc-badge b-none';
-    document.getElementById('statusTxt').textContent = '—';
-    document.getElementById('trendArrow').textContent = '—';
-    document.getElementById('lastTime').textContent = 'No readings';
-    document.getElementById('needle').style.left = '50%';
-    alertCard.style.display = 'none';
-    return;
-  }
-
-  const lat = bgR[bgR.length - 1];
-  const v = lat.value;
-  const st = getStatus(v);
-
-  document.getElementById('mainNum').textContent = fmt(v);
-  document.getElementById('mainNum').className = 'gc-num ' + st.nc;
-  document.getElementById('statusBadge').className = 'gc-badge ' + st.bc;
-  document.getElementById('statusTxt').textContent = st.txt;
-  document.getElementById('lastTime').textContent = tSince(lat.ts);
-  document.getElementById('targetRange').textContent = fmt(cfg.low) + ' – ' + fmt(cfg.high);
-
-  // trend
-  let trend = '→';
-  if (bgR.length >= 2) {
-    const d = v - bgR[bgR.length-2].value;
-    trend = d > 1.5 ? '↑↑' : d > 0.5 ? '↑' : d < -1.5 ? '↓↓' : d < -0.5 ? '↓' : '→';
-  }
-  document.getElementById('trendArrow').textContent = trend;
-
-  // needle (3.0–16.7 range)
-  const pct = Math.min(Math.max((v - 3.0) / (16.7 - 3.0), 0), 1) * 100;
-  document.getElementById('needle').style.left = pct + '%';
-
-  // alert
-  if (st.cls === 'low') {
-    alertCard.className = 'alert-card';
-    alertCard.style.display = 'flex';
-    document.getElementById('alertIc').textContent = '🔴';
-    document.getElementById('alertMsg').textContent = `Low glucose alert: ${fmt(v)} mmol/L — below target of ${fmt(cfg.low)}`;
-  } else if (st.cls === 'vhi' || st.cls === 'hi') {
-    alertCard.className = 'alert-card warn';
-    alertCard.style.display = 'flex';
-    document.getElementById('alertIc').textContent = '🟡';
-    document.getElementById('alertMsg').textContent = `High glucose: ${fmt(v)} mmol/L — above target of ${fmt(cfg.high)}`;
-  } else {
-    alertCard.style.display = 'none';
-  }
-}
-
-function renderStats() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const todayR = readings.filter(r => r.ts >= today.getTime() && r.value > 0);
-
-  if (!todayR.length) {
-    document.getElementById('sAvg').textContent = '—';
-    document.getElementById('sTIR').textContent = '—%';
-    document.getElementById('sCnt').textContent = '0';
-    return;
-  }
-
-  const avg = todayR.reduce((s,r) => s + r.value, 0) / todayR.length;
-  const inR = todayR.filter(r => r.value >= cfg.low && r.value <= cfg.high).length;
-  const tir = Math.round((inR / todayR.length) * 100);
-
-  document.getElementById('sAvg').textContent = fmt(avg);
-  document.getElementById('sAvg').style.color = getStatus(avg).col;
-  document.getElementById('sTIR').textContent = tir + '%';
-  document.getElementById('sTIR').style.color = tir >= 70 ? 'var(--ok2)' : tir >= 50 ? 'var(--hi2)' : 'var(--low2)';
-  document.getElementById('sCnt').textContent = todayR.length;
-}
-
-function renderChart() {
-  const cv = document.getElementById('mainChart');
-  const wrap = document.getElementById('chartWrap');
-  const empty = document.getElementById('chartEmpty');
-  const cutoff = Date.now() - 6 * 3600000;
-  const data = readings.filter(r => r.ts >= cutoff && r.value > 0).sort((a,b) => a.ts - b.ts);
-
-  if (data.length < 2) {
-    cv.style.display = 'none'; empty.style.display = 'flex'; return;
-  }
-  cv.style.display = 'block'; empty.style.display = 'none';
-
-  const dpr = window.devicePixelRatio || 1;
-  const W = wrap.offsetWidth, H = 160;
-  cv.width = W * dpr; cv.height = H * dpr;
-  cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, W, H);
-
-  const vals = data.map(r => r.value);
-  const mn = Math.max(2, Math.min(...vals) - 1);
-  const mx = Math.max(...vals) + 1.5;
-  const tx = i => (i / (data.length - 1)) * (W - 20) + 10;
-  const ty = v => H - 20 - ((v - mn) / (mx - mn)) * (H - 30);
-
-  // target zone
-  const tyLow = ty(cfg.low), tyHigh = ty(cfg.high);
-  ctx.fillStyle = 'rgba(16,185,129,0.07)';
-  ctx.fillRect(10, tyHigh, W - 20, tyLow - tyHigh);
-  ctx.strokeStyle = 'rgba(16,185,129,0.15)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(10, tyLow); ctx.lineTo(W-10, tyLow); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(10, tyHigh); ctx.lineTo(W-10, tyHigh); ctx.stroke();
+function renderChart(){
+  const cv=id('mainChart'),wrap=id('chartWrap'),empty=id('chartEmpty');
+  const cutoff=Date.now()-chartHours*3600000;
+  const data=readings.filter(r=>r.ts>=cutoff&&r.value>0).sort((a,b)=>a.ts-b.ts);
+  if(data.length<2){cv.style.display='none';empty.style.display='flex';return;}
+  cv.style.display='block';empty.style.display='none';
+  const dpr=window.devicePixelRatio||1;
+  const W=wrap.offsetWidth,H=160;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const vals=data.map(r=>r.value);
+  const mn=Math.max(2,Math.min(...vals)-1),mx=Math.max(...vals)+1.5;
+  const tx=i=>(i/(data.length-1))*(W-20)+10;
+  const ty=v=>H-20-((v-mn)/(mx-mn))*(H-30);
+  ctx.fillStyle='rgba(15,186,129,0.06)';
+  ctx.fillRect(10,ty(cfg.high),W-20,ty(cfg.low)-ty(cfg.high));
+  ctx.strokeStyle='rgba(15,186,129,0.2)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  [cfg.low,cfg.high].forEach(v=>{ctx.beginPath();ctx.moveTo(10,ty(v));ctx.lineTo(W-10,ty(v));ctx.stroke();});
   ctx.setLineDash([]);
-
-  // gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, 'rgba(59,130,246,0.25)');
-  grad.addColorStop(1, 'rgba(59,130,246,0)');
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(79,127,255,0.22)');grad.addColorStop(1,'rgba(79,127,255,0)');
   ctx.beginPath();
-  data.forEach((r,i) => i===0 ? ctx.moveTo(tx(i), ty(r.value)) : ctx.lineTo(tx(i), ty(r.value)));
-  ctx.lineTo(tx(data.length-1), H); ctx.lineTo(tx(0), H); ctx.closePath();
-  ctx.fillStyle = grad; ctx.fill();
-
-  // line
+  data.forEach((r,i)=>i===0?ctx.moveTo(tx(i),ty(r.value)):ctx.lineTo(tx(i),ty(r.value)));
+  ctx.lineTo(tx(data.length-1),H);ctx.lineTo(tx(0),H);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
   ctx.beginPath();
-  data.forEach((r,i) => {
-    const x = tx(i), y = ty(r.value);
-    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-  });
-  ctx.strokeStyle = '#3B82F6'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
-
-  // dots
-  data.forEach((r,i) => {
-    const s = getStatus(r.value);
-    ctx.beginPath();
-    ctx.arc(tx(i), ty(r.value), i===data.length-1?5:3, 0, Math.PI*2);
-    ctx.fillStyle = s.col; ctx.fill();
+  data.forEach((r,i)=>{const x=tx(i),y=ty(r.value);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.strokeStyle='#4F7FFF';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+  data.forEach((r,i)=>{
+    const s=getStatus(r.value);
+    ctx.beginPath();ctx.arc(tx(i),ty(r.value),i===data.length-1?6:3.5,0,Math.PI*2);
+    ctx.fillStyle=s.col;ctx.fill();
+    if(i===data.length-1){ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.stroke();}
   });
 }
 
-function renderHistory() {
-  const list = document.getElementById('histList');
-  const bgR = readings.slice().sort((a,b) => b.ts - a.ts).slice(0,10);
-  if (!bgR.length) { list.innerHTML = '<div class="empty">No readings yet</div>'; return; }
-
-  const CTX_IC = {'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️'};
-  const CTX_CL = {'Before Meal':'#3B82F6','After Meal':'#8B5CF6','Random Check':'#6B7280'};
-
-  list.innerHTML = bgR.map(r => {
-    const s = getStatus(r.value);
-    const ic = CTX_IC[r.context] || '🩺';
-    const cl = CTX_CL[r.context] || '#4A5D80';
-    return `<div class="hi-row">
-      <div class="hi-ic" style="background:${cl}22">${ic}</div>
-      <div class="hi-main">
-        <div class="hi-ctx">${r.context || 'Reading'}</div>
-        <div class="hi-time">${fD(r.ts)} · ${fT(r.ts)}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="hi-val" style="color:${s.col}">${fmt(r.value)}</div>
-        <div class="hi-u">mmol/L</div>
-      </div>
+function renderHistory(){
+  const list=id('histList');
+  const bgR=readings.slice().sort((a,b)=>b.ts-a.ts).slice(0,12);
+  id('histCnt').textContent=bgR.length?bgR.length+' readings':'';
+  if(!bgR.length){list.innerHTML='<div class="empty">No readings yet</div>';return;}
+  const IC={'Before Meal':'🍽️','After Meal':'🍴','Before Exercise':'🏋️','After Exercise':'💪','Before Bed':'😴','Waking Up':'☀️','Feeling Unwell':'🤒','Random Check':'🩺','Meal':'🍽️'};
+  const CL={'Before Meal':'#2B5ACC','After Meal':'#5B2EAF','Random Check':'#2A3B5A','Before Bed':'#1A3A4A','Waking Up':'#3A4A1A'};
+  list.innerHTML=bgR.map(r=>{
+    const s=getStatus(r.value);
+    return`<div class="hi-row">
+      <div class="hi-ic" style="background:${CL[r.context]||'#2A3352'}33">${IC[r.context]||'🩺'}</div>
+      <div class="hi-main"><div class="hi-ctx">${r.context||'Reading'}</div><div class="hi-time">${fD(r.ts)} · ${fT(r.ts)}</div></div>
+      <div class="hi-right"><div class="hi-val" style="color:${s.col}">${fmt(r.value)}</div><div class="hi-u">mmol/L</div></div>
     </div>`;
   }).join('');
 }
 
-// ════════════════════════════════════════════
-//  AUTO REFRESH
-// ════════════════════════════════════════════
+// ════ AUTO REFRESH ════
 
-function startAutoRefresh() {
-  clearInterval(refreshTimer);
-  refreshTimer = setInterval(refresh, 60000); // every 60s
+function startAutoRefresh(){clearInterval(refreshTimer);refreshTimer=setInterval(refresh,60000);}
+
+async function refresh(){
+  if(!currentToken)return;
+  const txt=id('refTxt');txt.textContent='Refreshing…';
+  try{const data=await fetchPatientData(currentToken);applyData(data);txt.textContent='Refreshed ✓';}
+  catch{txt.textContent='Refresh failed';}
+  finally{setTimeout(()=>txt.textContent='Refresh Data',2000);}
 }
 
-async function refresh() {
-  if (!currentToken) return;
-  const btn = document.getElementById('refTxt');
-  btn.textContent = 'Refreshing…';
-  try {
-    const data = await fetchPatientData(currentToken);
-    applyData(data);
-    btn.textContent = 'Refreshed ✓';
-    setTimeout(() => btn.textContent = 'Refresh', 2000);
-  } catch(e) {
-    btn.textContent = 'Refresh failed';
-    setTimeout(() => btn.textContent = 'Refresh', 2000);
-  }
+// ════ UTILS ════
+
+function id(x){return document.getElementById(x);}
+function getStatus(v){
+  if(v<cfg.low) return{cls:'low',nc:'n-low',bc:'b-low',txt:'LOW',col:'var(--low2)'};
+  if(v<=cfg.high)return{cls:'ok',nc:'n-ok',bc:'b-ok',txt:'IN RANGE',col:'var(--ok2)'};
+  if(v<=13.9)   return{cls:'hi',nc:'n-hi',bc:'b-hi',txt:'HIGH',col:'var(--hi2)'};
+  return              {cls:'vhi',nc:'n-hi',bc:'b-low',txt:'VERY HIGH',col:'var(--low2)'};
 }
-
-// ════════════════════════════════════════════
-//  UTILS
-// ════════════════════════════════════════════
-
-function getStatus(v) {
-  if (v < cfg.low) return { cls:'low', nc:'n-low', bc:'b-low', txt:'LOW', col:'var(--low2)' };
-  if (v <= cfg.high) return { cls:'ok', nc:'n-ok', bc:'b-ok', txt:'IN RANGE', col:'var(--ok2)' };
-  if (v <= 13.9) return { cls:'hi', nc:'n-hi', bc:'b-hi', txt:'HIGH', col:'var(--hi2)' };
-  return { cls:'vhi', nc:'n-hi', bc:'b-low', txt:'VERY HIGH', col:'var(--low2)' };
+function fmt(v){return(Math.round(v*10)/10).toFixed(1);}
+function tSince(ts){
+  const s=(Date.now()-ts)/1000;
+  if(s<60)return'Just now';if(s<3600)return Math.round(s/60)+'m ago';
+  if(s<86400)return Math.round(s/3600)+'h ago';return Math.round(s/86400)+'d ago';
 }
-
-function fmt(v) { return (Math.round(v*10)/10).toFixed(1); }
-
-function tSince(ts) {
-  const s = (Date.now()-ts)/1000;
-  if (s<60) return 'Just now';
-  if (s<3600) return Math.round(s/60)+'m ago';
-  if (s<86400) return Math.round(s/3600)+'h ago';
-  return Math.round(s/86400)+'d ago';
-}
-
-function fT(ts) { return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
-
-function fD(ts) {
-  const d=new Date(ts), t=new Date(); t.setHours(0,0,0,0);
-  const y=new Date(t); y.setDate(t.getDate()-1);
-  if (d>=t) return 'Today'; if (d>=y) return 'Yesterday';
+function fT(ts){return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function fD(ts){
+  const d=new Date(ts),t=new Date();t.setHours(0,0,0,0);
+  const y=new Date(t);y.setDate(t.getDate()-1);
+  if(d>=t)return'Today';if(d>=y)return'Yesterday';
   return d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
 }
-
-function showMain() {
-  document.getElementById('con').classList.add('gone');
-  document.getElementById('topbar').style.display = 'flex';
-  document.getElementById('mainScroll').style.display = 'flex';
-  setTimeout(() => {
-    renderChart();
-    window.scrollTo(0,0);
-  }, 100);
+function showMain(){
+  id('conWrap').classList.add('gone');
+  id('topbar').style.display='flex';
+  id('mainScroll').style.display='flex';
+  setTimeout(()=>{renderChart();window.scrollTo(0,0);},100);
+}
+function toast(msg,type=''){
+  const wrap=id('tw'),el=document.createElement('div');
+  el.className='t '+(type==='err'?'err':type==='suc'?'suc':'');
+  el.textContent=msg;wrap.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
 }
 
-function toast(msg, type='') {
-  const wrap = document.getElementById('tw');
-  const el = document.createElement('div');
-  el.className = 't ' + type;
-  el.textContent = msg;
-  wrap.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
+// ════ TOKEN INPUT FORMATTING ════
 
-// Token formatting
-document.getElementById('tokenInput').addEventListener('input', function() {
-  let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if (v.length > 2 && !v.includes('-')) {
-    v = v.slice(0,2) + '-' + v.slice(2);
-  }
-  if (v.length > 7) v = v.slice(0,7) + '-' + v.slice(7);
-  this.value = v.slice(0,14);
+id('tokenInput').addEventListener('input',function(){
+  let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(v.length>2&&v.slice(0,2)==='GT'){v='GT-'+v.slice(2);if(v.length>7)v=v.slice(0,7)+'-'+v.slice(7);}
+  this.value=v.slice(0,14);
 });
+id('tokenInput').addEventListener('keydown',e=>{if(e.key==='Enter')doConnect();});
+['li-email','li-pass'].forEach(i=>id(i).addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();}));
 
-document.getElementById('tokenInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doConnect();
-});
+// ════ BOOT ════
 
-window.addEventListener('resize', () => { if (patient) renderChart(); });
+window.addEventListener('resize',()=>{if(patient)renderChart();});
+
+(function boot(){
+  const session=getSession();
+  if(session&&session.email&&session.ts&&(Date.now()-session.ts)<86400000){currentUser=session;showConnect();return;}
+  clearSession();
+  id("authWrap").classList.remove("gone");
+  id("conWrap").classList.add("gone");
+  id("topbar").style.display="none";
+  id("mainScroll").style.display="none";
+})();
 </script>
 </body>
 </html>
