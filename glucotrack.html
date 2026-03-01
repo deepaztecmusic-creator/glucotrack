@@ -1,3 +1,5 @@
+WORKING CODE
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,104 +114,37 @@ body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;back
                 </div>
             </div>
 
-            <style>
-    /* These styles define the colors and the toggle switch animation */
-    :root {
-        --acc: #007AFF; --ok: #28a745; --ok-bg: #e8f5e9; 
-        --ok-b: #c8e6c9; --t2: #333; --t3: #666; 
-        --bg: #ffffff; --border: #dddddd;
-    }
-    
-    .tsw { 
-        width: 38px; height: 20px; background: #ccc; border-radius: 20px; 
-        position: relative; border: none; cursor: pointer; transition: 0.3s; 
-    }
-    .tsw::after { 
-        content: ''; position: absolute; width: 16px; height: 16px; 
-        background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; 
-    }
-    .tsw.active { background: var(--ok); }
-    .tsw.active::after { left: 20px; }
-</style>
+            <div class="sglbl">Share with Doctor</div>
+            <div class="sgcard">
+                <div class="sgi" style="flex-direction:column; align-items:flex-start; gap:12px; padding:16px 15px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="font-size:20px;">📡</div>
+                            <div>
+                                <div style="font-size:13px; font-weight:700;">Live Sync</div>
+                                <div id="syncStatusTxt" style="font-size:11px; color:var(--t3);">Off — Not broadcasting</div>
+                            </div>
+                        </div>
+                        <button class="tsw" id="syncToggle" onclick="toggleLiveSync()"></button>
+                    </div>
+                    
+                    <div id="syncActiveBar" style="display:none; width:100%; background:var(--ok-bg); border:1px solid var(--ok-b); border-radius:8px; padding:10px; font-size:11px; color:var(--ok); line-height:1.4;">
+                        <strong>🟢 Live Sync Active</strong><br>
+                        Broadcasting to GlucoTrack View.
+                    </div>
 
-<div class="sglbl">Share with Doctor</div>
-<div class="sgcard">
-    <div class="sgi" style="display:flex; flex-direction:column; align-items:flex-start; gap:12px; padding:16px 15px;">
-        
-        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div style="font-size:20px;">📡</div>
-                <div>
-                    <div style="font-size:13px; font-weight:700;">Live Sync</div>
-                    <div id="syncStatusTxt" style="font-size:11px; color:var(--t3);">Off — Not broadcasting</div>
+                    <div style="width:100%; border-top:1px solid var(--border); padding-top:12px;">
+                        <div style="font-size:12px; font-weight:700; margin-bottom:4px;">📎 Shareable Link</div>
+                        <div style="font-size:11px; color:var(--t3); margin-bottom:10px;">Encodes last 30 days of data.</div>
+                        <div style="display:flex; gap:6px;">
+                            <input id="shareUrlOut" readonly style="flex:1; padding:8px; border:1.5px solid var(--border); border-radius:7px; font-size:10px; font-family:'JetBrains Mono',monospace; background:var(--bg); color:var(--t2); outline:none;" placeholder="Generate link...">
+                            <button onclick="generateShareLink()" style="padding:0 12px; background:var(--acc); color:#fff; border:none; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Generate</button>
+                            <button id="copyLinkBtn" onclick="copyShareLink()" style="display:none; padding:0 12px; background:var(--ok-bg); color:var(--ok); border:1px solid var(--ok-b); border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Copy</button>
+                        </div>
+                        <div id="shareStats" style="display:none; font-size:10px; color:var(--t3); margin-top:6px; font-family:'JetBrains Mono',monospace;"></div>
+                    </div>
                 </div>
             </div>
-            <button class="tsw" id="syncToggle" onclick="toggleLiveSync()"></button>
-        </div>
-        
-        <div id="syncActiveBar" style="display:none; width:100%; background:var(--ok-bg); border:1px solid var(--ok-b); border-radius:8px; padding:10px; font-size:11px; color:var(--ok); line-height:1.4; box-sizing:border-box;">
-            <strong>🟢 Live Sync Active</strong><br>
-            Broadcasting to GlucoTrack View.<br>
-            <span id="lastSyncTime" style="font-size:10px; opacity:0.8;"></span>
-        </div>
-
-        <div style="width:100%; border-top:1px solid var(--border); padding-top:12px;">
-            <div style="font-size:12px; font-weight:700; margin-bottom:4px;">📎 Shareable Link</div>
-            <div style="font-size:11px; color:var(--t3); margin-bottom:10px;">Encodes last 30 days of data (mmol/L).</div>
-            <div style="display:flex; gap:6px;">
-                <input id="shareUrlOut" readonly style="flex:1; padding:8px; border:1.5px solid var(--border); border-radius:7px; font-size:10px; font-family:monospace; background:var(--bg); color:var(--t2); outline:none;" placeholder="Generate link...">
-                <button onclick="generateShareLink()" style="padding:0 12px; background:var(--acc); color:#fff; border:none; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Generate</button>
-                <button id="copyLinkBtn" onclick="copyShareLink()" style="display:none; padding:0 12px; background:var(--ok-bg); color:var(--ok); border:1px solid var(--ok-b); border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Copy</button>
-            </div>
-            <div id="shareStats" style="display:none; font-size:10px; color:var(--t3); margin-top:6px; font-family:monospace;"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-    function toggleLiveSync() {
-        const btn = document.getElementById('syncToggle');
-        const statusTxt = document.getElementById('syncStatusTxt');
-        const activeBar = document.getElementById('syncActiveBar');
-        const timeLabel = document.getElementById('lastSyncTime');
-
-        btn.classList.toggle('active');
-        const isActive = btn.classList.contains('active');
-
-        if (isActive) {
-            statusTxt.innerText = "On — Broadcasting Live";
-            statusTxt.style.color = "var(--ok)";
-            activeBar.style.display = "block";
-            timeLabel.innerText = "Last sync: Just now";
-        } else {
-            statusTxt.innerText = "Off — Not broadcasting";
-            statusTxt.style.color = "var(--t3)";
-            activeBar.style.display = "none";
-        }
-    }
-
-    function generateShareLink() {
-        const input = document.getElementById('shareUrlOut');
-        const copyBtn = document.getElementById('copyLinkBtn');
-        const stats = document.getElementById('shareStats');
-        
-        // Mock URL with mmol/L parameter
-        const mockUrl = "https://view.glucotrack.com/s/" + Math.random().toString(36).substr(2, 9) + "?u=mmol";
-        
-        input.value = mockUrl;
-        copyBtn.style.display = "block";
-        stats.style.display = "block";
-        stats.innerHTML = "Unit: mmol/L • Data: 30-Day History • Format: JSON/PDF";
-    }
-
-    function copyShareLink() {
-        const input = document.getElementById('shareUrlOut');
-        input.select();
-        navigator.clipboard.writeText(input.value);
-        document.getElementById('copyLinkBtn').innerText = "Copied!";
-        setTimeout(() => { document.getElementById('copyLinkBtn').innerText = "Copy"; }, 2000);
-    }
-</script>
 
             <div class="sglbl">Data Management</div>
             <div class="sgcard">
