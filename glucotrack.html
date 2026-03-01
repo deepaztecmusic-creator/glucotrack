@@ -2,107 +2,125 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>GlucoTrack Settings</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
+        /* Re-using your specific design system variables */
         :root {
-            --bg: #F4F6F9; --white: #fff; --text: #0D1321;
-            --border: #E2E6ED; --acc: #1A56DB; --t3: #9AA3B5;
-            --low: #E53E3E; --ok: #38A169; --hi: #D97706;
+            --bg:#F4F6F9; --white:#fff; --border:#E2E6ED; --border2:#C8CDD8;
+            --text:#0D1321; --t2:#5A6478; --t3:#9AA3B5;
+            --low:#E53E3E; --low-bg:#FFF5F5; --ok:#38A169;
+            --acc:#1A56DB; --acc-bg:#EBF5FF; --sh:0 1px 3px rgba(0,0,0,.06);
+            --r:14px;
         }
         body.dark {
-            --bg: #0D1321; --white: #1A2236; --text: #E8EDF5;
-            --border: #243049; --acc: #3B82F6;
+            --bg:#0D1321; --white:#1a2236; --border:#243049; --border2:#2d3d57;
+            --text:#e8edf5; --t2:#8899bb; --t3:#4a5a7a;
         }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: background 0.3s; }
-        .card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); max-width: 400px; margin: 0 auto 15px; }
-        h2 { font-size: 18px; margin-bottom: 20px; font-weight: 800; }
         
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .setting-item:last-child { border-bottom: none; }
-        
-        .label-grp div { font-size: 14px; font-weight: 600; }
-        .label-grp span { font-size: 11px; color: var(--t3); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 20px; 
+            transition: background 0.3s; 
+        }
 
-        input[type="number"] { width: 60px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); text-align: center; font-family: 'JetBrains Mono'; }
+        .sg-title { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .07em; margin: 20px 14px 8px; }
+        .sgcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh); max-width: 400px; margin: 0 auto 15px; }
         
-        .toggle { width: 44px; height: 24px; background: #CBD5E0; border-radius: 12px; position: relative; cursor: pointer; transition: 0.3s; }
-        .toggle.active { background: var(--acc); }
-        .toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
-        .toggle.active::after { left: 23px; }
+        .sgi { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+        .sgi:last-child { border-bottom: none; }
+        
+        .sgi-t { font-size: 14px; font-weight: 600; }
+        .sgi-s { font-size: 11px; color: var(--t3); margin-top: 2px; }
 
-        .btn-danger { width: 100%; padding: 12px; background: #FFF5F5; color: var(--low); border: 1px solid #FEB2B2; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        /* Toggle Switch */
+        .tsw { width: 42px; height: 24px; background: var(--border2); border-radius: 12px; position: relative; cursor: pointer; transition: 0.3s; border:none; }
+        .tsw.on { background: var(--acc); }
+        .tsw::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
+        .tsw.on::after { left: 21px; }
+
+        /* Inputs */
+        .ri-f { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; flex: 1; }
+        .ri-f label { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; }
+        .ri-f input { 
+            font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; 
+            color: var(--text); background: var(--bg); border: 1.5px solid var(--border); 
+            border-radius: 8px; padding: 8px; outline: none; width: 100%;
+        }
+
+        .dbtn { width: 100%; padding: 14px; background: none; border: none; color: var(--low); font-weight: 700; cursor: pointer; text-align: left; }
+        .dbtn:hover { background: var(--low-bg); }
     </style>
 </head>
-<body id="body">
+<body id="appBody">
 
-    <div class="card">
-        <h2>Appearance</h2>
-        <div class="setting-item">
-            <div class="label-grp">
-                <div>Dark Mode</div>
-                <span>Easier on the eyes at night</span>
+    <div class="sg-title">Appearance</div>
+    <div class="sgcard">
+        <div class="sgi">
+            <div class="sgi-left">
+                <div class="sgi-t">Dark Mode</div>
+                <div class="sgi-s">Switch to high-contrast dark theme</div>
             </div>
-            <div id="darkToggle" class="toggle"></div>
+            <button id="darkBtn" class="tsw"></button>
         </div>
     </div>
 
-    <div class="card">
-        <h2>Target Range (mmol/L)</h2>
-        <div class="setting-item">
-            <div class="label-grp">
-                <div>Lower Limit</div>
-                <span>Threshold for Hypoglycemia</span>
-            </div>
-            <input type="number" id="lowLimit" value="3.9" step="0.1">
+    <div class="sg-title">Target Range (mmol/L)</div>
+    <div class="sgcard" style="display: flex;">
+        <div class="ri-f">
+            <label>Lower</label>
+            <input type="number" id="lowLimit" step="0.1" value="3.9">
         </div>
-        <div class="setting-item">
-            <div class="label-grp">
-                <div>Upper Limit</div>
-                <span>Threshold for Hyperglycemia</span>
-            </div>
-            <input type="number" id="hiLimit" value="10.0" step="0.1">
+        <div class="ri-f">
+            <label>Upper</label>
+            <input type="number" id="hiLimit" step="0.1" value="10.0">
         </div>
     </div>
 
-    <div class="card">
-        <h2>Data Management</h2>
-        <button class="btn-danger" onclick="clearData()">Clear All Records</button>
+    <div class="sg-title">Danger Zone</div>
+    <div class="sgcard">
+        <button class="dbtn" onclick="clearData()">Clear All Glucose History</button>
     </div>
 
     <script>
-        // Load Saved Settings
+        // --- 1. State Management ---
         const settings = JSON.parse(localStorage.getItem('glucoSettings')) || {
             dark: false,
             low: 3.9,
             hi: 10.0
         };
 
-        const darkToggle = document.getElementById('darkToggle');
-        const body = document.getElementById('body');
+        const body = document.getElementById('appBody');
+        const darkBtn = document.getElementById('darkBtn');
+        const lowIn = document.getElementById('lowLimit');
+        const hiIn = document.getElementById('hiLimit');
 
-        function applySettings() {
+        // --- 2. Initialize Page ---
+        function init() {
             if (settings.dark) {
                 body.classList.add('dark');
-                darkToggle.classList.add('active');
-            } else {
-                body.classList.remove('dark');
-                darkToggle.classList.remove('active');
+                darkBtn.classList.add('on');
             }
-            document.getElementById('lowLimit').value = settings.low;
-            document.getElementById('hiLimit').value = settings.hi;
+            lowIn.value = settings.low;
+            hiIn.value = settings.hi;
         }
 
-        darkToggle.onclick = () => {
+        // --- 3. Handlers ---
+        darkBtn.onclick = () => {
             settings.dark = !settings.dark;
+            body.classList.toggle('dark');
+            darkBtn.classList.toggle('on');
             save();
-            applySettings();
         };
 
-        document.querySelectorAll('input').forEach(input => {
-            input.onchange = (e) => {
-                settings[e.target.id === 'lowLimit' ? 'low' : 'hi'] = parseFloat(e.target.value);
+        [lowIn, hiIn].forEach(el => {
+            el.onchange = () => {
+                settings.low = parseFloat(lowIn.value);
+                settings.hi = parseFloat(hiIn.value);
                 save();
             };
         });
@@ -112,13 +130,13 @@
         }
 
         function clearData() {
-            if(confirm("Are you sure? This will delete all glucose history.")) {
+            if (confirm("Delete all history? This cannot be undone.")) {
                 localStorage.removeItem('glucoData');
-                alert("History cleared.");
+                alert("Data cleared.");
             }
         }
 
-        applySettings();
+        init();
     </script>
 </body>
 </html>
