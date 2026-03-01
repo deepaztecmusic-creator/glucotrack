@@ -1720,7 +1720,11 @@ let mealTab='manual';
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function load(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch(e){return def;}}
 function getUserKey(k){return currentUser?`gt_${currentUser.id}_${k}`:null;}
-function saveReadings(){if(getUserKey('r'))store(getUserKey('r'),readings);}
+function saveReadings(){
+  if(getUserKey('r')) store(getUserKey('r'), readings);
+  // Mirror for GlucoTrack View
+  localStorage.setItem('gt_readings_guest', JSON.stringify(readings));
+}
 function loadReadings(){if(getUserKey('r'))readings=load(getUserKey('r'),[]);}
 function saveCfg(){if(getUserKey('c'))store(getUserKey('c'),cfg);}
 function saveExProfile(){store('gt_exProfile',exProfile);}
@@ -5725,12 +5729,20 @@ function setNocturnalReminder(hours){
 function generateShareToken(){
   const rand=()=>Math.random().toString(36).substring(2,6).toUpperCase();
   const token=`GT-${rand()}-${rand()}`;
+
+  // Save token → userId mapping
   const tokens=JSON.parse(localStorage.getItem('gt_shareTokens')||'{}');
   tokens[token]='guest';
   localStorage.setItem('gt_shareTokens', JSON.stringify(tokens));
+
+  // Save user profile
   const users=JSON.parse(localStorage.getItem('gt_users')||'{}');
   users['guest']={id:'guest',firstName:'Guest',lastName:'',email:'',dob:''};
   localStorage.setItem('gt_users', JSON.stringify(users));
+
+  // Mirror readings under the key View expects
+  localStorage.setItem('gt_readings_guest', JSON.stringify(readings));
+
   store('gt_active_share_token', token);
   loadShareTokenUI();
   toastSuccess('Share token generated! Share it with your caregiver.');
