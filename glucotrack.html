@@ -633,6 +633,7 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <button class="di" id="nav-about" onclick="goTo('about')"><div class="di-ic">ℹ️</div>About</button>
       </div>
     </div>
+
     <div class="ddiv"></div>
     <button class="di" onclick="logOut()"><div class="di-ic">🚪</div>Sign Out</button>
     <div class="ddiv"></div>
@@ -966,6 +967,26 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
         <div id="apiKeyStatus" style="font-size:11px;line-height:1.6;display:none;padding:8px 10px;border-radius:7px;margin-bottom:6px;"></div>
       </div>
     </div>
+    <div class="sglbl">GlucoTrack View (Caregiver Access)</div>
+<div class="sgcard">
+  <div style="padding:12px 15px 6px;">
+    <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px;">
+      Generate a share token so a caregiver or clinician can monitor your levels in real-time using <strong>GlucoTrack View</strong>.
+    </div>
+    <div id="shareTokenDisplay" style="display:none;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Your Share Token</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div id="shareTokenValue" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;letter-spacing:2px;color:var(--acc);background:var(--acc-bg);border:1.5px solid var(--acc-b);border-radius:8px;padding:10px 12px;text-align:center;"></div>
+        <button onclick="copyShareToken()" style="padding:10px 14px;background:var(--acc);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;">📋 Copy</button>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-top:6px;line-height:1.5;">Share this token with your caregiver. They enter it in GlucoTrack View to see your readings.</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="generateShareToken()" id="genTokenBtn" style="flex:1;padding:11px;background:var(--acc);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🔑 Generate Share Token</button>
+      <button onclick="revokeShareToken()" id="revokeTokenBtn" style="display:none;padding:11px 14px;background:var(--low-bg);border:1.5px solid var(--low-b);border-radius:8px;color:var(--low);font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Revoke</button>
+    </div>
+  </div>
+</div>
     <div style="padding:10px 0 16px;font-size:11px;color:var(--t3);line-height:1.6;">GlucoTrack v4.0 · mmol/L · Data stored locally on device.<br>AI meal analysis powered by Claude AI. Not a medical device. Always consult your endocrinologist or diabetes care team before adjusting insulin doses.</div>
   </div>
 </div>
@@ -5698,6 +5719,68 @@ function setNocturnalReminder(hours){
   scheduleNotification(ms,'🌙 Nocturnal hypo check',`Check your blood glucose now — ${hours}h after your exercise session. Hypos can occur 6–15h post-exercise.`,'nocturnal-hypo');
   toastSuccess(`Nocturnal reminder set for ${fireAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
   notify('🌙 Reminder set',`Nocturnal BG check reminder in ${hours} hours at ${fireAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}. Stay safe!`,'','info');
+}
+
+// ══════════════ GLUCOTRACK VIEW — SHARE TOKEN ══════════════
+function generateShareToken(){
+  const rand=()=>Math.random().toString(36).substring(2,6).toUpperCase();
+  const token=`GT-${rand()}-${rand()}`;
+  const tokens=JSON.parse(localStorage.getItem('gt_shareTokens')||'{}');
+  tokens[token]='guest';
+  localStorage.setItem('gt_shareTokens', JSON.stringify(tokens));
+  const users=JSON.parse(localStorage.getItem('gt_users')||'{}');
+  users['guest']={id:'guest',firstName:'Guest',lastName:'',email:'',dob:''};
+  localStorage.setItem('gt_users', JSON.stringify(users));
+  store('gt_active_share_token', token);
+  loadShareTokenUI();
+  toastSuccess('Share token generated! Share it with your caregiver.');
+}
+
+function revokeShareToken(){
+  appConfirm('Revoke share token? Your caregiver will lose access.', ()=>{
+    const token=load('gt_active_share_token', null);
+    if(token){
+      const tokens=JSON.parse(localStorage.getItem('gt_shareTokens')||'{}');
+      delete tokens[token];
+      localStorage.setItem('gt_shareTokens', JSON.stringify(tokens));
+    }
+    localStorage.removeItem('gt_active_share_token');
+    loadShareTokenUI();
+    toastSuccess('Share token revoked.');
+  });
+}
+
+function copyShareToken(){
+  const token=load('gt_active_share_token','');
+  if(!token)return;
+  navigator.clipboard.writeText(token).then(()=>toastSuccess('Token copied!')).catch(()=>toast('Token: '+token,'info','📋'));
+}
+
+function loadShareTokenUI(){
+  const token=load('gt_active_share_token', null);
+  const display=document.getElementById('shareTokenDisplay');
+  const genBtn=document.getElementById('genTokenBtn');
+  const revokeBtn=document.getElementById('revokeTokenBtn');
+  if(!display)return;
+  if(token){
+    display.style.display='block';
+    document.getElementById('shareTokenValue').textContent=token;
+    if(genBtn)genBtn.textContent='🔄 Regenerate Token';
+    if(revokeBtn)revokeBtn.style.display='block';
+  } else {
+    display.style.display='none';
+    if(genBtn)genBtn.textContent='🔑 Generate Share Token';
+    if(revokeBtn)revokeBtn.style.display='none';
+  }
+}
+
+function refreshAll(){
+  updateDate();updateHome();updateRecent();
+  if(curScreen==='exercise')updateExerciseScreen();
+  setTimeout(drawMainChart,80);
+  if(curScreen==='a1c')setTimeout(updateA1c,50);
+  if(curScreen==='history')updateHistory();
+  if(curScreen==='forecast'){setTimeout(updateForecast,60);setTimeout(updateBasalInsights,80);}
 }
 
 function refreshAll(){
