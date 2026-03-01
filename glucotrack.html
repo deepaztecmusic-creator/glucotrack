@@ -1,142 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>GlucoTrack Settings</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        /* Re-using your specific design system variables */
-        :root {
-            --bg:#F4F6F9; --white:#fff; --border:#E2E6ED; --border2:#C8CDD8;
-            --text:#0D1321; --t2:#5A6478; --t3:#9AA3B5;
-            --low:#E53E3E; --low-bg:#FFF5F5; --ok:#38A169;
-            --acc:#1A56DB; --acc-bg:#EBF5FF; --sh:0 1px 3px rgba(0,0,0,.06);
-            --r:14px;
-        }
-        body.dark {
-            --bg:#0D1321; --white:#1a2236; --border:#243049; --border2:#2d3d57;
-            --text:#e8edf5; --t2:#8899bb; --t3:#4a5a7a;
-        }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 20px; 
-            transition: background 0.3s; 
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GlucoTrack">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D1321">
+<title>GlucoTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
+  --text:#0D1321;--t2:#5A6478;--t3:#9AA3B5;
+  --low:#E53E3E;--low-bg:#FFF5F5;--low-b:#FEB2B2;
+  --ok:#38A169;--ok-bg:#F0FFF4;--ok-b:#9AE6B4;
+  --hi:#D97706;--hi-bg:#FFFBEB;--hi-b:#FCD34D;
+  --vhi:#E53E3E;--acc:#1A56DB;--acc-bg:#EBF5FF;--acc-b:#93C5FD;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --r:14px;--rs:8px;
+}
+body.dark{
+  --bg:#0D1321;--white:#1a2236;--border:#243049;--border2:#2d3d57;
+  --text:#e8edf5;--t2:#8899bb;--t3:#4a5a7a;
+  --low-bg:#2d1515;--low-b:#7f2020;
+  --ok-bg:#0d2a1a;--ok-b:#1a5c30;
+  --hi-bg:#2a1f08;--hi-b:#7a4f0a;
+  --acc-bg:#0d1e3d;--acc-b:#1a3a6b;
+}
+html{height:100%;background:var(--bg);}
+body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
 
-        .sg-title { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .07em; margin: 20px 14px 8px; }
-        .sgcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh); max-width: 400px; margin: 0 auto 15px; }
-        
-        .sgi { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
-        .sgi:last-child { border-bottom: none; }
-        
-        .sgi-t { font-size: 14px; font-weight: 600; }
-        .sgi-s { font-size: 11px; color: var(--t3); margin-top: 2px; }
+/* --- NAVIGATION --- */
+.topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;z-index:210;}
+.logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}
+.logo span{color:var(--text);}
+.nav-bottom{position:fixed;bottom:0;width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0;z-index:200;}
+.nav-item{background:none;border:none;color:var(--t3);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.nav-item.active{color:var(--acc);}
+.nav-ic{font-size:20px;}
 
-        /* Toggle Switch */
-        .tsw { width: 42px; height: 24px; background: var(--border2); border-radius: 12px; position: relative; cursor: pointer; transition: 0.3s; border:none; }
-        .tsw.on { background: var(--acc); }
-        .tsw::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
-        .tsw.on::after { left: 21px; }
+/* --- SCREENS --- */
+.scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.ptitle{font-size:22px;font-weight:800;padding:16px 16px 4px;letter-spacing:-.5px;}
+.psub{font-size:13px;color:var(--t3);padding:0 16px 16px;}
 
-        /* Inputs */
-        .ri-f { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; flex: 1; }
-        .ri-f label { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; }
-        .ri-f input { 
-            font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; 
-            color: var(--text); background: var(--bg); border: 1.5px solid var(--border); 
-            border-radius: 8px; padding: 8px; outline: none; width: 100%;
-        }
+/* --- COMPONENTS --- */
+.card{margin:0 16px 12px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
+.sg{margin:0 14px;}
+.sglbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:14px 0 7px;}
+.sgcard{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:12px;}
+.sgi{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--border);}
+.sgi:last-child{border-bottom:none;}
+.tsw{width:40px;height:24px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;}
+.tsw.on{background:var(--acc);}
+.tsw::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;}
+.tsw.on::after{left:19px;}
 
-        .dbtn { width: 100%; padding: 14px; background: none; border: none; color: var(--low); font-weight: 700; cursor: pointer; text-align: left; }
-        .dbtn:hover { background: var(--low-bg); }
-    </style>
+/* --- SETTINGS INPUTS --- */
+.ri-wrap{display:flex;gap:9px;padding:13px 15px;}
+.ri-f{flex:1;display:flex;flex-direction:column;gap:4px;}
+.ri-f label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;}
+.ri-f input{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px;outline:none;width:100%;}
+.dbtn{width:100%;padding:13px 15px;background:none;border:none;color:var(--low);font-size:13px;font-weight:600;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;}
+</style>
 </head>
-<body id="appBody">
+<body class="dark">
 
-    <div class="sg-title">Appearance</div>
-    <div class="sgcard">
-        <div class="sgi">
-            <div class="sgi-left">
-                <div class="sgi-t">Dark Mode</div>
-                <div class="sgi-s">Switch to high-contrast dark theme</div>
+<div class="topbar">
+    <div class="logo">GLUCO<span>TRACK</span></div>
+    <div style="font-size:11px; font-weight:700; color:var(--t3)">mmol/L</div>
+</div>
+
+<div class="scroll">
+    <div id="screen-dash" class="screen active">
+        <div class="ptitle">Dashboard</div>
+        <div class="psub">Current glucose status</div>
+        <div class="card" style="text-align:center; padding:30px 0;">
+            <div style="font-size:12px; font-weight:700; color:var(--t3); text-transform:uppercase;">Latest Reading</div>
+            <div id="dash-val" style="font-size:64px; font-weight:800; color:var(--ok); font-family:'JetBrains Mono';">--.-</div>
+            <div style="font-size:14px; color:var(--t3);">mmol/L</div>
+        </div>
+    </div>
+
+    <div id="screen-hist" class="screen">
+        <div class="ptitle">History</div>
+        <div class="psub">Your reading log</div>
+        <div id="hist-list"></div>
+    </div>
+
+    <div id="screen-settings" class="screen">
+        <div class="ptitle">Settings</div>
+        <div class="psub">App preferences and sharing</div>
+
+        <div class="sg">
+            <div class="sglbl">Glucose Range (mmol/L)</div>
+            <div class="sgcard">
+                <div class="ri-wrap">
+                    <div class="ri-f">
+                        <label>Target Low</label>
+                        <input type="number" id="set-low" step="0.1" value="3.9">
+                    </div>
+                    <div class="ri-f">
+                        <label>Target High</label>
+                        <input type="number" id="set-hi" step="0.1" value="10.0">
+                    </div>
+                </div>
             </div>
-            <button id="darkBtn" class="tsw"></button>
+
+            <style>
+    /* These styles define the colors and the toggle switch animation */
+    :root {
+        --acc: #007AFF; --ok: #28a745; --ok-bg: #e8f5e9; 
+        --ok-b: #c8e6c9; --t2: #333; --t3: #666; 
+        --bg: #ffffff; --border: #dddddd;
+    }
+    
+    .tsw { 
+        width: 38px; height: 20px; background: #ccc; border-radius: 20px; 
+        position: relative; border: none; cursor: pointer; transition: 0.3s; 
+    }
+    .tsw::after { 
+        content: ''; position: absolute; width: 16px; height: 16px; 
+        background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; 
+    }
+    .tsw.active { background: var(--ok); }
+    .tsw.active::after { left: 20px; }
+</style>
+
+<div class="sglbl">Share with Doctor</div>
+<div class="sgcard">
+    <div class="sgi" style="display:flex; flex-direction:column; align-items:flex-start; gap:12px; padding:16px 15px;">
+        
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="font-size:20px;">📡</div>
+                <div>
+                    <div style="font-size:13px; font-weight:700;">Live Sync</div>
+                    <div id="syncStatusTxt" style="font-size:11px; color:var(--t3);">Off — Not broadcasting</div>
+                </div>
+            </div>
+            <button class="tsw" id="syncToggle" onclick="toggleLiveSync()"></button>
+        </div>
+        
+        <div id="syncActiveBar" style="display:none; width:100%; background:var(--ok-bg); border:1px solid var(--ok-b); border-radius:8px; padding:10px; font-size:11px; color:var(--ok); line-height:1.4; box-sizing:border-box;">
+            <strong>🟢 Live Sync Active</strong><br>
+            Broadcasting to GlucoTrack View.<br>
+            <span id="lastSyncTime" style="font-size:10px; opacity:0.8;"></span>
+        </div>
+
+        <div style="width:100%; border-top:1px solid var(--border); padding-top:12px;">
+            <div style="font-size:12px; font-weight:700; margin-bottom:4px;">📎 Shareable Link</div>
+            <div style="font-size:11px; color:var(--t3); margin-bottom:10px;">Encodes last 30 days of data (mmol/L).</div>
+            <div style="display:flex; gap:6px;">
+                <input id="shareUrlOut" readonly style="flex:1; padding:8px; border:1.5px solid var(--border); border-radius:7px; font-size:10px; font-family:monospace; background:var(--bg); color:var(--t2); outline:none;" placeholder="Generate link...">
+                <button onclick="generateShareLink()" style="padding:0 12px; background:var(--acc); color:#fff; border:none; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Generate</button>
+                <button id="copyLinkBtn" onclick="copyShareLink()" style="display:none; padding:0 12px; background:var(--ok-bg); color:var(--ok); border:1px solid var(--ok-b); border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Copy</button>
+            </div>
+            <div id="shareStats" style="display:none; font-size:10px; color:var(--t3); margin-top:6px; font-family:monospace;"></div>
         </div>
     </div>
+</div>
 
-    <div class="sg-title">Target Range (mmol/L)</div>
-    <div class="sgcard" style="display: flex;">
-        <div class="ri-f">
-            <label>Lower</label>
-            <input type="number" id="lowLimit" step="0.1" value="3.9">
-        </div>
-        <div class="ri-f">
-            <label>Upper</label>
-            <input type="number" id="hiLimit" step="0.1" value="10.0">
+<script>
+    function toggleLiveSync() {
+        const btn = document.getElementById('syncToggle');
+        const statusTxt = document.getElementById('syncStatusTxt');
+        const activeBar = document.getElementById('syncActiveBar');
+        const timeLabel = document.getElementById('lastSyncTime');
+
+        btn.classList.toggle('active');
+        const isActive = btn.classList.contains('active');
+
+        if (isActive) {
+            statusTxt.innerText = "On — Broadcasting Live";
+            statusTxt.style.color = "var(--ok)";
+            activeBar.style.display = "block";
+            timeLabel.innerText = "Last sync: Just now";
+        } else {
+            statusTxt.innerText = "Off — Not broadcasting";
+            statusTxt.style.color = "var(--t3)";
+            activeBar.style.display = "none";
+        }
+    }
+
+    function generateShareLink() {
+        const input = document.getElementById('shareUrlOut');
+        const copyBtn = document.getElementById('copyLinkBtn');
+        const stats = document.getElementById('shareStats');
+        
+        // Mock URL with mmol/L parameter
+        const mockUrl = "https://view.glucotrack.com/s/" + Math.random().toString(36).substr(2, 9) + "?u=mmol";
+        
+        input.value = mockUrl;
+        copyBtn.style.display = "block";
+        stats.style.display = "block";
+        stats.innerHTML = "Unit: mmol/L • Data: 30-Day History • Format: JSON/PDF";
+    }
+
+    function copyShareLink() {
+        const input = document.getElementById('shareUrlOut');
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        document.getElementById('copyLinkBtn').innerText = "Copied!";
+        setTimeout(() => { document.getElementById('copyLinkBtn').innerText = "Copy"; }, 2000);
+    }
+</script>
+
+            <div class="sglbl">Data Management</div>
+            <div class="sgcard">
+                <button class="dbtn" onclick="exportData()">📤 Export Data (JSON)</button>
+                <button class="dbtn" onclick="clearDataConfirm()" style="border:none;">🗑️ Clear All Data</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="sg-title">Danger Zone</div>
-    <div class="sgcard">
-        <button class="dbtn" onclick="clearData()">Clear All Glucose History</button>
-    </div>
+<nav class="nav-bottom">
+    <button class="nav-item active" onclick="nav('dash')">
+        <span class="nav-ic">📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="nav('hist')">
+        <span class="nav-ic">📜</span> History
+    </button>
+    <button class="nav-item" onclick="nav('settings')">
+        <span class="nav-ic">⚙️</span> Settings
+    </button>
+</nav>
 
-    <script>
-        // --- 1. State Management ---
-        const settings = JSON.parse(localStorage.getItem('glucoSettings')) || {
-            dark: false,
-            low: 3.9,
-            hi: 10.0
-        };
+<script>
+// --- STATE & INITIALIZATION ---
+let logs = JSON.parse(localStorage.getItem('glucoLogs') || '[]');
+let liveSyncActive = false;
 
-        const body = document.getElementById('appBody');
-        const darkBtn = document.getElementById('darkBtn');
-        const lowIn = document.getElementById('lowLimit');
-        const hiIn = document.getElementById('hiLimit');
+function nav(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
 
-        // --- 2. Initialize Page ---
-        function init() {
-            if (settings.dark) {
-                body.classList.add('dark');
-                darkBtn.classList.add('on');
-            }
-            lowIn.value = settings.low;
-            hiIn.value = settings.hi;
-        }
+// --- SHARING LOGIC ---
+function toggleLiveSync() {
+    const btn = document.getElementById('syncToggle');
+    const bar = document.getElementById('syncActiveBar');
+    const txt = document.getElementById('syncStatusTxt');
+    liveSyncActive = !liveSyncActive;
+    if(liveSyncActive) {
+        btn.classList.add('on');
+        bar.style.display = 'block';
+        txt.innerText = 'On — Broadcasting';
+    } else {
+        btn.classList.remove('on');
+        bar.style.display = 'none';
+        txt.innerText = 'Off — Not broadcasting';
+    }
+}
 
-        // --- 3. Handlers ---
-        darkBtn.onclick = () => {
-            settings.dark = !settings.dark;
-            body.classList.toggle('dark');
-            darkBtn.classList.toggle('on');
-            save();
-        };
+function generateShareLink() {
+    if(logs.length === 0) { alert("No data to share."); return; }
+    const bundle = { unit: 'mmol/L', data: logs.slice(-50) }; // Sharing last 50 readings
+    const encoded = btoa(JSON.stringify(bundle));
+    const shareUrl = window.location.origin + window.location.pathname + "?view=" + encoded;
+    
+    document.getElementById('shareUrlOut').value = shareUrl;
+    document.getElementById('copyLinkBtn').style.display = 'block';
+    document.getElementById('shareStats').style.display = 'block';
+    document.getElementById('shareStats').innerText = `Linked ${bundle.data.length} readings.`;
+}
 
-        [lowIn, hiIn].forEach(el => {
-            el.onchange = () => {
-                settings.low = parseFloat(lowIn.value);
-                settings.hi = parseFloat(hiIn.value);
-                save();
-            };
-        });
+function copyShareLink() {
+    const input = document.getElementById('shareUrlOut');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    document.getElementById('copyLinkBtn').innerText = "Copied!";
+    setTimeout(() => document.getElementById('copyLinkBtn').innerText = "Copy", 2000);
+}
 
-        function save() {
-            localStorage.setItem('glucoSettings', JSON.stringify(settings));
-        }
+// --- APP LOGIC ---
+function exportData() {
+    const blob = new Blob([JSON.stringify(logs)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'gluco_data.json'; a.click();
+}
 
-        function clearData() {
-            if (confirm("Delete all history? This cannot be undone.")) {
-                localStorage.removeItem('glucoData');
-                alert("Data cleared.");
-            }
-        }
-
-        init();
-    </script>
+function clearDataConfirm() {
+    if(confirm("Permanently delete all data?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+</script>
 </body>
 </html>
