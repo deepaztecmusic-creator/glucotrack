@@ -191,7 +191,23 @@ canvas{display:block;}
     This app reads their data in real-time via your API.<br>
     <br>
     Currently using <strong>localStorage bridge</strong> for local testing.<br>
-    Swap <code>fetchPatientData()</code> for a real API call when ready.
+    async function fetchPatientData(token) {
+  // Look up token
+  const tokens = JSON.parse(localStorage.getItem('gt_shareTokens') || '{}');
+  const userId = tokens[token];
+  if (!userId) throw new Error('Invalid token — make sure you copied it correctly.');
+
+  // Get user profile
+  const users = JSON.parse(localStorage.getItem('gt_users') || '{}');
+  const user = users[userId];
+  if (!user) throw new Error('Patient profile not found.');
+
+  // Get readings — check both key formats
+  let readings = JSON.parse(localStorage.getItem('gt_readings_' + userId) || 'null');
+  if (!readings) readings = JSON.parse(localStorage.getItem('gt_' + userId + '_r') || '[]');
+
+  return { user, readings };
+}
   </div>
 </div>
 
