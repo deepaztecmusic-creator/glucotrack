@@ -11,7 +11,6 @@
 <title>GlucoTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* --- CORE STYLES --- */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --bg:#F4F6F9;--white:#fff;--border:#E2E6ED;--border2:#C8CDD8;
@@ -34,57 +33,69 @@ body.dark{
 html{height:100%;background:var(--bg);}
 body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
 
-/* --- UI ELEMENTS --- */
+/* --- NAVIGATION --- */
 .topbar{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;z-index:210;}
 .logo{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:-.3px;}
 .logo span{color:var(--text);}
+.nav-bottom{position:fixed;bottom:0;width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0;z-index:200;}
+.nav-item{background:none;border:none;color:var(--t3);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.nav-item.active{color:var(--acc);}
+.nav-ic{font-size:20px;}
+
+/* --- SCREENS --- */
 .scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
 .screen{display:none;}
 .screen.active{display:block;}
-.ptitle{font-size:20px;font-weight:800;padding:14px 14px 2px;}
-.psub{font-size:13px;color:var(--t3);padding:0 14px 12px;}
+.ptitle{font-size:22px;font-weight:800;padding:16px 16px 4px;letter-spacing:-.5px;}
+.psub{font-size:13px;color:var(--t3);padding:0 16px 16px;}
 
-/* --- SETTINGS & CARDS --- */
+/* --- COMPONENTS --- */
+.card{margin:0 16px 12px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
 .sg{margin:0 14px;}
-.sglbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:14px 0 7px;}
+.sglbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:14px 0 7px;}
 .sgcard{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:12px;}
 .sgi{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--border);}
-.tsw{width:40px;height:24px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;border:none;}
+.sgi:last-child{border-bottom:none;}
+.tsw{width:40px;height:24px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;}
 .tsw.on{background:var(--acc);}
 .tsw::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;}
 .tsw.on::after{left:19px;}
 
-/* --- NAVIGATION --- */
-.nav-bottom{position:fixed;bottom:0;width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0;}
-.nav-item{background:none;border:none;color:var(--t3);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.nav-item.active{color:var(--acc);}
-
-/* --- INPUT STYLES --- */
+/* --- SETTINGS INPUTS --- */
 .ri-wrap{display:flex;gap:9px;padding:13px 15px;}
 .ri-f{flex:1;display:flex;flex-direction:column;gap:4px;}
 .ri-f label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;}
-.ri-f input{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px;color:var(--text);}
+.ri-f input{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px;outline:none;width:100%;}
+.dbtn{width:100%;padding:13px 15px;background:none;border:none;color:var(--low);font-size:13px;font-weight:600;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;}
 </style>
 </head>
 <body class="dark">
 
 <div class="topbar">
     <div class="logo">GLUCO<span>TRACK</span></div>
+    <div style="font-size:11px; font-weight:700; color:var(--t3)">mmol/L</div>
 </div>
 
 <div class="scroll">
     <div id="screen-dash" class="screen active">
         <div class="ptitle">Dashboard</div>
-        <div class="psub">2026 Glucose Tracking (mmol/L)</div>
-        <div style="margin:20px; text-align:center;">
-             <div style="font-size:48px; font-weight:800; font-family:'JetBrains Mono'; color:var(--ok);">5.4</div>
-             <div style="color:var(--t3)">mmol/L</div>
+        <div class="psub">Current glucose status</div>
+        <div class="card" style="text-align:center; padding:30px 0;">
+            <div style="font-size:12px; font-weight:700; color:var(--t3); text-transform:uppercase;">Latest Reading</div>
+            <div id="dash-val" style="font-size:64px; font-weight:800; color:var(--ok); font-family:'JetBrains Mono';">--.-</div>
+            <div style="font-size:14px; color:var(--t3);">mmol/L</div>
         </div>
+    </div>
+
+    <div id="screen-hist" class="screen">
+        <div class="ptitle">History</div>
+        <div class="psub">Your reading log</div>
+        <div id="hist-list"></div>
     </div>
 
     <div id="screen-settings" class="screen">
         <div class="ptitle">Settings</div>
-        <div class="psub">App preferences and Doctor sharing</div>
+        <div class="psub">App preferences and sharing</div>
 
         <div class="sg">
             <div class="sglbl">Glucose Range (mmol/L)</div>
@@ -115,52 +126,107 @@ body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;back
                         <button class="tsw" id="syncToggle" onclick="toggleLiveSync()"></button>
                     </div>
                     
-                    <div id="syncActiveBar" style="display:none; width:100%; background:var(--ok-bg); border:1px solid var(--ok-b); border-radius:8px; padding:10px; font-size:11px; color:var(--ok);">
-                        <strong>🟢 Live Sync Active</strong>
+                    <div id="syncActiveBar" style="display:none; width:100%; background:var(--ok-bg); border:1px solid var(--ok-b); border-radius:8px; padding:10px; font-size:11px; color:var(--ok); line-height:1.4;">
+                        <strong>🟢 Live Sync Active</strong><br>
+                        Broadcasting to GlucoTrack View.
                     </div>
 
                     <div style="width:100%; border-top:1px solid var(--border); padding-top:12px;">
                         <div style="font-size:12px; font-weight:700; margin-bottom:4px;">📎 Shareable Link</div>
+                        <div style="font-size:11px; color:var(--t3); margin-bottom:10px;">Encodes last 30 days of data.</div>
                         <div style="display:flex; gap:6px;">
-                            <input id="shareUrlOut" readonly style="flex:1; padding:8px; border:1.5px solid var(--border); border-radius:7px; font-size:10px; font-family:'JetBrains Mono'; background:var(--bg); color:var(--t2);" placeholder="Generate link...">
-                            <button onclick="generateShareLink()" style="padding:0 12px; background:var(--acc); color:#fff; border:none; border-radius:7px; font-size:12px; font-weight:700;">Generate</button>
+                            <input id="shareUrlOut" readonly style="flex:1; padding:8px; border:1.5px solid var(--border); border-radius:7px; font-size:10px; font-family:'JetBrains Mono',monospace; background:var(--bg); color:var(--t2); outline:none;" placeholder="Generate link...">
+                            <button onclick="generateShareLink()" style="padding:0 12px; background:var(--acc); color:#fff; border:none; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Generate</button>
+                            <button id="copyLinkBtn" onclick="copyShareLink()" style="display:none; padding:0 12px; background:var(--ok-bg); color:var(--ok); border:1px solid var(--ok-b); border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">Copy</button>
                         </div>
+                        <div id="shareStats" style="display:none; font-size:10px; color:var(--t3); margin-top:6px; font-family:'JetBrains Mono',monospace;"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="sglbl">Data</div>
+            <div class="sglbl">Data Management</div>
             <div class="sgcard">
-                <button style="width:100%; padding:15px; background:none; border:none; color:var(--low); text-align:left; font-weight:600;" onclick="confirm('Clear all data?')">🗑️ Clear All Data</button>
+                <button class="dbtn" onclick="exportData()">📤 Export Data (JSON)</button>
+                <button class="dbtn" onclick="clearDataConfirm()" style="border:none;">🗑️ Clear All Data</button>
             </div>
         </div>
     </div>
 </div>
 
 <nav class="nav-bottom">
-    <button class="nav-item active" onclick="nav('dash')">📊 Dash</button>
-    <button class="nav-item" onclick="nav('settings')">⚙️ Settings</button>
+    <button class="nav-item active" onclick="nav('dash')">
+        <span class="nav-ic">📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="nav('hist')">
+        <span class="nav-ic">📜</span> History
+    </button>
+    <button class="nav-item" onclick="nav('settings')">
+        <span class="nav-ic">⚙️</span> Settings
+    </button>
 </nav>
 
 <script>
+// --- STATE & INITIALIZATION ---
 let logs = JSON.parse(localStorage.getItem('glucoLogs') || '[]');
+let liveSyncActive = false;
 
 function nav(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
 }
 
+// --- SHARING LOGIC ---
 function toggleLiveSync() {
     const btn = document.getElementById('syncToggle');
-    btn.classList.toggle('on');
-    document.getElementById('syncActiveBar').style.display = btn.classList.contains('on') ? 'block' : 'none';
-    document.getElementById('syncStatusTxt').innerText = btn.classList.contains('on') ? 'On — Broadcasting' : 'Off — Not broadcasting';
+    const bar = document.getElementById('syncActiveBar');
+    const txt = document.getElementById('syncStatusTxt');
+    liveSyncActive = !liveSyncActive;
+    if(liveSyncActive) {
+        btn.classList.add('on');
+        bar.style.display = 'block';
+        txt.innerText = 'On — Broadcasting';
+    } else {
+        btn.classList.remove('on');
+        bar.style.display = 'none';
+        txt.innerText = 'Off — Not broadcasting';
+    }
 }
 
 function generateShareLink() {
-    const bundle = { unit: 'mmol/L', data: logs };
+    if(logs.length === 0) { alert("No data to share."); return; }
+    const bundle = { unit: 'mmol/L', data: logs.slice(-50) }; // Sharing last 50 readings
     const encoded = btoa(JSON.stringify(bundle));
-    document.getElementById('shareUrlOut').value = window.location.origin + "?view=" + encoded;
+    const shareUrl = window.location.origin + window.location.pathname + "?view=" + encoded;
+    
+    document.getElementById('shareUrlOut').value = shareUrl;
+    document.getElementById('copyLinkBtn').style.display = 'block';
+    document.getElementById('shareStats').style.display = 'block';
+    document.getElementById('shareStats').innerText = `Linked ${bundle.data.length} readings.`;
+}
+
+function copyShareLink() {
+    const input = document.getElementById('shareUrlOut');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    document.getElementById('copyLinkBtn').innerText = "Copied!";
+    setTimeout(() => document.getElementById('copyLinkBtn').innerText = "Copy", 2000);
+}
+
+// --- APP LOGIC ---
+function exportData() {
+    const blob = new Blob([JSON.stringify(logs)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'gluco_data.json'; a.click();
+}
+
+function clearDataConfirm() {
+    if(confirm("Permanently delete all data?")) {
+        localStorage.clear();
+        location.reload();
+    }
 }
 </script>
 </body>
