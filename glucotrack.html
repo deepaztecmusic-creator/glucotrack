@@ -787,7 +787,7 @@ canvas.main-chart{display:block;width:100%;height:100%;cursor:crosshair;}
   </div>
   <div class="card" style="margin-top:10px;">
     <div class="sc-hd"><div class="sc-title">A1c Trend (weekly)</div></div>
-    <div style="width:100%;height:150px;position:relative;"><canvas id="a1cChart" style="width:100%;height:100%;"></canvas></div>
+    <div style="width:100%;height:220px;position:relative;"><canvas id="a1cChart" style="width:100%;height:100%;"></canvas></div>
   </div>
   <div class="card" style="margin-top:10px;">
     <div class="sc-hd"><div class="sc-title">Time In Range (7 days)</div></div>
@@ -2121,7 +2121,7 @@ function drawDailyGraph(){
   const cv=document.getElementById('dailyGraph');if(!cv)return;
   const par=cv.parentElement;
   let W=par.offsetWidth||300;W=Math.max(W,200);
-  const H=180,dpr=window.devicePixelRatio||1;
+  const H=220,dpr=window.devicePixelRatio||1;
   cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
   const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
   const base=new Date();base.setHours(0,0,0,0);
@@ -3569,7 +3569,7 @@ function drawA1cChart(){
   const cv=document.getElementById('a1cChart');if(!cv)return;
   const par=cv.parentElement;
   let W=par.offsetWidth||par.getBoundingClientRect().width||300;
-  const H=150,dpr=window.devicePixelRatio||1;
+  const H=200,dpr=window.devicePixelRatio||1;
   cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
   const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
   if(readings.length<3){ctx.fillStyle='#9AA3B5';ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';ctx.fillText('Keep logging to build A1c trend',W/2,H/2);return;}
@@ -3580,8 +3580,9 @@ function drawA1cChart(){
     if(bv.length>=1){const avg=bv.reduce((a,b)=>a+b,0)/bv.length;buckets.push({a1c:parseFloat(calcA1c(avg)),label:i===0?'Now':'-'+i+'w'});}
   }
   if(!buckets.length){ctx.fillStyle='#9AA3B5';ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';ctx.fillText('Keep logging',W/2,H/2);return;}
-  const pL=36,pR=10,pT=12,pB=22,cW=W-pL-pR,cH=H-pT-pB;
-  const minA=4,maxA=12;
+  const allVals=buckets.map(b=>b.a1c);
+  const minA=4,maxA=Math.ceil(Math.max(...allVals))+2;
+  const pL=36,pR=12,pT=28,pB=24,cW=W-pL-pR,cH=H-pT-pB;
   const tx=(i)=>pL+(i/Math.max(buckets.length-1,1))*cW;
   const ty=(v)=>pT+(1-(v-minA)/(maxA-minA))*cH;
   ctx.fillStyle='rgba(56,161,105,0.07)';ctx.fillRect(pL,pT,cW,ty(7)-pT);
@@ -3589,7 +3590,7 @@ function drawA1cChart(){
   ctx.beginPath();ctx.moveTo(pL,ty(7));ctx.lineTo(pL+cW,ty(7));ctx.stroke();ctx.setLineDash([]);
   ctx.fillStyle='rgba(56,161,105,.6)';ctx.font='8px JetBrains Mono';ctx.textAlign='left';ctx.fillText('<7%',pL+2,ty(7)-3);
   ctx.fillStyle='#9AA3B5';ctx.font='9px JetBrains Mono';ctx.textAlign='right';
-  [5,6,7,8,9].forEach(v=>{if(v>=minA&&v<=maxA)ctx.fillText(v+'%',pL-3,ty(v)+3);});
+  for(let v=4;v<maxA;v+=2){ctx.fillText(v+'%',pL-3,ty(v)+3);}
   if(buckets.length>=2){
     const gr=ctx.createLinearGradient(0,pT,0,H);
     gr.addColorStop(0,'rgba(217,119,6,.15)');gr.addColorStop(1,'rgba(217,119,6,0)');
@@ -3600,13 +3601,18 @@ function drawA1cChart(){
     ctx.strokeStyle='#D97706';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
   }
   buckets.forEach((b,i)=>{
-    ctx.beginPath();ctx.arc(tx(i),ty(b.a1c),5,0,Math.PI*2);
+    const x=tx(i),y=ty(b.a1c);
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);
     ctx.fillStyle=b.a1c<7?'#38A169':b.a1c<8?'#D97706':'#E53E3E';ctx.fill();
     ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
-    ctx.fillStyle='#6B7280';ctx.font='9px JetBrains Mono';ctx.textAlign='center';ctx.fillText(b.label,tx(i),H-3);
-    ctx.fillStyle='#374151';ctx.font='bold 9px JetBrains Mono';ctx.fillText(b.a1c+'%',tx(i),ty(b.a1c)-8);
+    ctx.fillStyle='#374151';ctx.font='bold 9px JetBrains Mono';ctx.textAlign='center';
+    const labelX=i===buckets.length-1?Math.min(x,W-pR-20):Math.max(x,pL+18);
+ctx.fillText(b.a1c+'%',labelX,y-10);
+    ctx.fillStyle='#6B7280';ctx.font='9px JetBrains Mono';
+    ctx.fillText(b.label,x,H-5);
   });
 }
+  
 
 // ══════════════ HISTORY ══════════════
 function updateHistory(){
