@@ -2280,16 +2280,18 @@ function playAlarmSound(type){
 
 // ── Vibration patterns ──
 function triggerVibration(type){
-  if(!navigator.vibrate)return;
-  const P={
-    urgLow:[300,100,300,100,500],
-    low:   [200,100,200],
-    high:  [100,50,100,50,200],
-    rise:  [100,100,100],
-    fall:  [200,100,100],
-    test:  [100,50,100,50,100],
-  };
-  navigator.vibrate(P[type]||P.test);
+  if(window.Capacitor?.Plugins?.Haptics){
+    const H=window.Capacitor.Plugins.Haptics;
+    if(type==='urgLow'){
+      H.vibrate({duration:500});
+    }else if(type==='low'||type==='high'){
+      H.vibrate({duration:200});
+    }else{
+      H.vibrate({duration:100});
+    }
+    return;
+  }
+  if(navigator.vibrate)navigator.vibrate(200);
 }
 
 // ── Fire a single alarm ──
