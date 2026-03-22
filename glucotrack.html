@@ -1609,7 +1609,7 @@
       </div>
       <div class="meal-tabs">
         <button class="meal-tab active" id="mt-manual" onclick="switchMealTab('manual')">✏️ Manual Entry</button>
-        <button class="meal-tab" id="mt-camera" style="opacity:.4;cursor:not-allowed;" disabled>📷 Photo Scan (API key required)</button>
+        <button class="meal-tab" id="mt-search" onclick="switchMealTab('search')">🔍 Food Search</button>
       </div>
 
       <!-- MANUAL MEAL -->
@@ -1644,33 +1644,15 @@
       </div>
 
       <!-- CAMERA MEAL -->
-      <div class="meal-content hidden" id="mc-camera" style="margin-top:12px;">
-        <div class="cam-area" id="camDropArea" onclick="triggerCamUpload()">
-          <img id="camPreviewImg" alt="Meal preview">
-          <div class="cam-area-placeholder" id="camAreaPlaceholder">
-            <div class="cam-area-ic">📷</div>
-            <div class="cam-area-txt">Tap to take photo or upload</div>
-            <div class="cam-area-sub">Photo will be analysed by AI</div>
+      <div class="meal-content hidden" id="mc-search" style="margin-top:12px;">
+        <div style="padding:0 4px 10px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="foodSearchInput" placeholder="Search food (e.g. banana, rice, bread)..." style="flex:1;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);outline:none;" oninput="searchFood(this.value)">
+            <button onclick="searchFood(document.getElementById('foodSearchInput').value)" style="padding:10px 14px;background:var(--acc);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🔍</button>
           </div>
+          <div id="foodSearchStatus" style="font-size:11px;color:var(--t3);padding:6px 2px;"></div>
         </div>
-        <input type="file" id="camFileInput" accept="image/*" capture="environment" onchange="handleCamUpload(event)" style="display:none;">
-        <button class="analyze-btn" id="analyzeBtn" onclick="runMealAnalysis()" disabled>🔍 Analyse Meal with AI</button>
-        <div id="aiKeyHint" style="display:none;font-size:11px;color:var(--hi);text-align:center;padding:4px 0;">No API key — go to Settings → AI Features to add one</div>
-        <div class="cam-result-box" id="camResultBox">
-          <div class="crb-name" id="crbName"></div>
-          <div class="crb-stats" id="crbStats"></div>
-          <div class="crb-items" id="crbItems"></div>
-          <div class="meal-total-box" style="margin-top:10px;">
-            <div class="meal-total-row">
-              <div class="meal-total-lbl">AI Detected Carbs</div>
-              <div class="meal-total-val"><span id="aiCarbs">0</span><span style="font-size:14px;font-weight:500;"> g</span></div>
-            </div>
-            <div class="meal-insulin-rec" id="aiInsRec"></div>
-          </div>
-          <div class="iins" style="margin-top:8px;">
-            <div class="iif"><label>Insulin to take (units)</label><input type="number" id="aiMealIns" placeholder="0" min="0" max="100" step="0.5"></div>
-          </div>
-        </div>
+        <div id="foodSearchResults" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;"></div>
       </div>
       <button class="svbtn" onclick="saveMeal()">Log Meal</button>
     </div>
@@ -3921,6 +3903,153 @@
   }
 
   // ══════════════ MEAL LOG MODAL ══════════════
+  const SA_FASTFOOD_DB=[
+  {chain:'KFC',name:'Zinger Burger',carbs:42,calories:520,protein:32,fat:24,serving:'1 burger'},
+  {chain:'KFC',name:'Original Recipe Burger',carbs:38,calories:480,protein:28,fat:22,serving:'1 burger'},
+  {chain:'KFC',name:'Streetwise 2',carbs:30,calories:420,protein:35,fat:18,serving:'2 pieces'},
+  {chain:'KFC',name:'Streetwise 1',carbs:15,calories:210,protein:17,fat:9,serving:'1 piece'},
+  {chain:'KFC',name:'Zinger Tower Burger',carbs:52,calories:620,protein:38,fat:28,serving:'1 burger'},
+  {chain:'KFC',name:'Colonel Burger',carbs:35,calories:450,protein:26,fat:20,serving:'1 burger'},
+  {chain:'KFC',name:'Chips Regular',carbs:45,calories:320,protein:4,fat:14,serving:'regular'},
+  {chain:'KFC',name:'Chips Large',carbs:65,calories:460,protein:6,fat:20,serving:'large'},
+  {chain:'KFC',name:'Wicked Zinger Box Meal',carbs:85,calories:980,protein:52,fat:42,serving:'1 meal'},
+  {chain:'KFC',name:'Coleslaw',carbs:12,calories:150,protein:1,fat:9,serving:'1 portion'},
+  {chain:'KFC',name:'Mashed Potato',carbs:20,calories:120,protein:2,fat:4,serving:'1 portion'},
+  {chain:'KFC',name:'Corn on the Cob',carbs:25,calories:130,protein:4,fat:2,serving:'1 cob'},
+  {chain:"McDonald's",name:'Big Mac',carbs:44,calories:550,protein:25,fat:30,serving:'1 burger'},
+  {chain:"McDonald's",name:'McChicken',carbs:38,calories:420,protein:22,fat:18,serving:'1 burger'},
+  {chain:"McDonald's",name:'Quarter Pounder',carbs:40,calories:510,protein:28,fat:26,serving:'1 burger'},
+  {chain:"McDonald's",name:'Double Quarter Pounder',carbs:42,calories:720,protein:46,fat:40,serving:'1 burger'},
+  {chain:"McDonald's",name:'Filet-O-Fish',carbs:38,calories:390,protein:16,fat:18,serving:'1 burger'},
+  {chain:"McDonald's",name:'McFeast',carbs:46,calories:580,protein:30,fat:32,serving:'1 burger'},
+  {chain:"McDonald's",name:'Medium Fries',carbs:44,calories:340,protein:4,fat:16,serving:'medium'},
+  {chain:"McDonald's",name:'Large Fries',carbs:56,calories:440,protein:5,fat:20,serving:'large'},
+  {chain:"McDonald's",name:'6pc Chicken McNuggets',carbs:18,calories:280,protein:16,fat:16,serving:'6 pieces'},
+  {chain:"McDonald's",name:'McFlurry Oreo',carbs:64,calories:420,protein:10,fat:14,serving:'1 cup'},
+  {chain:"McDonald's",name:'Soft Serve Cone',carbs:24,calories:150,protein:4,fat:4,serving:'1 cone'},
+  {chain:"McDonald's",name:'Apple Pie',carbs:32,calories:250,protein:2,fat:12,serving:'1 pie'},
+  {chain:'Steers',name:'Steers Burger',carbs:42,calories:520,protein:28,fat:24,serving:'1 burger'},
+  {chain:'Steers',name:'Cheese Steers Burger',carbs:44,calories:580,protein:32,fat:28,serving:'1 burger'},
+  {chain:'Steers',name:'Rib Burger',carbs:48,calories:620,protein:34,fat:30,serving:'1 burger'},
+  {chain:'Steers',name:'Wacky Wednesday Burger',carbs:40,calories:490,protein:26,fat:22,serving:'1 burger'},
+  {chain:'Steers',name:'Regular Chips',carbs:48,calories:340,protein:4,fat:14,serving:'regular'},
+  {chain:'Steers',name:'Onion Rings',carbs:32,calories:280,protein:4,fat:14,serving:'1 portion'},
+  {chain:'Steers',name:'Babyback Ribs Half Rack',carbs:8,calories:520,protein:42,fat:36,serving:'half rack'},
+  {chain:'Steers',name:'Chicken Strip Wrap',carbs:38,calories:480,protein:28,fat:18,serving:'1 wrap'},
+  {chain:"Nando's",name:'1/4 Chicken Breast',carbs:2,calories:220,protein:38,fat:8,serving:'1/4 chicken'},
+  {chain:"Nando's",name:'1/2 Chicken',carbs:4,calories:440,protein:76,fat:16,serving:'1/2 chicken'},
+  {chain:"Nando's",name:'Whole Chicken',carbs:8,calories:880,protein:152,fat:32,serving:'whole'},
+  {chain:"Nando's",name:'Chicken Burger',carbs:44,calories:520,protein:34,fat:18,serving:'1 burger'},
+  {chain:"Nando's",name:'Prego Roll',carbs:42,calories:480,protein:28,fat:16,serving:'1 roll'},
+  {chain:"Nando's",name:'Fino Pitta',carbs:38,calories:440,protein:30,fat:14,serving:'1 pitta'},
+  {chain:"Nando's",name:'Spicy Rice',carbs:52,calories:280,protein:6,fat:4,serving:'1 portion'},
+  {chain:"Nando's",name:'Peri Chips',carbs:48,calories:360,protein:5,fat:16,serving:'1 portion'},
+  {chain:"Nando's",name:'Coleslaw',carbs:14,calories:160,protein:2,fat:10,serving:'1 portion'},
+  {chain:"Nando's",name:'Macho Peas',carbs:18,calories:160,protein:8,fat:6,serving:'1 portion'},
+  {chain:'Debonairs',name:'Triple Decker Pizza Medium',carbs:80,calories:720,protein:32,fat:28,serving:'3 slices'},
+  {chain:'Debonairs',name:'Triple Decker Pizza Large',carbs:120,calories:1080,protein:48,fat:42,serving:'3 slices'},
+  {chain:'Debonairs',name:'BBQ Chicken Pizza Medium',carbs:72,calories:640,protein:30,fat:24,serving:'3 slices'},
+  {chain:'Debonairs',name:'Margherita Pizza Medium',carbs:68,calories:580,protein:22,fat:20,serving:'3 slices'},
+  {chain:'Debonairs',name:'Streetwise Pizza',carbs:44,calories:380,protein:16,fat:14,serving:'2 slices'},
+  {chain:'Debonairs',name:'Garlic Bread',carbs:32,calories:240,protein:6,fat:10,serving:'1 portion'},
+  {chain:'Debonairs',name:'Crumbed Chicken Strips',carbs:24,calories:320,protein:22,fat:14,serving:'4 strips'},
+  {chain:'Wimpy',name:'Classic Burger',carbs:40,calories:520,protein:26,fat:24,serving:'1 burger'},
+  {chain:'Wimpy',name:'Cheese Burger',carbs:42,calories:580,protein:30,fat:28,serving:'1 burger'},
+  {chain:'Wimpy',name:'Bacon Cheese Burger',carbs:42,calories:640,protein:36,fat:34,serving:'1 burger'},
+  {chain:'Wimpy',name:'Breakfast Eggs Benedict',carbs:28,calories:480,protein:24,fat:28,serving:'1 plate'},
+  {chain:'Wimpy',name:'Full Breakfast',carbs:36,calories:680,protein:38,fat:40,serving:'1 plate'},
+  {chain:'Wimpy',name:'Chips',carbs:46,calories:330,protein:4,fat:14,serving:'1 portion'},
+  {chain:'Wimpy',name:'Toasted Sandwich',carbs:34,calories:380,protein:18,fat:16,serving:'1 sandwich'},
+  {chain:'Wimpy',name:'Waffle with Ice Cream',carbs:58,calories:480,protein:8,fat:18,serving:'1 waffle'},
+  {chain:'Chicken Licken',name:'Soul Burger',carbs:44,calories:540,protein:30,fat:26,serving:'1 burger'},
+  {chain:'Chicken Licken',name:'Hotwings 6pc',carbs:18,calories:380,protein:28,fat:22,serving:'6 wings'},
+  {chain:'Chicken Licken',name:'Hotwings 12pc',carbs:36,calories:760,protein:56,fat:44,serving:'12 wings'},
+  {chain:'Chicken Licken',name:'2pc Streetwise',carbs:28,calories:380,protein:30,fat:18,serving:'2 pieces'},
+  {chain:'Chicken Licken',name:'Chips Regular',carbs:46,calories:330,protein:4,fat:14,serving:'regular'},
+  {chain:'Chicken Licken',name:'Saucy Slider',carbs:32,calories:380,protein:18,fat:16,serving:'1 slider'},
+  {chain:"Roman's Pizza",name:'Pepperoni Pizza Medium',carbs:72,calories:680,protein:28,fat:26,serving:'3 slices'},
+  {chain:"Roman's Pizza",name:'Hawaiian Pizza Medium',carbs:76,calories:640,protein:26,fat:22,serving:'3 slices'},
+  {chain:"Roman's Pizza",name:'Meat Lovers Medium',carbs:68,calories:780,protein:36,fat:34,serving:'3 slices'},
+  {chain:"Roman's Pizza",name:'Veggie Pizza Medium',carbs:70,calories:560,protein:20,fat:18,serving:'3 slices'},
+  {chain:"Roman's Pizza",name:'Garlic Bread',carbs:30,calories:220,protein:6,fat:8,serving:'1 portion'},
+  {chain:'Fishaways',name:'Hake Fillet Regular',carbs:24,calories:380,protein:28,fat:18,serving:'1 fillet'},
+  {chain:'Fishaways',name:'Hake Fillet Large',carbs:32,calories:520,protein:38,fat:24,serving:'1 fillet'},
+  {chain:'Fishaways',name:'Calamari',carbs:28,calories:340,protein:20,fat:16,serving:'1 portion'},
+  {chain:'Fishaways',name:'Chips Regular',carbs:46,calories:330,protein:4,fat:14,serving:'regular'},
+  {chain:'Fishaways',name:'Fish Burger',carbs:44,calories:480,protein:24,fat:20,serving:'1 burger'},
+];
+
+let foodSearchTimeout=null;
+function searchFood(query){
+  clearTimeout(foodSearchTimeout);
+  const status=document.getElementById('foodSearchStatus');
+  const results=document.getElementById('foodSearchResults');
+  if(!query||query.length<2){status.textContent='';results.innerHTML='';return;}
+  const q=query.toLowerCase();
+  const saResults=SA_FASTFOOD_DB.filter(i=>i.name.toLowerCase().includes(q)||i.chain.toLowerCase().includes(q));
+  if(saResults.length){
+    status.textContent=`${saResults.length} SA result${saResults.length>1?'s':''} · searching global…`;
+    results.innerHTML=saResults.map(i=>`
+      <div onclick="selectFoodItem('${i.name.replace(/'/g,"\\'")} (${i.chain})',${i.carbs},'${i.serving}')" style="padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:13px;font-weight:700;color:var(--text);">${i.name}</div><div style="font-size:10px;color:var(--acc);font-weight:600;">${i.chain}</div></div>
+          <div style="text-align:right;"><div style="font-size:14px;font-weight:800;color:var(--text);">${i.carbs}g</div><div style="font-size:10px;color:var(--t3);">carbs</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px;">🔥 ${i.calories} kcal · 🍞 ${i.carbs}g carbs · 💪 ${i.protein}g protein · ${i.serving}</div>
+      </div>`).join('');
+  } else {
+    status.textContent='Searching global database…';
+  }
+  foodSearchTimeout=setTimeout(async()=>{
+    try{
+      const url=`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name,nutriments,serving_size,brands`;
+      const res=await fetch(url);
+      const data=await res.json();
+      const products=(data.products||[]).filter(p=>p.product_name&&p.nutriments?.['carbohydrates_100g']!=null);
+      if(products.length){
+        const divider=saResults.length?'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:8px 2px 4px;">🌍 Global Results</div>':'';
+        const globalHtml=products.map(p=>{
+          const name=p.product_name;
+          const brand=p.brands?` · ${p.brands}`:'';
+          const carbs=p.nutriments?.['carbohydrates_serving']??p.nutriments?.['carbohydrates_100g']??0;
+          const serving=p.serving_size||'100g';
+          return `<div onclick="selectFoodItem('${name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${Math.round(carbs)},'${serving}')" style="padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;cursor:pointer;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">${name}<span style="font-size:10px;color:var(--t3);font-weight:500;">${brand}</span></div>
+            <div style="font-size:11px;color:var(--t3);margin-top:2px;">🍞 ${Math.round(carbs)}g carbs · ${serving}</div>
+          </div>`;
+        }).join('');
+        results.innerHTML=(saResults.length?results.innerHTML+divider:divider)+globalHtml;
+        status.textContent=`${saResults.length?saResults.length+' SA + ':''}${products.length} global results`;
+      } else {
+        if(!saResults.length)status.textContent='No results found. Try a different name.';
+        else status.textContent=`${saResults.length} SA result${saResults.length>1?'s':''} found`;
+      }
+    }catch(e){
+      if(!saResults.length)status.textContent='Global search unavailable.';
+    }
+  },500);
+}
+
+function selectFoodItem(name,carbs,serving){
+  switchMealTab('manual');
+  const container=document.getElementById('mealItemsContainer');
+  const rows=container.querySelectorAll('.meal-item-row');
+  const lastRow=rows[rows.length-1];
+  const nameInput=lastRow.querySelector('.meal-item-name');
+  const carbInput=lastRow.querySelector('.meal-item-carbs');
+  if(nameInput.value&&carbInput.value){
+    addMealItem();
+    const newRows=container.querySelectorAll('.meal-item-row');
+    const newRow=newRows[newRows.length-1];
+    newRow.querySelector('.meal-item-name').value=name;
+    newRow.querySelector('.meal-item-carbs').value=Math.round(carbs);
+  }else{
+    nameInput.value=name;
+    carbInput.value=Math.round(carbs);
+  }
+  recalcMealTotals();
+  toastSuccess(`Added ${name} — ${Math.round(carbs)}g carbs`);
+}
   function openMealModal(){
     document.getElementById('mealMbd').classList.add('open');
     switchMealTab('manual');
@@ -3948,12 +4077,12 @@
   }
   function handleMealBd(e){if(e.target===document.getElementById('mealMbd'))closeMealModal();}
 
-  function switchMealTab(t){
+function switchMealTab(t){
     mealTab=t;
     document.getElementById('mt-manual').classList.toggle('active',t==='manual');
-    document.getElementById('mt-camera').classList.toggle('active',t==='camera');
+    document.getElementById('mt-search').classList.toggle('active',t==='search');
     document.getElementById('mc-manual').classList.toggle('hidden',t!=='manual');
-    document.getElementById('mc-camera').classList.toggle('hidden',t!=='camera');
+    document.getElementById('mc-search').classList.toggle('hidden',t!=='search');
   }
 
   function resetManualMeal(){
