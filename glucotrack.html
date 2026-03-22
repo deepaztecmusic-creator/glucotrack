@@ -859,7 +859,7 @@
         <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px;">
           <div style="display:flex;align-items:center;gap:10px;width:100%;">
             <div class="sgi-ic">🔔</div>
-            <div style="flex:1"><div class="sgi-t">Browser Notifications</div><div class="sgi-s" id="notifStatus">Tap to enable</div></div>
+            <!---<div style="flex:1"><div class="sgi-t">Browser Notifications</div><div class="sgi-s" id="notifStatus">Tap to enable</div></div>--->
             <button onclick="requestNotificationPermission(true)" style="padding:6px 12px;background:var(--acc);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Enable</button>
           </div>
           <div style="font-size:11px;color:var(--t3);line-height:1.5;padding-left:36px;">Required for alarms and the pre-meal timer to fire when your screen is locked.</div>
@@ -1794,16 +1794,31 @@
   }
 
   // Schedule a notification via the Service Worker (survives screen lock on Android)
-  function scheduleNotification(delayMs, title, body, tag){
-    if('serviceWorker' in navigator && Notification.permission==='granted'){
-      navigator.serviceWorker.ready.then(reg=>{
-        // Send to SW to schedule — SW setTimeout persists longer than page timers
-        reg.active && reg.active.postMessage({
-          type:'SCHEDULE_NOTIFICATION', delayMs, title, body, tag
+ function scheduleNotification(delayMs, title, body, tag){
+    // Use Capacitor Local Notifications for background delivery
+    try{
+      const {LocalNotifications} = window.Capacitor?.Plugins || {};
+      if(LocalNotifications){
+        LocalNotifications.requestPermissions().then(perm=>{
+          if(perm.display==='granted'||perm.display==='limited'){
+            const id=Math.floor(Math.random()*100000);
+            const atTime=new Date(Date.now()+delayMs);
+            LocalNotifications.schedule({
+              notifications:[{
+                id: id,
+                title: title,
+                body: body,
+                schedule:{ at: atTime },
+                sound: 'default',
+                actionTypeId: tag,
+                extra: null
+              }]
+            });
+          }
         });
-      }).catch(()=>{});
-    }
-    // Also keep a page-side timer as backup
+      }
+    }catch(e){}
+    // Fallback page-side timer
     return setTimeout(()=>{
       notify(title, body, '🍽️', 'test');
     }, delayMs);
