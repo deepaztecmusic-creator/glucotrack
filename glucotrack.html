@@ -892,8 +892,8 @@
       <div class="sgcard">
         <button class="dbtn" onclick="shareApp()" style="color:var(--acc);border-bottom:none;">📲 Share GlucoTrack with others</button>
       </div>
-      <div class="sglbl">Add to Home Screen</div>
-      <div class="sgcard">
+      <div class="sglbl" style="display:none;">Add to Home Screen</div>
+      <div class="sgcard" style="display:none;">
         <div class="sgi" style="flex-direction:column;align-items:flex-start;gap:12px;padding:16px 15px;">
           <!-- Icon preview -->
           <div style="display:flex;align-items:center;gap:14px;width:100%;">
@@ -947,7 +947,7 @@
           </div>
 
           <!-- Buttons -->
-          <button onclick="showPwaInstructions()" id="pwaShowBtn" style="width:100%;padding:13px;background:var(--acc);border:none;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <<button onclick="showPwaInstructions()" id="pwaShowBtn" style="width:100%;padding:13px;background:var(--acc);border:none;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:none;align-items:center;justify-content:center;gap:8px;">
             <span>📲</span> <span id="pwaShowBtnTxt">How to Add to Home Screen</span>
           </button>
           <button onclick="triggerPwaInstall()" id="pwaInstallBtn" style="width:100%;padding:12px;background:none;border:1.5px solid var(--acc);border-radius:9px;color:var(--acc);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none;">
@@ -955,8 +955,8 @@
           </button>
         </div>
       </div>
-      <div class="sglbl">AI Features (Meal Analysis &amp; Food Search)</div>
-      <div class="sgcard">
+      <div class="sglbl" style="display:none;">AI Features (Meal Analysis &amp; Food Search)</div>
+      <div class="sgcard" style="display:none;">
         <div style="padding:12px 15px 6px;">
           <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px;">Enter your Anthropic API key to enable AI meal photo analysis and food carb lookup. Your key is stored only on this device.<br><a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--acc);font-weight:600;">Get a free key at console.anthropic.com →</a></div>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
@@ -966,8 +966,8 @@
           <div id="apiKeyStatus" style="font-size:11px;line-height:1.6;display:none;padding:8px 10px;border-radius:7px;margin-bottom:6px;"></div>
         </div>
       </div>
-      <div class="sglbl">GlucoTrack View (Caregiver Access)</div>
-  <div class="sgcard">
+      <div class="sglbl" style="display:none;">GlucoTrack View (Caregiver Access)</div>
+  <div class="sgcard" style="display:none;">
     <div style="padding:12px 15px 6px;">
       <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px;">
         Generate a share token so a caregiver or clinician can monitor your levels in real-time using <strong>GlucoTrack View</strong>.
