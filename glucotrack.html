@@ -176,7 +176,7 @@
 
   /* RANGE STRIP */
   .rstrip{margin-top:14px;}
-  .rtrack{height:4px;border-radius:2px;background:linear-gradient(90deg,#E53E3E 0%,#E53E3E 18%,#38A169 23%,#38A169 65%,#D97706 70%,#D97706 88%,#E53E3E 93%,#E53E3E 100%);position:relative;}
+.rtrack{height:4px;border-radius:2px;background:linear-gradient(90deg,#E53E3E 0%,#E53E3E 7%,#38A169 7%,#38A169 51%,#D97706 51%,#D97706 80%,#E53E3E 80%,#E53E3E 100%);position:relative;}
   .rneedle{position:absolute;top:-5px;width:2px;height:14px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .5s cubic-bezier(.4,0,.2,1);}
   .raxis{display:flex;justify-content:space-between;margin-top:4px;}
   .raxis span{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
@@ -400,7 +400,7 @@
   .rpt-sub-tabs::-webkit-scrollbar{display:none;}
   .rpt-tab{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--t3);background:var(--bg);border:none;cursor:pointer;white-space:nowrap;transition:all .15s;}
   .rpt-tab.active{background:var(--acc);color:#fff;}
-  .rpt-panel{display:none;padding-bottom:80px;}
+  .rpt-panel.active{display:block;padding-bottom:80px;}
   .rpt-panel.active{display:block;}
   /* ─── ALARM CARDS ─── */
   .alarm-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin:10px 14px 0;padding:14px 16px;box-shadow:var(--sh);}
@@ -669,7 +669,13 @@
       </div>
       <div class="rstrip">
         <div class="rtrack"><div class="rneedle" id="rneedle" style="left:50%"></div></div>
-        <div class="raxis"><span>3.0</span><span>3.9</span><span>7.8</span><span>10.0</span><span>16.7+</span></div>
+        <div class="raxis" style="position:relative;height:14px;">
+  <span style="position:absolute;left:0;font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;">3.9</span>
+  <span style="position:absolute;left:51%;transform:translateX(-50%);font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;">10.0</span>
+  <span style="position:absolute;left:80%;transform:translateX(-50%);font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;">13.9</span>
+  <span style="position:absolute;right:0;font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;">16.7+</span>
+</div>
+        </div>
       </div>
     </div>
     <div class="strow">
@@ -782,7 +788,7 @@
       <div class="a1c-zone" id="a1cZone" style="background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b)">—</div>
       <div class="gtrack"><div class="gneedle" id="gneedle" style="left:0%"></div></div>
       <div class="glabels"><span>4%</span><span>5%</span><span>6%</span><span>7%</span><span>8%</span><span>10%</span><span>14%</span></div>
-      <div class="a1c-note">Estimated: A1c ≈ (avg mmol/L × 1.5927 + 1.628) · Not a replacement for a lab HbA1c test.</div>
+      <div class="a1c-note">Estimated: A1c ≈ (avg mmol/L × 18.0182 + 46.7) ÷ 28.7 · Not a replacement for a lab HbA1c test.</div>
     </div>
     <div class="card" style="margin-top:10px;">
       <div class="sc-hd"><div class="sc-title">A1c Trend (weekly)</div></div>
@@ -1001,6 +1007,7 @@
       <button class="rpt-tab" onclick="setReportTab('low',this)">Low Events</button>
       <button class="rpt-tab" onclick="setReportTab('avg',this)">Average Glucose</button>
       <button class="rpt-tab" onclick="setReportTab('daily',this)">Daily Graph</button>
+      <button class="rpt-tab" onclick="setReportTab('insights',this)">Insights</button>
     </div>
 
     <!-- DAILY PATTERNS -->
@@ -1082,6 +1089,25 @@
         <div class="st"><div class="stv" id="dgMin" style="color:var(--low)">—</div><div class="stl">Min</div></div>
         <div class="st"><div class="stv" id="dgMax" style="color:var(--hi)">—</div><div class="stl">Max</div></div>
       </div>
+      <!-- INSIGHTS PANEL -->
+    <div class="rpt-panel" id="rpt-insights">
+      <div class="card" style="margin-top:10px;">
+        <div class="sc-hd"><div class="sc-title">Pattern Insights</div><div style="font-size:10px;color:var(--t3);">Based on your logged data</div></div>
+        <div id="insightsList"><div class="empty"><div class="empty-ic">🧠</div>Analysing your data...</div></div>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <div class="sc-hd"><div class="sc-title">Meal Impact</div></div>
+        <div id="insightsMeal"><div class="empty" style="padding:10px;font-size:12px;">Log before and after meal readings to see meal impact</div></div>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <div class="sc-hd"><div class="sc-title">Weekly Progress</div></div>
+        <div id="insightsProgress"><div class="empty" style="padding:10px;font-size:12px;">Log at least 2 weeks of data to see progress</div></div>
+      </div>
+      <div class="card card-last" style="margin-top:10px;margin-bottom:12px;">
+        <div class="sc-hd"><div class="sc-title">Recommendations</div></div>
+        <div id="insightsRecs"><div class="empty" style="padding:10px;font-size:12px;">Recommendations will appear as patterns are detected</div></div>
+      </div>
+    </div>
     </div>
   </div>
 
@@ -1393,7 +1419,7 @@
       <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>How do I log a glucose reading?</span><span>▼</span></div><div class="help-q-body">Tap the blue <strong>Log Reading</strong> button at the bottom of the screen. Enter your glucose value from your meter in mmol/L, select the context (e.g. Before Meal), add any carbs or insulin, then tap Save.</div></div>
       <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>How does the Glucose Forecast work?</span><span>▼</span></div><div class="help-q-body">The forecast uses your recent readings to calculate a trend, then factors in any active carbs and insulin you've logged. It predicts your glucose 1–3 hours ahead. Log regularly for best accuracy.</div></div>
       <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>What is Time In Range (TIR)?</span><span>▼</span></div><div class="help-q-body">Time In Range is the percentage of your readings that fall within your target glucose range (default 3.9–10.0 mmol/L). The ADA recommends a TIR of at least 70% for most people with diabetes.</div></div>
-      <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>How is estimated A1c calculated?</span><span>▼</span></div><div class="help-q-body">Estimated A1c is calculated using the formula: A1c ≈ (average mmol/L × 1.5927 + 1.628). This is an estimate only — always get a lab HbA1c test from your doctor for accurate results.</div></div>
+      <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>How is estimated A1c calculated?</span><span>▼</span></div><div class="help-q-body">Estimated A1c is calculated using the Nathan 2008 / ADAG formula: A1c ≈ (avg mmol/L × 18.0182 + 46.7) ÷ 28.7. This is an estimate only — always get a lab HbA1c test from your doctor for accurate results.</div></div>
       <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>How do I scan a meal with AI?</span><span>▼</span></div><div class="help-q-body">Tap <strong>📷 Scan Meal</strong> in the top bar. Point your camera at your meal and tap capture. The AI will identify the food and estimate carbohydrate content. You can then log it and get an insulin suggestion based on your carb ratio.</div></div>
       <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>How do I export my data?</span><span>▼</span></div><div class="help-q-body">Go to <strong>Settings → Data → Export All Readings (CSV)</strong>. This downloads a spreadsheet with all your logged readings, which you can share with your healthcare team.</div></div>
       <div class="help-q"><div class="help-q-hd" onclick="toggleFaq(this)"><span>Is my data private?</span><span>▼</span></div><div class="help-q-body">Yes. All your glucose readings and meal data are stored locally on your device only. Nothing is uploaded to any server. The only external connection is the AI meal analysis feature, which sends meal photos to Claude AI for analysis.</div></div>
@@ -1857,8 +1883,41 @@
     if(s<86400){const h=Math.round(s/3600);return h+'h ago';}
     return Math.round(s/86400)+'d ago';
   }
-  function nPos(v){return Math.min(Math.max((v-3.0)/(16.7-3.0),.02),.98)*100+'%';}
-  function calcA1c(avgMmol){return(avgMmol*1.5927+1.628).toFixed(1);}
+  function nPos(v){
+  // Map BG value to position on the range strip
+  // Strip spans: 3.0(0%) → 3.9(21%) → 10.0(51%) → 13.9(72%) → 16.7+(100%)
+  const stops=[
+    {v:3.0,p:0},{v:3.9,p:7},{v:10.0,p:51},{v:13.9,p:80},{v:16.7,p:100}
+  ];
+  if(v<=3.0)return'1%';
+  if(v>=16.7)return'99%';
+  for(let i=0;i<stops.length-1;i++){
+    const a=stops[i],b=stops[i+1];
+    if(v>=a.v&&v<=b.v){
+      const pct=a.p+(v-a.v)/(b.v-a.v)*(b.p-a.p);
+      return Math.min(Math.max(pct,1),99)+'%';
+    }
+  }
+  return'50%';
+}
+  function calcA1c(avgMmol){return((avgMmol*18.0182+46.7)/28.7).toFixed(1);}
+  function a1cPos(v){
+    // Map A1c to position matching gauge labels: 4,5,6,7,8,10,14
+    // Labels use justify-content:space-between (7 items = 6 equal gaps = 16.67% each)
+    const stops=[
+      {v:4,p:0},{v:5,p:16.67},{v:6,p:33.33},{v:7,p:50},{v:8,p:66.67},{v:10,p:83.33},{v:14,p:100}
+    ];
+    if(v<=4)return'0%';
+    if(v>=14)return'100%';
+    for(let i=0;i<stops.length-1;i++){
+      const a=stops[i],b=stops[i+1];
+      if(v>=a.v&&v<=b.v){
+        const pct=a.p+(v-a.v)/(b.v-a.v)*(b.p-a.p);
+        return Math.min(Math.max(pct,0),100)+'%';
+      }
+    }
+    return'50%';
+  }
   function updateDate(){const n=new Date();document.getElementById('topDate').textContent=n.toLocaleDateString([],{month:'short',day:'numeric'});}
 
 
@@ -1894,9 +1953,206 @@
       if(tab==='low')updateLowEvents();
       if(tab==='avg')drawAvgTrend();
       if(tab==='daily')drawDailyGraph();
+      if(tab==='insights')runInsightsEngine();
     },60);
   }
+  function runInsightsEngine(){
+    const el=document.getElementById('insightsList');
+    const mealEl=document.getElementById('insightsMeal');
+    const progEl=document.getElementById('insightsProgress');
+    const recEl=document.getElementById('insightsRecs');
+    if(!readings.length){
+      el.innerHTML='<div class="empty"><div class="empty-ic">🧠</div>Log at least 10 readings to see insights</div>';
+      return;
+    }
+    const now=Date.now();
+    const bgR=readings.filter(r=>!r.isMealOnly&&r.value>0);
+    if(bgR.length<5){el.innerHTML='<div class="empty"><div class="empty-ic">🧠</div>Log at least 5 readings to see insights</div>';return;}
 
+    const insights=[];
+
+    // ── 1. Time of day analysis ──
+    const hourly=Array.from({length:24},()=>[]);
+    bgR.forEach(r=>{hourly[new Date(r.ts).getHours()].push(r.value);});
+    const hourlyAvg=hourly.map(h=>h.length?h.reduce((a,b)=>a+b,0)/h.length:null);
+    const validHours=hourlyAvg.map((v,h)=>({h,v})).filter(x=>x.v!==null);
+    if(validHours.length>=3){
+      const peakHour=validHours.reduce((a,b)=>b.v>a.v?b:a);
+      const lowHour=validHours.reduce((a,b)=>b.v<a.v?b:a);
+      if(peakHour.v>cfg.high){
+        insights.push({icon:'📈',col:'var(--hi)',title:`Glucose peaks at ${peakHour.h}:00`,body:`Your average glucose at ${peakHour.h}:00 is ${fmt(peakHour.v)} mmol/L — above your target of ${fmt(cfg.high)}. This often indicates a post-meal spike. Try checking what you eat before this time.`,type:'warn'});
+      }
+      if(lowHour.v<cfg.low){
+        insights.push({icon:'📉',col:'var(--low)',title:`Lows most common at ${lowHour.h}:00`,body:`Your average glucose at ${lowHour.h}:00 is ${fmt(lowHour.v)} mmol/L — below your target of ${fmt(cfg.low)}. Consider a small snack before this time or review your insulin timing.`,type:'danger'});
+      }
+    }
+
+    // ── 2. Day of week analysis ──
+    const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const daily=Array.from({length:7},()=>[]);
+    bgR.forEach(r=>{daily[new Date(r.ts).getDay()].push(r.value);});
+    const dailyAvg=daily.map(d=>d.length>=2?d.reduce((a,b)=>a+b,0)/d.length:null);
+    const validDays=dailyAvg.map((v,d)=>({d,v})).filter(x=>x.v!==null);
+    if(validDays.length>=3){
+      const worstDay=validDays.reduce((a,b)=>b.v>a.v?b:a);
+      const bestDay=validDays.reduce((a,b)=>b.v<a.v?b:a);
+      if(worstDay.v>cfg.high){
+        insights.push({icon:'📅',col:'var(--hi)',title:`${dayNames[worstDay.d]}s are your hardest day`,body:`Your average glucose on ${dayNames[worstDay.d]}s is ${fmt(worstDay.v)} mmol/L. Think about what you typically eat or do differently on ${dayNames[worstDay.d]}s.`,type:'warn'});
+      }
+      if(bestDay.v>=cfg.low&&bestDay.v<=cfg.high){
+        insights.push({icon:'🏆',col:'var(--ok)',title:`${dayNames[bestDay.d]}s are your best day`,body:`Your average glucose on ${dayNames[bestDay.d]}s is ${fmt(bestDay.v)} mmol/L — well within target. Keep doing what you do on ${dayNames[bestDay.d]}s!`,type:'good'});
+      }
+    }
+
+    // ── 3. A1c trend ──
+    const weeks=[];
+    for(let i=5;i>=0;i--){
+      const end=now-i*7*86400000,start=end-7*86400000;
+      const wv=bgR.filter(r=>r.ts>=start&&r.ts<end).map(r=>r.value);
+      if(wv.length>=3)weeks.push({week:5-i,a1c:parseFloat(calcA1c(wv.reduce((a,b)=>a+b,0)/wv.length))});
+    }
+    if(weeks.length>=2){
+      const first=weeks[0].a1c,last=weeks[weeks.length-1].a1c;
+      const diff=last-first;
+      if(diff<=-0.3){insights.push({icon:'✅',col:'var(--ok)',title:`A1c improving — down ${Math.abs(diff).toFixed(1)}% over ${weeks.length} weeks`,body:`Your estimated A1c has dropped from ${first}% to ${last}% — that's real progress. Keep up your current routine.`,type:'good'});}
+      else if(diff>=0.5){insights.push({icon:'⚠️',col:'var(--hi)',title:`A1c rising — up ${diff.toFixed(1)}% over ${weeks.length} weeks`,body:`Your estimated A1c has risen from ${first}% to ${last}%. Review what has changed in your diet or routine recently.`,type:'warn'});}
+    }
+
+    // ── 4. TIR trend ──
+    const tir7=()=>{const cut=now-7*86400000;const v=bgR.filter(r=>r.ts>=cut).map(r=>r.value);return v.length?Math.round(v.filter(x=>x>=cfg.low&&x<=cfg.high).length/v.length*100):null;};
+    const tir14=()=>{const cut=now-14*86400000;const v=bgR.filter(r=>r.ts>=cut&&r.ts>=now-7*86400000?false:true).map(r=>r.value);return v.length?Math.round(v.filter(x=>x>=cfg.low&&x<=cfg.high).length/v.length*100):null;};
+    const t7=tir7(),t14=tir14();
+    if(t7!==null&&t14!==null){
+      const diff=t7-t14;
+      if(diff>=5)insights.push({icon:'📊',col:'var(--ok)',title:`Time in range improved ${diff}% this week`,body:`Last week you were in range ${t7}% of the time vs ${t14}% the week before. That's a meaningful improvement!`,type:'good'});
+      else if(diff<=-5)insights.push({icon:'📊',col:'var(--hi)',title:`Time in range dropped ${Math.abs(diff)}% this week`,body:`Last week you were in range ${t7}% vs ${t14}% the week before. Review what changed.`,type:'warn'});
+    }
+
+    // ── 5. Overnight patterns ──
+    const bed=bgR.filter(r=>r.context==='Before Bed'&&r.ts>=now-14*86400000);
+    const wake=bgR.filter(r=>r.context==='Waking Up'&&r.ts>=now-14*86400000);
+    if(bed.length>=3&&wake.length>=3){
+      const bedAvg=bed.reduce((a,b)=>a+b.value,0)/bed.length;
+      const wakeAvg=wake.reduce((a,b)=>a+b.value,0)/wake.length;
+      const drift=wakeAvg-bedAvg;
+      if(drift>1.5)insights.push({icon:'🌙',col:'var(--hi)',title:`Glucose rises +${fmt(drift)} mmol/L overnight`,body:`You average ${fmt(bedAvg)} mmol/L at bedtime but wake at ${fmt(wakeAvg)} mmol/L. This pattern may indicate your basal dose needs reviewing with your doctor.`,type:'warn'});
+      else if(drift<-1.5)insights.push({icon:'🌙',col:'var(--low)',title:`Glucose drops ${fmt(Math.abs(drift))} mmol/L overnight`,body:`You average ${fmt(bedAvg)} mmol/L at bedtime but wake at ${fmt(wakeAvg)} mmol/L. This overnight drop may indicate your basal dose is too high. Discuss with your doctor.`,type:'danger'});
+      else insights.push({icon:'🌙',col:'var(--ok)',title:'Stable overnight glucose',body:`Your glucose stays stable overnight — averaging ${fmt(bedAvg)} at bedtime and ${fmt(wakeAvg)} in the morning. Your basal appears well-controlled.`,type:'good'});
+    }
+
+    // ── 6. Low events frequency ──
+    const lows30=bgR.filter(r=>r.ts>=now-30*86400000&&r.value<cfg.low);
+    const lows7=bgR.filter(r=>r.ts>=now-7*86400000&&r.value<cfg.low);
+    if(lows30.length>=3){
+      const lowHours=lows30.map(r=>new Date(r.ts).getHours());
+      const hCount={};lowHours.forEach(h=>{hCount[h]=(hCount[h]||0)+1;});
+      const peakLowH=Object.entries(hCount).sort((a,b)=>b[1]-a[1])[0];
+      if(peakLowH&&peakLowH[1]>=2){
+        insights.push({icon:'🚨',col:'var(--low)',title:`Lows cluster at ${peakLowH[0]}:00`,body:`${peakLowH[1]} of your last ${lows30.length} low glucose events happened around ${peakLowH[0]}:00. Consider having a small snack before this time or adjusting your insulin timing.`,type:'danger'});
+      }
+    }
+    if(lows7.length===0&&lows30.length>0){
+      insights.push({icon:'🎉',col:'var(--ok)',title:'No lows this week!',body:`You had no low glucose events in the last 7 days — excellent control! You had ${lows30.length} in the previous 30 days so this is real progress.`,type:'good'});
+    }
+
+    // ── Render insights ──
+    if(!insights.length){
+      el.innerHTML='<div class="empty"><div class="empty-ic">🧠</div>Keep logging — insights will appear as more patterns emerge</div>';
+    } else {
+      el.innerHTML=insights.map(i=>`
+        <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+          <div style="font-size:20px;flex-shrink:0;">${i.icon}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:${i.col};margin-bottom:4px;">${i.title}</div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.6;">${i.body}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── Meal impact ──
+    const beforeMeals=bgR.filter(r=>r.context==='Before Meal'&&r.ts>=now-30*86400000);
+    const afterMeals=bgR.filter(r=>r.context==='After Meal'&&r.ts>=now-30*86400000);
+    if(beforeMeals.length>=3&&afterMeals.length>=3){
+      const beforeAvg=beforeMeals.reduce((a,b)=>a+b.value,0)/beforeMeals.length;
+      const afterAvg=afterMeals.reduce((a,b)=>a+b.value,0)/afterMeals.length;
+      const spike=afterAvg-beforeAvg;
+      const spikeCol=spike>3?'var(--low)':spike>2?'var(--hi)':'var(--ok)';
+      const spikeMsg=spike>3?'Significant spike — consider reducing meal carbs or adjusting pre-meal insulin timing.':spike>2?'Moderate spike — within manageable range. Monitor post-meal readings closely.':'Well controlled post-meal response — your insulin timing and carb management is working well.';
+      mealEl.innerHTML=`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 0 12px;">
+          <div style="text-align:center;background:var(--bg);border-radius:var(--rs);padding:10px;">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">Before meal avg</div>
+            <div style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--ok);">${fmt(beforeAvg)}</div>
+          </div>
+          <div style="text-align:center;background:var(--bg);border-radius:var(--rs);padding:10px;">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">After meal avg</div>
+            <div style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:${afterAvg>cfg.high?'var(--hi)':'var(--ok)'};">${fmt(afterAvg)}</div>
+          </div>
+          <div style="text-align:center;background:var(--bg);border-radius:var(--rs);padding:10px;">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">Avg spike</div>
+            <div style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:${spikeCol};">+${fmt(spike)}</div>
+          </div>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--rs);padding:10px;font-size:12px;color:var(--t2);line-height:1.6;">💡 ${spikeMsg}</div>`;
+    } else {
+      mealEl.innerHTML='<div class="empty" style="padding:10px;font-size:12px;">Log Before Meal and After Meal readings to see meal impact analysis</div>';
+    }
+
+    // ── Weekly progress ──
+    const thisWeek=bgR.filter(r=>r.ts>=now-7*86400000);
+    const lastWeek=bgR.filter(r=>r.ts>=now-14*86400000&&r.ts<now-7*86400000);
+    if(thisWeek.length>=3&&lastWeek.length>=3){
+      const twAvg=thisWeek.reduce((a,b)=>a+b.value,0)/thisWeek.length;
+      const lwAvg=lastWeek.reduce((a,b)=>a+b.value,0)/lastWeek.length;
+      const twTIR=Math.round(thisWeek.filter(r=>r.value>=cfg.low&&r.value<=cfg.high).length/thisWeek.length*100);
+      const lwTIR=Math.round(lastWeek.filter(r=>r.value>=cfg.low&&r.value<=cfg.high).length/lastWeek.length*100);
+      const twLows=thisWeek.filter(r=>r.value<cfg.low).length;
+      const lwLows=lastWeek.filter(r=>r.value<cfg.low).length;
+      const avgDiff=twAvg-lwAvg;
+      const tirDiff=twTIR-lwTIR;
+      const lowDiff=twLows-lwLows;
+      progEl.innerHTML=`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 0 12px;">
+          <div style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center;">
+            <div style="font-size:11px;color:var(--t3);">Avg glucose</div>
+            <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--text);">${fmt(twAvg)}</div>
+            <div style="font-size:10px;color:${avgDiff<=0?'var(--ok)':'var(--hi)'};">${avgDiff>0?'+':''}${fmt(avgDiff)} vs last week</div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center;">
+            <div style="font-size:11px;color:var(--t3);">Time in range</div>
+            <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--ok);">${twTIR}%</div>
+            <div style="font-size:10px;color:${tirDiff>=0?'var(--ok)':'var(--hi)'};">${tirDiff>0?'+':''}${tirDiff}% vs last week</div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center;">
+            <div style="font-size:11px;color:var(--t3);">Low events</div>
+            <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:${twLows>0?'var(--low)':'var(--ok)'};">${twLows}</div>
+            <div style="font-size:10px;color:${lowDiff<=0?'var(--ok)':'var(--low)'};">${lowDiff>0?'+':''}${lowDiff} vs last week</div>
+          </div>
+        </div>`;
+    } else {
+      progEl.innerHTML='<div class="empty" style="padding:10px;font-size:12px;">Log at least 2 weeks of data to compare weekly progress</div>';
+    }
+
+    // ── Recommendations ──
+    const recs=[];
+    const allLows=bgR.filter(r=>r.value<cfg.low);
+    const allHighs=bgR.filter(r=>r.value>cfg.high);
+    const tirAll=bgR.length?Math.round(bgR.filter(r=>r.value>=cfg.low&&r.value<=cfg.high).length/bgR.length*100):0;
+    if(tirAll<70)recs.push({icon:'🎯',title:'Focus on time in range',body:`Your overall time in range is ${tirAll}%. The ADA target is >70%. Small changes like reducing carbs at peak times can make a big difference.`});
+    if(allLows.length>bgR.length*0.1)recs.push({icon:'🍬',title:'Too many lows — review basal or carb intake',body:`${Math.round(allLows.length/bgR.length*100)}% of your readings are below target. Discuss your basal dose and carb intake with your endocrinologist.`});
+    if(allHighs.length>bgR.length*0.3)recs.push({icon:'💉',title:'Frequent highs — review insulin timing',body:`${Math.round(allHighs.length/bgR.length*100)}% of your readings are above target. Consider checking if you're injecting bolus insulin 15–20 minutes before meals.`});
+    const cv=bgR.length>=10?Math.round((Math.sqrt(bgR.map(r=>{const d=r.value-(bgR.reduce((a,b)=>a+b.value,0)/bgR.length);return d*d;}).reduce((a,b)=>a+b,0)/bgR.length)/(bgR.reduce((a,b)=>a+b.value,0)/bgR.length))*100):null;
+    if(cv&&cv>36)recs.push({icon:'📊',title:'High glucose variability',body:`Your glucose variability (CV) is ${cv}% — above the recommended 36%. This means your glucose swings widely. Focus on consistent meal timing and insulin doses.`});
+    if(!recs.length)recs.push({icon:'✅',title:'Looking good!',body:'No major concerns detected in your current data. Keep logging consistently for more personalised recommendations.'});
+    recEl.innerHTML=recs.map(r=>`
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:20px;flex-shrink:0;">${r.icon}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${r.title}</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.6;">${r.body}</div>
+        </div>
+      </div>`).join('');
+  }
   function updateReports(){
     setReportTab('patterns');
   }
@@ -2763,7 +3019,7 @@
     if(n==='forecast'){setTimeout(updateForecast,60);setTimeout(updateBasalInsights,80);}
     if(n==='reports')setTimeout(updateReports,60);
     if(n==='alarms')loadAlarms();
-    if(n==='exercise'){setTimeout(()=>{renderExTables();updateExerciseScreen();},50);}
+    if(n==='exercise'){setTimeout(()=>{renderExTables();updateExerciseScreen();restoreExTimer();},50);}
   }
 
   // ══════════════ HOME ══════════════
@@ -2941,8 +3197,10 @@
     function tx(ts){return safeTx(ts);}
     function ty(v){return pT+(1-(v-minV)/range)*cH;}
 
+    const dark=document.body.classList.contains('dark');
+
     // ── BACKGROUND ──
-    ctx.fillStyle='#FAFBFC';
+    ctx.fillStyle=dark?'rgba(255,255,255,0.03)':'#FAFBFC';
     ctx.fillRect(pL,pT,cW,cH);
 
     // ── GRID LINES (faint) ──
@@ -2952,7 +3210,7 @@
     const gridStart=Math.ceil(minV/gridStep)*gridStep;
     for(let v=gridStart;v<=maxV;v+=gridStep){
       const y=ty(v);
-      ctx.strokeStyle='rgba(0,0,0,0.06)';
+      ctx.strokeStyle=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
       ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();
     }
     ctx.setLineDash([]);
@@ -2971,7 +3229,7 @@
     ctx.setLineDash([]);
 
     // ── Y AXIS LABELS ──
-    ctx.fillStyle='#9AA3B5';ctx.font='9px JetBrains Mono';ctx.textAlign='right';
+    ctx.fillStyle=dark?'#6B7A99':'#9AA3B5';ctx.font='9px JetBrains Mono';ctx.textAlign='right';
     for(let v=gridStart;v<=maxV;v+=gridStep){
       ctx.fillText(v.toFixed(1),pL-4,ty(v)+3.5);
     }
@@ -2979,10 +3237,10 @@
     ctx.fillStyle='rgba(56,161,105,0.7)';ctx.font='8px JetBrains Mono';ctx.textAlign='left';
     ctx.fillText(hi.toFixed(1),pL+2,yHi-2);
     ctx.fillStyle='rgba(229,62,62,0.7)';
-    ctx.fillText(lo.toFixed(1),pL+2,yLo+9);
+    if(Math.abs(yLo-yHi)>20) ctx.fillText(lo.toFixed(1),pL+2,yLo+9);
 
     if(data.length===0){
-      ctx.fillStyle='#9AA3B5';ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';
+      ctx.fillStyle=dark?'#6B7A99':'#9AA3B5';ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';
       ctx.fillText('No readings in this period',W/2,H/2);
       drawXAxis(ctx,pL,pT,pB,cW,cH,W,H,since,to);return;
     }
@@ -3073,6 +3331,7 @@
 
   function drawXAxis(ctx,pL,pT,pB,cW,cH,W,H,since,to){
     const dur=to-since;
+    const dark=document.body.classList.contains('dark');
     ctx.font='9px JetBrains Mono';ctx.textAlign='center';
 
     // ── Generate candidate ticks at the natural interval ──
@@ -3130,8 +3389,8 @@
       if(x-lastX<minSpacing)return;
       lastX=x;
       const lbl=labels[i];
-      ctx.fillStyle='rgba(0,0,0,0.10)';ctx.fillRect(x,pT,1,cH);
-      ctx.fillStyle='#9AA3B5';ctx.fillText(lbl,x,pT+cH+pB-6);
+      ctx.fillStyle=dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.10)';ctx.fillRect(x,pT,1,cH);
+      ctx.fillStyle=dark?'#6B7A99':'#9AA3B5';ctx.fillText(lbl,x,pT+cH+pB-6);
     });
   }
 
@@ -3540,7 +3799,7 @@
       document.getElementById('a1cBig').style.color=zc;
       document.getElementById('a1cSub').textContent=sub;
       const z=document.getElementById('a1cZone');z.textContent=zn;z.style.background=zb;z.style.color=zc;z.style.borderColor=zbc;
-      document.getElementById('gneedle').style.left=Math.min(Math.max((a1c-4)/10,0),1)*100+'%';
+      document.getElementById('gneedle').style.left=a1cPos(a1c);
     } else {
       document.getElementById('a1cBig').innerHTML='—<span class="a1c-pct">%</span>';
       document.getElementById('a1cBig').style.color='var(--t3)';
@@ -3568,43 +3827,77 @@
     const H=200,dpr=window.devicePixelRatio||1;
     cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
     const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
-    if(readings.length<3){ctx.fillStyle='#9AA3B5';ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';ctx.fillText('Keep logging to build A1c trend',W/2,H/2);return;}
+    const dark=document.body.classList.contains('dark');
+    const axisCol=dark?'#6B7A99':'#9AA3B5';
+    const labelCol=dark?'#C9D2E0':'#374151';
+    if(readings.length<3){ctx.fillStyle=axisCol;ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';ctx.fillText('Keep logging to build A1c trend',W/2,H/2);return;}
     const now=Date.now();const buckets=[];
     for(let i=5;i>=0;i--){
       const end=now-i*7*86400000,start=end-7*86400000;
       const bv=readings.filter(r=>r.ts>=start&&r.ts<end&&!r.isMealOnly&&r.value>0).map(r=>r.value);
       if(bv.length>=1){const avg=bv.reduce((a,b)=>a+b,0)/bv.length;buckets.push({a1c:parseFloat(calcA1c(avg)),label:i===0?'Now':'-'+i+'w'});}
     }
-    if(!buckets.length){ctx.fillStyle='#9AA3B5';ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';ctx.fillText('Keep logging',W/2,H/2);return;}
+    if(!buckets.length){ctx.fillStyle=axisCol;ctx.font='12px Plus Jakarta Sans';ctx.textAlign='center';ctx.fillText('Keep logging',W/2,H/2);return;}
     const allVals=buckets.map(b=>b.a1c);
-    const minA=4,maxA=Math.ceil(Math.max(...allVals))+2;
+    const minA=4,maxA=Math.ceil(Math.max(...allVals,7))+1.5;
     const pL=36,pR=12,pT=28,pB=24,cW=W-pL-pR,cH=H-pT-pB;
     const tx=(i)=>pL+(i/Math.max(buckets.length-1,1))*cW;
     const ty=(v)=>pT+(1-(v-minA)/(maxA-minA))*cH;
-    ctx.fillStyle='rgba(56,161,105,0.07)';ctx.fillRect(pL,pT,cW,ty(7)-pT);
-    ctx.setLineDash([3,4]);ctx.strokeStyle='rgba(56,161,105,0.3)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(pL,ty(7));ctx.lineTo(pL+cW,ty(7));ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='rgba(56,161,105,.6)';ctx.font='8px JetBrains Mono';ctx.textAlign='left';ctx.fillText('<7%',pL+2,ty(7)-3);
-    ctx.fillStyle='#9AA3B5';ctx.font='9px JetBrains Mono';ctx.textAlign='right';
-    for(let v=4;v<maxA;v+=2){ctx.fillText(v+'%',pL-3,ty(v)+3);}
-    if(buckets.length>=2){
-      const gr=ctx.createLinearGradient(0,pT,0,H);
-      gr.addColorStop(0,'rgba(217,119,6,.15)');gr.addColorStop(1,'rgba(217,119,6,0)');
-      ctx.beginPath();ctx.moveTo(tx(0),cH+pT);
-      buckets.forEach((b,i)=>ctx.lineTo(tx(i),ty(b.a1c)));
-      ctx.lineTo(tx(buckets.length-1),cH+pT);ctx.closePath();ctx.fillStyle=gr;ctx.fill();
-      ctx.beginPath();buckets.forEach((b,i)=>i===0?ctx.moveTo(tx(i),ty(b.a1c)):ctx.lineTo(tx(i),ty(b.a1c)));
-      ctx.strokeStyle='#D97706';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+    // ── TARGET ZONE: green fill BELOW the 7% line (good zone) ──
+    const target7=ty(7);
+    ctx.fillStyle='rgba(56,161,105,0.09)';
+    ctx.fillRect(pL,target7,cW,pT+cH-target7);
+    // ── TARGET LINE ──
+    ctx.setLineDash([3,4]);ctx.strokeStyle='rgba(56,161,105,0.45)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pL,target7);ctx.lineTo(pL+cW,target7);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(56,161,105,.7)';ctx.font='8px JetBrains Mono';ctx.textAlign='left';
+    ctx.fillText('<7%',pL+2,target7+9);
+    // ── Y AXIS ──
+    ctx.fillStyle=axisCol;ctx.font='9px JetBrains Mono';ctx.textAlign='right';
+    for(let v=4;v<=Math.ceil(maxA);v+=2){if(ty(v)>=pT&&ty(v)<=pT+cH)ctx.fillText(v+'%',pL-3,ty(v)+3);}
+    // ── GRID LINES (faint) ──
+    ctx.setLineDash([2,4]);ctx.lineWidth=0.7;
+    for(let v=4;v<=Math.ceil(maxA);v+=2){
+      const y=ty(v);if(y<pT||y>pT+cH)continue;
+      ctx.strokeStyle=dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)';
+      ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();
     }
+    ctx.setLineDash([]);
+    // ── LINE + GRADIENT FILL ──
+    if(buckets.length>=2){
+      const lineCol=buckets[buckets.length-1].a1c<7?'#38A169':buckets[buckets.length-1].a1c<8?'#D97706':'#E53E3E';
+      const gr=ctx.createLinearGradient(0,pT,0,H);
+      gr.addColorStop(0,lineCol+'28');gr.addColorStop(1,lineCol+'00');
+      ctx.beginPath();ctx.moveTo(tx(0),pT+cH);
+      buckets.forEach((b,i)=>ctx.lineTo(tx(i),ty(b.a1c)));
+      ctx.lineTo(tx(buckets.length-1),pT+cH);ctx.closePath();ctx.fillStyle=gr;ctx.fill();
+      // Smooth line
+      ctx.beginPath();
+      const pts=buckets.map((b,i)=>({x:tx(i),y:ty(b.a1c)}));
+      ctx.moveTo(pts[0].x,pts[0].y);
+      for(let i=0;i<pts.length-1;i++){
+        const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+        const t=0.3;
+        ctx.bezierCurveTo(p1.x+(p2.x-p0.x)*t/3,p1.y+(p2.y-p0.y)*t/3,p2.x-(p3.x-p1.x)*t/3,p2.y-(p3.y-p1.y)*t/3,p2.x,p2.y);
+      }
+      ctx.strokeStyle=lineCol;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+    }
+    // ── DOTS + LABELS ──
     buckets.forEach((b,i)=>{
       const x=tx(i),y=ty(b.a1c);
-      ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);
-      ctx.fillStyle=b.a1c<7?'#38A169':b.a1c<8?'#D97706':'#E53E3E';ctx.fill();
-      ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
-      ctx.fillStyle='#374151';ctx.font='bold 9px JetBrains Mono';ctx.textAlign='center';
-      const labelX=i===buckets.length-1?Math.min(x,W-pR-20):Math.max(x,pL+18);
-  ctx.fillText(b.a1c+'%',labelX,y-10);
-      ctx.fillStyle='#6B7280';ctx.font='9px JetBrains Mono';
+      const dotCol=b.a1c<7?'#38A169':b.a1c<8?'#D97706':'#E53E3E';
+      // Outer glow
+      ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fillStyle=dotCol+'22';ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);ctx.fillStyle=dotCol;ctx.fill();
+      ctx.strokeStyle=dark?'#1a2236':'#fff';ctx.lineWidth=2;ctx.stroke();
+      // Value label — above dot, clamped to chart edges
+      ctx.fillStyle=labelCol;ctx.font='bold 9px JetBrains Mono';ctx.textAlign='center';
+      const lw=ctx.measureText(b.a1c+'%').width;
+      const lx=Math.min(Math.max(x,pL+lw/2),W-pR-lw/2);
+      const labelAbove=y>pT+18;
+      ctx.fillText(b.a1c+'%',lx,labelAbove?y-11:y+19);
+      // X axis label
+      ctx.fillStyle=axisCol;ctx.font='9px JetBrains Mono';ctx.textAlign='center';
       ctx.fillText(b.label,x,H-5);
     });
   }
@@ -3847,60 +4140,84 @@
   }
 
   function saveReading(){
-    const raw=document.getElementById('glIn').value;
-    const v=parseFloat(raw);
-    const vr=validateGlucoseInput(v);
-    if(!vr.ok){
-      toastError(vr.msg);
-      document.getElementById('rfb').textContent='⚠️ '+vr.msg;
-      document.getElementById('rfb').style.color='var(--low)';
-      return;
-    }
-    const carbs=parseInt(document.getElementById('carbIn').value)||null;
-    const ins=parseFloat(document.getElementById('mIns').value)||null;
-    if(ins!==null&&(isNaN(ins)||ins<0||ins>100)){toastError('Insulin dose must be between 0 and 100 units.');return;}
-    if(carbs!==null&&(carbs<0||carbs>500)){toastError('Carbs must be between 0 and 500g.');return;}
-    const basalVal=parseFloat(document.getElementById('mBasal').value)||null;
-    if(basalVal!==null&&(isNaN(basalVal)||basalVal<0||basalVal>200)){toastError('Basal dose must be between 0 and 200 units.');return;}
-    // Use edited date/time if the time row is visible (editing mode), otherwise now
-    let entryTs=Date.now();
-    if(editingIdx>=0){
-      const etr=document.getElementById('editTimeRow');
-      const dateVal=document.getElementById('editDate').value;
-      const timeVal=document.getElementById('editTime').value;
-      if(etr&&etr.style.display!=='none'&&dateVal&&timeVal){
-        const parsed=new Date(`${dateVal}T${timeVal}`);
-        if(!isNaN(parsed.getTime()))entryTs=parsed.getTime();
-        else entryTs=readings[editingIdx].ts;
-      } else {
-        entryTs=readings[editingIdx].ts;
-      }
-    }
-    const entry={ts:entryTs,value:Math.round(v*10)/10,context:selCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
-    if(editingIdx>=0){
-      readings[editingIdx]=entry;
-      editingIdx=-1;
-      document.querySelector('#logSheet .mtitle').textContent='Log Reading';
-      document.querySelector('#logSheet .svbtn').textContent='Save Reading';
-      toastSuccess('Reading updated!');
+  const raw=document.getElementById('glIn').value;
+  const v=parseFloat(raw);
+  const vr=validateGlucoseInput(v);
+  if(!vr.ok){
+    toastError(vr.msg);
+    document.getElementById('rfb').textContent='⚠️ '+vr.msg;
+    document.getElementById('rfb').style.color='var(--low)';
+    return;
+  }
+  const carbs=parseInt(document.getElementById('carbIn').value)||null;
+  const ins=parseFloat(document.getElementById('mIns').value)||null;
+  if(ins!==null&&(isNaN(ins)||ins<0||ins>100)){toastError('Insulin dose must be between 0 and 100 units.');return;}
+  if(carbs!==null&&(carbs<0||carbs>500)){toastError('Carbs must be between 0 and 500g.');return;}
+  const basalVal=parseFloat(document.getElementById('mBasal').value)||null;
+  if(basalVal!==null&&(isNaN(basalVal)||basalVal<0||basalVal>200)){toastError('Basal dose must be between 0 and 200 units.');return;}
+  let entryTs=Date.now();
+  if(editingIdx>=0){
+    const etr=document.getElementById('editTimeRow');
+    const dateVal=document.getElementById('editDate').value;
+    const timeVal=document.getElementById('editTime').value;
+    if(etr&&etr.style.display!=='none'&&dateVal&&timeVal){
+      const parsed=new Date(`${dateVal}T${timeVal}`);
+      if(!isNaN(parsed.getTime()))entryTs=parsed.getTime();
+      else entryTs=readings[editingIdx].ts;
     } else {
-      readings.push(entry);
-      toastSuccess('Reading saved!');
-    }
-    saveReadings();
-    closeLogModal();
-    refreshAll();
-    // Trigger alarm check on every new reading (not edits)
-    if(editingIdx<0) setTimeout(()=>checkAlarms(Math.round(v*10)/10), 400);
-    // Start 20-min pre-meal timer if bolus insulin logged before a meal
-    if(editingIdx<0 && ins && ins>0 && (selCtx==='Before Meal'||selCtx==='Random Check')){
-      startPreMealTimer(ins);
-    }
-    // Start 2-hour post-meal BG check timer when logging after a meal
-    if(editingIdx<0 && selCtx==='After Meal'){
-      startPostMealTimer();
+      entryTs=readings[editingIdx].ts;
     }
   }
+  const savedCtx=selCtx;
+console.log('DEBUG savedCtx:', savedCtx, '| selCtx:', selCtx);
+  const bgVal=Math.round(v*10)/10;
+  const entry={ts:entryTs,value:bgVal,context:savedCtx,insulin:ins,basal:basalVal,carbs:carbs,notes:document.getElementById('mNotes').value.trim()};
+  if(editingIdx>=0){
+    readings[editingIdx]=entry;
+    editingIdx=-1;
+    document.querySelector('#logSheet .mtitle').textContent='Log Reading';
+    document.querySelector('#logSheet .svbtn').textContent='Save Reading';
+    toastSuccess('Reading updated!');
+  } else {
+    readings.push(entry);
+    toastSuccess('Reading saved!');
+  }
+  saveReadings();
+  closeLogModal();
+  refreshAll();
+  // Alarm check
+  if(editingIdx<0) setTimeout(()=>checkAlarms(bgVal), 400);
+  // Pre-meal timer — only when explicitly logging pre-meal insulin
+  if(editingIdx<0 && ins && ins>0 && savedCtx==='Before Meal'){
+    startPreMealTimer(ins);
+  }
+  // Post-meal timer
+  if(editingIdx<0 && savedCtx==='After Meal'){
+    startPostMealTimer();
+  }
+  // Exercise guide notification — fires immediately, no setTimeout needed
+  if(editingIdx<0 && (savedCtx==='Before Exercise'||savedCtx==='After Exercise')){
+    const trend=getTrendArrow()||'→';
+    if(savedCtx==='Before Exercise'){
+      const rec=getExRecommendation(bgVal, trend, load('gt_exProfile',0));
+      const icon=rec.cls==='go'?'✅':rec.cls==='warn'?'⚠️':'🛑';
+      toast(rec.msg, rec.cls==='go'?'success':rec.cls==='warn'?'warn':'error', icon);
+      notify('🏋️ Pre-Exercise Guide', rec.msg, icon, 'test');
+    } else {
+      const p=load('gt_exProfile',0);
+      const thresholds=[5.6,5.0,4.4];
+      const thr=thresholds[p];
+      let msg='';
+      if(bgVal<thr) msg=`Post-exercise BG is low (${fmt(bgVal)} mmol/L). Take 15–20g fast carbs now. Hypos can occur 6–15h after exercise.`;
+      else if(bgVal<=cfg.high) msg=`Post-exercise BG looks good (${fmt(bgVal)} mmol/L). Stay hydrated. Check again in 2 hours.`;
+      else msg=`Post-exercise BG is high (${fmt(bgVal)} mmol/L). Consider a correction — consult your plan.`;
+      toast(msg, 'success', '💪');
+      notify('💪 Post-Exercise Guide', msg, '💪', 'test');
+      const hr=new Date().getHours();
+      if(hr>=14) setTimeout(()=>toast('🌙 Evening session — set a nocturnal hypo reminder in Exercise Guide','warn','🌙'),3000);
+    }
+  }
+}
 
   // ══════════════ MEAL LOG MODAL ══════════════
   const SA_FASTFOOD_DB=[
@@ -3999,6 +4316,20 @@ function searchFood(query){
       </div>`).join('');
   } else {
     status.textContent='Searching global database…';
+    results.innerHTML='';
+  }
+  if(saResults.length){
+    status.textContent=`${saResults.length} SA result${saResults.length>1?'s':''} · searching global…`;
+    results.innerHTML=saResults.map(i=>`
+      <div onclick="selectFoodItem('${i.name.replace(/'/g,"\\'")} (${i.chain})',${i.carbs},'${i.serving}')" style="padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:13px;font-weight:700;color:var(--text);">${i.name}</div><div style="font-size:10px;color:var(--acc);font-weight:600;">${i.chain}</div></div>
+          <div style="text-align:right;"><div style="font-size:14px;font-weight:800;color:var(--text);">${i.carbs}g</div><div style="font-size:10px;color:var(--t3);">carbs</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px;">🔥 ${i.calories} kcal · 🍞 ${i.carbs}g carbs · 💪 ${i.protein}g protein · ${i.serving}</div>
+      </div>`).join('');
+  } else {
+    status.textContent='Searching global database…';
   }
   foodSearchTimeout=setTimeout(async()=>{
     try{
@@ -4027,7 +4358,7 @@ function searchFood(query){
     }catch(e){
       if(!saResults.length)status.textContent='Global search unavailable.';
     }
-  },500);
+  },300);
 }
 
 function selectFoodItem(name,carbs,serving){
@@ -4069,6 +4400,10 @@ function selectFoodItem(name,carbs,serving){
   function closeMealModal(){
     document.getElementById('mealMbd').classList.remove('open');
     const metr=document.getElementById('mealEditTimeRow');if(metr)metr.style.display='none';
+    // Clear food search
+    const fsi=document.getElementById('foodSearchInput');if(fsi)fsi.value='';
+    const fss=document.getElementById('foodSearchStatus');if(fss)fss.textContent='';
+    const fsr=document.getElementById('foodSearchResults');if(fsr)fsr.innerHTML='';
     if(editingIdx>=0){
       editingIdx=-1;
       document.querySelector('#mealSheet .mtitle').textContent='Log Meal';
@@ -4200,15 +4535,14 @@ function switchMealTab(t){
     const q = query.toLowerCase().trim();
     if (!q) { dropdown.classList.remove('open'); return; }
 
-    // Score each food by how well it matches
-    const results = FOOD_DB
+    // Search built-in FOOD_DB
+    const foodResults = FOOD_DB
       .map(f => {
         const name = f.n.toLowerCase();
         let score = 0;
         if (name.startsWith(q)) score = 100;
         else if (name.includes(q)) score = 50;
         else {
-          // word-by-word match
           const words = q.split(' ');
           words.forEach(w => { if (w.length > 2 && name.includes(w)) score += 20; });
         }
@@ -4216,19 +4550,27 @@ function switchMealTab(t){
       })
       .filter(f => f.score > 0)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
+      .slice(0, 4);
 
-    if (!results.length) {
+    // Search SA fast food DB
+    const saResults = (typeof SA_FASTFOOD_DB !== 'undefined' ? SA_FASTFOOD_DB : [])
+      .filter(i => i.name.toLowerCase().includes(q) || i.chain.toLowerCase().includes(q))
+      .slice(0, 4)
+      .map(i => ({ n: `${i.name} (${i.chain})`, c: i.carbs, g: 0, cat: '🍔', _sa: true }));
+
+    const combined = [...saResults, ...foodResults].slice(0, 6);
+
+    if (!combined.length) {
       dropdown.innerHTML = '<div class="food-sugg-loading">No matches — try a different name or enter carbs manually</div>';
       dropdown.classList.add('open');
       return;
     }
 
-    dropdown.innerHTML = results.map(f =>
+    dropdown.innerHTML = combined.map(f =>
       `<div class="food-sugg-item" onmousedown="selectFood(event,'${escQ(f.n)}',${f.c},this)">
         <div>
-          <div class="food-sugg-name">${f.cat} ${escH(f.n)}</div>
-          <div class="food-sugg-per">${f.g}g serving</div>
+          <div class="food-sugg-name">${f.cat||'🍽️'} ${escH(f.n)}</div>
+          ${f.g>0?`<div class="food-sugg-per">${f.g}g serving</div>`:''}
         </div>
         <div class="food-sugg-carbs">${f.c}g <span style="font-size:10px;color:var(--t3)">carbs</span></div>
       </div>`
@@ -4472,9 +4814,7 @@ function switchMealTab(t){
     } else {
       readings.push(mealEntry);
       toastSuccess(`Meal logged: ${Math.round(carbs)}g carbs · ${ins>0?ins+'u insulin':''}`);
-      // Start pre-meal timer if insulin logged with meal
-      if(ins>0) startPreMealTimer(ins);
-      // Start post-meal BG check timer (2 hours)
+      // Post-meal BG check timer (2 hours) — meal is already being eaten
       startPostMealTimer();
     }
     saveReadings();
@@ -5143,15 +5483,19 @@ function switchMealTab(t){
       fireBasalPreReminder();
       basalPreTimer=setInterval(fireBasalPreReminder,24*3600000);
     };
+    const msInject=nextInject-now;
     if(msPre>0){
+      // Pre-reminder is in the future
       basalPreTimer=setTimeout(schedulePre,msPre);
+    } else if(msInject>0){
+      // We're past the 15-min window but injection hasn't happened yet — fire immediately
+      schedulePre();
     } else {
-      // Pre-time already passed today, schedule for tomorrow
+      // Both pre-time and injection time have passed today — schedule for tomorrow
       basalPreTimer=setTimeout(schedulePre,msPre+24*3600000);
     }
 
     // Schedule on-time reminder
-    const msInject=nextInject-now;
     const scheduleOnTime=()=>{
       fireBasalOnTimeReminder();
       basalOnTimeTimer=setInterval(fireBasalOnTimeReminder,24*3600000);
@@ -5828,26 +6172,24 @@ function switchMealTab(t){
 
   // ── Exercise Timer ──
   function toggleExTimer(){
-    if(!exRunning){
-      exRunning=true;
-      exTimerStart=Date.now();
-      document.getElementById('exTimerBtn').textContent='Stop';
-      document.getElementById('exTimerBtn').className='ex-timer-btn ex-stop-btn';
-      document.getElementById('exTimerSub').textContent='Exercise in progress…';
-      exTimerInterval=setInterval(tickExTimer,1000);
-      // Remind about during-exercise BG checks
-      scheduleNotification(20*60000,'⏱️ Exercise check','Check your blood glucose — 20 minutes into exercise.','ex-check-20');
-      scheduleNotification(45*60000,'⏱️ Exercise check','Check your blood glucose — 45 minutes into exercise.','ex-check-45');
-      toastSuccess('Exercise timer started. BG check reminders set at 20 and 45 minutes.');
-    } else {
-      stopExTimer();
-      // Offer nocturnal reminder if it's afternoon/evening
-      const hr=new Date().getHours();
-      if(hr>=14){
-        toast('Evening session detected. Consider setting a nocturnal hypo reminder below.','warn','🌙');
-      }
-    }
+  if(!exRunning){
+    exRunning=true;
+    exTimerStart=Date.now();
+    store('gt_ex_timer',{running:true,start:exTimerStart});
+    document.getElementById('exTimerBtn').textContent='Stop';
+    document.getElementById('exTimerBtn').className='ex-timer-btn ex-stop-btn';
+    document.getElementById('exTimerSub').textContent='Exercise in progress…';
+    if(exTimerInterval){clearInterval(exTimerInterval);exTimerInterval=null;}
+    exTimerInterval=setInterval(tickExTimer,1000);
+    scheduleNotification(20*60000,'⏱️ Exercise check','Check your blood glucose — 20 minutes into exercise.','ex-check-20');
+    scheduleNotification(45*60000,'⏱️ Exercise check','Check your blood glucose — 45 minutes into exercise.','ex-check-45');
+    toastSuccess('Exercise timer started. BG check reminders set at 20 and 45 minutes.');
+  } else {
+    stopExTimer();
+    const hr=new Date().getHours();
+    if(hr>=14) toast('Evening session detected. Consider setting a nocturnal hypo reminder below.','warn','🌙');
   }
+}
 
   function tickExTimer(){
     if(!exTimerStart) return;
@@ -5859,17 +6201,39 @@ function switchMealTab(t){
   }
 
   function stopExTimer(){
-    exRunning=false;
-    clearInterval(exTimerInterval);
-    exTimerInterval=null;
-    const elapsed=exTimerStart?Math.floor((Date.now()-exTimerStart)/1000):0;
-    const m=Math.floor(elapsed/60);
-    document.getElementById('exTimerBtn').textContent='Start';
-    document.getElementById('exTimerBtn').className='ex-timer-btn ex-start-btn';
-    document.getElementById('exTimerSub').textContent=`Last session: ${m} min. Start timer when you begin exercising.`;
-    exTimerStart=null;
+  exRunning=false;
+  store('gt_ex_timer',null);
+  clearInterval(exTimerInterval);
+  exTimerInterval=null;
+  const elapsed=exTimerStart?Math.floor((Date.now()-exTimerStart)/1000):0;
+  const m=Math.floor(elapsed/60);
+  document.getElementById('exTimerBtn').textContent='Start';
+  document.getElementById('exTimerBtn').className='ex-timer-btn ex-start-btn';
+  document.getElementById('exTimerSub').textContent=`Last session: ${m} min. Start timer when you begin exercising.`;
+  exTimerStart=null;
+}
+function restoreExTimer(){
+  const saved=load('gt_ex_timer',null);
+  if(!saved||!saved.running||!saved.start) return;
+  const elapsed=Date.now()-saved.start;
+  if(elapsed>2*3600000){
+    // Session expired — clean up fully
+    store('gt_ex_timer',null);
+    if(exTimerInterval){clearInterval(exTimerInterval);exTimerInterval=null;}
+    exRunning=false;exTimerStart=null;
+    return;
   }
-
+  // If interval is already running (user navigated away and back), don't stack another
+  if(exTimerInterval) return;
+  exRunning=true;
+  exTimerStart=saved.start;
+  const btn=document.getElementById('exTimerBtn');
+  const sub=document.getElementById('exTimerSub');
+  if(btn){btn.textContent='Stop';btn.className='ex-timer-btn ex-stop-btn';}
+  if(sub) sub.textContent='Exercise in progress…';
+  exTimerInterval=setInterval(tickExTimer,1000);
+  toastWarn(`⏱️ Exercise timer restored — ${Math.floor(elapsed/60000)}m elapsed`);
+}
   // ── Nocturnal hypo reminder ──
   function setNocturnalReminder(hours){
     closeDrawer();
